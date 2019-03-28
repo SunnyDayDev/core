@@ -4,20 +4,6 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.github.dcendents.android-maven'
 group='dev.sunnyday.core'
 
-buildscript {
-
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
-
-    }
-
-}
-
 android {
     compileSdkVersion 28
 

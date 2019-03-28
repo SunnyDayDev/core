@@ -15,14 +15,6 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 
-
-    
-
-
-
-    
-
-
 }
 
 allprojects {
@@ -43,6 +35,20 @@ allprojects {
 }
 
 subprojects {
+
+    buildscript {
+
+        repositories {
+            mavenCentral()
+        }
+
+        dependencies {
+
+            classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+
+        }
+
+    }
 
 }
 
