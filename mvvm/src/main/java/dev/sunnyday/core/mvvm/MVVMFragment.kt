@@ -5,20 +5,20 @@ import androidx.lifecycle.ViewModelProviders
 import android.content.Context
 import androidx.databinding.ViewDataBinding
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import dev.sunnyday.core.util.LateInitValue
 import dev.sunnyday.core.util.lateinit
 import dev.sunnyday.core.mvvm.viewModel.MVVMViewModel
+import dev.sunnyday.core.ui.fragment.CoreFragment
 
 /**
  * Created by sunny on 03.05.2018.
  * mail: mail@sunnyday.dev
  */
 
-abstract class MVVMFragment<Binding: ViewDataBinding>: Fragment(), OnBackPressedListener {
+abstract class MVVMFragment<Binding: ViewDataBinding>: CoreFragment() {
 
     // region Abstract
 
@@ -59,8 +59,6 @@ abstract class MVVMFragment<Binding: ViewDataBinding>: Fragment(), OnBackPressed
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
-        (activity as? BaseMVVMActivity)?.addOnBackPressedListener(this)
-
         return onCreateBinding(inflater, container, savedInstanceState)
                 .apply {
                     onBindViewModel()
@@ -74,15 +72,11 @@ abstract class MVVMFragment<Binding: ViewDataBinding>: Fragment(), OnBackPressed
     override fun onDestroyView() {
         super.onDestroyView()
 
-        (activity as? BaseMVVMActivity)?.removeOnBackPressedListener(this)
         binding?.unbind()
         binding = null
         onUnbindViewModel()
 
     }
-
-    override fun onBackPressed(): Boolean =
-            (viewModel as? OnBackPressedListener)?.onBackPressed() ?: false
 
     private fun onViewModelCreated(viewModel: MVVMViewModel) {
         // no-op
