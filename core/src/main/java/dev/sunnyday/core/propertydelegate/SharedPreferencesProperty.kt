@@ -1,4 +1,4 @@
-package dev.sunnyday.core.mvvm.property
+package dev.sunnyday.core.propertydelegate
 
 import android.content.SharedPreferences
 import kotlin.properties.ReadWriteProperty

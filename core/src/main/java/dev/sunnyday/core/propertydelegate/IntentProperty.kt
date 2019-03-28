@@ -1,4 +1,4 @@
-package dev.sunnyday.core.mvvm.property
+package dev.sunnyday.core.propertydelegate
 
 import android.content.Intent
 import android.os.Parcelable

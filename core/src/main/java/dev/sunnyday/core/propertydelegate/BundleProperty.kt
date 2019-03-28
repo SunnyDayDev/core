@@ -1,9 +1,7 @@
-package dev.sunnyday.core.mvvm.property
+package dev.sunnyday.core.propertydelegate
 
-import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
-import androidx.fragment.app.Fragment
 import dev.sunnyday.core.util.isNullable
 import org.parceler.Parcels
 import kotlin.properties.ReadWriteProperty
@@ -141,16 +139,4 @@ class BundleProperty<T: TNN?, TNN: Any>(
 inline fun <reified T> commonPropertyDefaultValue(): T {
     return if (isNullable<T>())  null as T
     else error("Doesn't have default value.")
-}
-
-fun <T: Fragment> T.withArguments(build: Bundle.() -> Unit): T {
-    val bundle = arguments ?: Bundle()
-    arguments = bundle.apply(build)
-    return this
-}
-
-fun Intent.withExtras(build: Bundle.() -> Unit): Intent {
-    val bundle = extras ?: Bundle()
-    putExtras(bundle.apply(build))
-    return this
 }

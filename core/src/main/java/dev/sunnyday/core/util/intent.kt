@@ -1,8 +1,9 @@
-package dev.sunnyday.core.mvvm.util
+package dev.sunnyday.core.util
 
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 
 /**
  * Created by sunny on 28.04.2018.
@@ -29,3 +30,9 @@ inline fun <reified T: Context> createIntent(
 
 fun componentName(pkg: String, klass: Class<*>): ComponentName =
         ComponentName(pkg, klass.name)
+
+inline fun Intent.withExtras(build: Bundle.() -> Unit): Intent {
+    val bundle = extras ?: Bundle()
+    putExtras(bundle.apply(build))
+    return this
+}

@@ -11,12 +11,11 @@ import android.os.Build
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
-import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.Transformation
 import com.bumptech.glide.request.RequestOptions
 import dev.sunnyday.core.mvvm.R
 import dev.sunnyday.core.mvvm.binding.internal.BindableCore
-import dev.sunnyday.core.mvvm.util.findActivity
+import dev.sunnyday.core.ui.util.findActivity
 import timber.log.Timber
 import java.lang.IllegalArgumentException
 import java.net.URL

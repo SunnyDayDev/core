@@ -1,5 +1,6 @@
-package dev.sunnyday.core.util
+package dev.sunnyday.core.propertydelegate
 
+import dev.sunnyday.core.util.Weak
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
