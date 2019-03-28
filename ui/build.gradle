@@ -5,10 +5,11 @@ apply plugin: 'com.github.dcendents.android-maven'
 group='dev.sunnyday.core'
 
 android {
+
     compileSdkVersion 28
 
-
     defaultConfig {
+
         minSdkVersion 14
         targetSdkVersion 28
         versionCode 1
@@ -19,10 +20,12 @@ android {
     }
 
     buildTypes {
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+
     }
 
 }
