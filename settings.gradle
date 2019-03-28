@@ -1,3 +1,3 @@
-include ':app', ':ui', ':core', ':mvvm'
+include ':app', ':ui', ':core', ':mvvm', ':rx', ':rx-ui'
 
 rootProject.name='Core-UI'

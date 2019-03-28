@@ -6,6 +6,8 @@
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" />
       <module fileurl="file://$PROJECT_DIR$/mvvm/mvvm.iml" filepath="$PROJECT_DIR$/mvvm/mvvm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rx/rx.iml" filepath="$PROJECT_DIR$/rx/rx.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rx-ui/rx-ui.iml" filepath="$PROJECT_DIR$/rx-ui/rx-ui.iml" />
       <module fileurl="file://$PROJECT_DIR$/ui/ui.iml" filepath="$PROJECT_DIR$/ui/ui.iml" />
     </modules>
   </component>
