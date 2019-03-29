@@ -32,7 +32,7 @@ interface OnActivityResultListener {
 
 class DefaultOnActivityResultRegistry(override val onActivityResultHandlingPriority: Int = 0): OnActivityResultListener.Registry {
 
-    private var listeners: MutableSet<OnActivityResultListener> = sortedSetOf<OnActivityResultListener, Int> {
+    private var listeners = sortedSetOf<OnActivityResultListener, Int>(ascending = false) {
         it.onActivityResultHandlingPriority
     }
 

@@ -31,7 +31,7 @@ interface OnBackPressedListener {
 
 class DefaultOnBackPressedRegistry(override val onBackPressedHandlingPriority: Int = 0): OnBackPressedListener.Registry {
 
-    private var listeners: MutableSet<OnBackPressedListener> = sortedSetOf<OnBackPressedListener, Int> {
+    private var listeners = sortedSetOf<OnBackPressedListener, Int>(ascending = false) {
         it.onBackPressedHandlingPriority
     }
 
