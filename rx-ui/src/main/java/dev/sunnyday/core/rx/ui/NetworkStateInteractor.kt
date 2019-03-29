@@ -15,10 +15,8 @@ import androidx.core.content.getSystemService
 import dev.sunnyday.core.rx.invoke
 import dev.sunnyday.core.rx.mapToSignal
 import io.reactivex.*
-import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.CompletableSubject
 import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
 import timber.log.Timber
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -56,7 +54,7 @@ class NetworkStateInteractor(
 
     fun ifNetworkErrorWaitConnection(
         error: Throwable,
-        waitHandler: ((waitingState: Observable<Boolean>) -> Unit)? = null
+        waitHandler: Observer<Boolean>? = null
     ): Single<Unit> {
 
         return if (error.isNetworkError) {
@@ -131,29 +129,25 @@ class NetworkStateInteractor(
 
     }
 
-    private fun waitConnectionOnError(waitHandler: ((Observable<Boolean>) -> Unit)?): Single<Unit> {
+    private fun waitConnectionOnError(waitHandler: Observer<Boolean>?): Single<Unit> {
 
         val waitConnectionSource = waitConnection()
             .toSingleDefault(Unit)
             .doOnSubscribe { Timber.d("Network error on unavailable network. Wait for connection") }
             .doFinally { Timber.d("Network became available.") }
 
-        if (waitHandler == null) {
+        return if (waitHandler == null) {
 
-            return waitConnectionSource
+            waitConnectionSource
 
         } else {
 
-            val stateSubject: Subject<Boolean> = BehaviorSubject.create()
-
-            waitHandler(stateSubject)
-
-            return waitConnection()
+            waitConnection()
                 .toSingleDefault(Unit)
-                .doOnSubscribe { stateSubject(true) }
+                .doOnSubscribe { waitHandler(true) }
                 .doFinally {
-                    stateSubject(false)
-                    stateSubject.onComplete()
+                    waitHandler(false)
+                    waitHandler.onComplete()
                 }
 
         }
