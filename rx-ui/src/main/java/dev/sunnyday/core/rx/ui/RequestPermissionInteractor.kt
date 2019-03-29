@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import dev.sunnyday.core.rx.invoke
 import dev.sunnyday.core.ui.listener.OnRequestPermissionResultListener
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -22,7 +21,7 @@ interface PermissionRequest {
     val requestCode: Int
     val permissions: Array<String>
 
-    object Factory {
+    companion object {
 
         fun craete(requestCode: Int, permissions: Array<String>): PermissionRequest = Pure(requestCode, permissions)
 
@@ -59,7 +58,7 @@ interface PermissionRequest {
 
 }
 
-interface PermissionsInteractor {
+interface RequestPermissionInteractor {
 
     fun requestPermissionIfNot(request: PermissionRequest): Completable
 
@@ -67,52 +66,27 @@ interface PermissionsInteractor {
 
     fun waitPermissionCheck(request: PermissionRequest): Single<Boolean>
 
-    class ResultListener: OnRequestPermissionResultListener {
+}
 
-        private val resultSubject: Subject<PermissionResultEvent> = PublishSubject.create()
 
-        internal val result = resultSubject.hide()
+sealed class RequestPermissionInteractorError: Error {
 
-        override fun onRequestPermissionsResult(requestCode: Int,
-                                       permissions: Array<out String>,
-                                       grantResults: IntArray): Boolean {
+    constructor(): super()
+    constructor(message: String): super(message)
 
-            val result = PermissionResultEvent(requestCode, permissions, grantResults)
+    class NotGranted(vararg val permissions: String):
+        RequestPermissionInteractorError("Permissions not granted: ${permissions.joinToString()}")
 
-            resultSubject(result)
-
-            return false
-
-        }
-
-    }
-
-    object Factory {
-
-        fun create(context: Context,
-                   activityTracker: ActivityTracker,
-                   resultListener: ResultListener
-        ): PermissionsInteractor =
-                PermissionsInteractorImpl(context, activityTracker, resultListener)
-
-    }
+    class ActivityNotStarted: RequestPermissionInteractorError()
 
 }
 
-internal class PermissionResultEvent(val requestCode: Int,
-                                     val permissions: Array<out String>,
-                                     val grantResults: IntArray)
-
-class PermissionsNotGrantedError(vararg val permissions: String):
-        Error("Permissions not granted: ${permissions.joinToString()}")
-
-class PermissionsActivityNotStartedError: Error()
-
-internal class PermissionsInteractorImpl(
+class DefaultRequestPermissionInteractor(
     private val context: Context,
-    private val activityTracker: ActivityTracker,
-    private val resultListener: PermissionsInteractor.ResultListener
-) : PermissionsInteractor {
+    private val activityTracker: ActivityTracker
+) : RequestPermissionInteractor, OnRequestPermissionResultListener {
+
+    private val resultSubject: Subject<PermissionResultEvent> = PublishSubject.create()
 
     private val permissionCheckEvent: Subject<PermissionResultEvent> = PublishSubject.create()
 
@@ -123,7 +97,7 @@ internal class PermissionsInteractorImpl(
                         .firstElement()
                         .flatMapCompletable { (activity) ->
 
-                            activity ?: throw PermissionsActivityNotStartedError()
+                            activity ?: throw RequestPermissionInteractorError.ActivityNotStarted()
 
                             ActivityCompat.requestPermissions(
                                     activity,
@@ -131,7 +105,7 @@ internal class PermissionsInteractorImpl(
                                     request.requestCode
                             )
 
-                            resultListener.result
+                            resultSubject
                                     .filter { it.requestCode == request.requestCode }
                                     .firstOrError()
                                     .doOnSuccess(::checkPermissionResult)
@@ -158,10 +132,19 @@ internal class PermissionsInteractorImpl(
             } .flatMap(::checkPermission)
 
     override fun waitPermissionCheck(request: PermissionRequest): Single<Boolean> =
-            Observable.merge(permissionCheckEvent, resultListener.result)
+            Observable.merge(permissionCheckEvent, resultSubject)
                     .filter { request.requestCode == it.requestCode }
                     .firstOrError()
                     .flatMap(::checkPermission)
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ): Boolean {
+        resultSubject.onNext(PermissionResultEvent(requestCode, permissions, grantResults))
+        return false
+    }
 
     private fun checkPermissionResult(result: PermissionResultEvent) {
 
@@ -175,7 +158,7 @@ internal class PermissionsInteractorImpl(
                     .filterNot { (_, r) -> r == PackageManager.PERMISSION_GRANTED }
                     .map { (index, _) -> result.permissions[index] }
 
-            throw PermissionsNotGrantedError(*notGrantedPermissions.toTypedArray())
+            throw RequestPermissionInteractorError.NotGranted(*notGrantedPermissions.toTypedArray())
 
         }
 
@@ -185,5 +168,9 @@ internal class PermissionsInteractorImpl(
             Completable.fromAction { checkPermissionResult(result) }
                     .toSingleDefault(true)
                     .onErrorReturnItem(false)
+
+    private class PermissionResultEvent(val requestCode: Int,
+                                        val permissions: Array<out String>,
+                                        val grantResults: IntArray)
 
 }
