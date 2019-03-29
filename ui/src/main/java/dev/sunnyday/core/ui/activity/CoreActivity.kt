@@ -28,12 +28,16 @@ open class CoreActivity: AppCompatActivity(),
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        onActivityResultRegistry.onActivityResult(requestCode, resultCode, data)
+        if (!onActivityResultRegistry.onActivityResult(requestCode, resultCode, data)) {
+            checkedOnActivityResult(requestCode, resultCode, data)
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        onRequestPermissionResultRegistry.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (!onRequestPermissionResultRegistry.onRequestPermissionsResult(requestCode, permissions, grantResults)) {
+            checkedOnRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when(item.itemId) {
@@ -43,8 +47,18 @@ open class CoreActivity: AppCompatActivity(),
 
     override fun onBackPressed() {
         if (!onBackPressedRegistry.onBackPressed()) {
-            super.onBackPressed()
+            checkedOnBackPressed()
         }
     }
+
+    protected open fun checkedOnBackPressed() {
+        super.onBackPressed()
+    }
+
+    protected open fun checkedOnRequestPermissionsResult(requestCode: Int,
+                                                         permissions: Array<out String>,
+                                                         grantResults: IntArray) { }
+
+    protected open fun checkedOnActivityResult(requestCode: Int, resultCode: Int, data: Intent?) { }
 
 }
