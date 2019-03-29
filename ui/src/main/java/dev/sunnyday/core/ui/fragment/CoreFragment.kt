@@ -35,14 +35,12 @@ open class CoreFragment: Fragment(),
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
         if (!onActivityResultRegistry.onActivityResult(requestCode, resultCode, data)) {
             checkedOnActivityResult(requestCode, resultCode, data)
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (!onRequestPermissionResultRegistry.onRequestPermissionsResult(requestCode, permissions, grantResults)) {
             checkedOnRequestPermissionsResult(requestCode, permissions, grantResults)
         }
@@ -72,8 +70,12 @@ open class CoreFragment: Fragment(),
 
     protected open fun checkedOnRequestPermissionsResult(requestCode: Int,
                                                          permissions: Array<out String>,
-                                                         grantResults: IntArray) { }
+                                                         grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
 
-    protected open fun checkedOnActivityResult(requestCode: Int, resultCode: Int, data: Intent?) { }
+    protected open fun checkedOnActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+    }
 
 }
