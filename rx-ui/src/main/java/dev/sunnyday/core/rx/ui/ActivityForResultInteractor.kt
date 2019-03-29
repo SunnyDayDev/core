@@ -66,9 +66,16 @@ class DefaultActivityForResultInteractor constructor(
 
     private val resultEventPublisher: Subject<Result> = PublishSubject.create()
 
+    private val activeRequests = mutableListOf<Int>()
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
+
+        val willHandled = activeRequests.contains(requestCode)
+
         resultEventPublisher.onNext(Result(requestCode, resultCode, data))
-        return false
+
+        return willHandled
+
     }
 
     override fun <T> request(request: ActivityResultRequest<T>): Maybe<T> =
@@ -78,14 +85,16 @@ class DefaultActivityForResultInteractor constructor(
 
                         activity ?: error("No any activity started.")
 
-                        activity.startActivityForResult(
-                                request.intentCreator(activity), request.requestCode)
+                        activity.startActivityForResult(request.intentCreator(activity), request.requestCode)
+
+                        activeRequests.add(request.requestCode)
 
                         resultEventPublisher
                                 .filter { it.requestCode == request.requestCode }
                                 .firstElement()
                                 .filter { it.resultCode != Activity.RESULT_CANCELED }
                                 .map { request.resultMapper(it.data ?: Intent()) }
+                                .doFinally { activeRequests.remove(request.requestCode) }
 
                     }
 

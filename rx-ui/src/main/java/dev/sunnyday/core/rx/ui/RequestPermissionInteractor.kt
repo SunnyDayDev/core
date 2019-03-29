@@ -90,6 +90,8 @@ class DefaultRequestPermissionInteractor(
 
     private val permissionCheckEvent: Subject<PermissionResultEvent> = PublishSubject.create()
 
+    private val activeRequestPermissions = mutableListOf<Int>()
+
     override fun requestPermissionIfNot(request: PermissionRequest): Completable =
             checkPermission(request).flatMapCompletable { granted ->
                 if (granted) Completable.complete()
@@ -105,11 +107,14 @@ class DefaultRequestPermissionInteractor(
                                     request.requestCode
                             )
 
+                            activeRequestPermissions.add(request.requestCode)
+
                             resultSubject
                                     .filter { it.requestCode == request.requestCode }
                                     .firstOrError()
                                     .doOnSuccess(::checkPermissionResult)
                                     .ignoreElement()
+                                    .doFinally { activeRequestPermissions.remove(request.requestCode) }
 
                         }
             }
@@ -142,8 +147,13 @@ class DefaultRequestPermissionInteractor(
         permissions: Array<out String>,
         grantResults: IntArray
     ): Boolean {
+
+        val willHandled =  activeRequestPermissions.contains(requestCode)
+
         resultSubject.onNext(PermissionResultEvent(requestCode, permissions, grantResults))
-        return false
+
+        return willHandled
+
     }
 
     private fun checkPermissionResult(result: PermissionResultEvent) {

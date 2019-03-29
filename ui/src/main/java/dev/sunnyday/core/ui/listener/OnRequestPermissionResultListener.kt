@@ -33,7 +33,7 @@ class DefaultOnRequestPermissionResultRegistry(
     override val onRequestPermissionResultHandlingPriority: Int = 0
 ): OnRequestPermissionResultListener.Registry {
 
-    private var listeners: MutableSet<OnRequestPermissionResultListener> = sortedSetOf<OnRequestPermissionResultListener, Int> {
+    private var listeners = sortedSetOf<OnRequestPermissionResultListener, Int>(ascending = false) {
         it.onRequestPermissionResultHandlingPriority
     }
 

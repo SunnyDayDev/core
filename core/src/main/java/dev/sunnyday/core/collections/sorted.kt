@@ -7,5 +7,9 @@ import java.util.*
  * mail: mail@sunnyday.dev
  */
  
-fun <T, K: Comparable<K>> sortedSetOf(vararg items: T, sortKey: (T) -> K): TreeSet<T> =
-        sortedSetOf(Comparator { f, s -> sortKey(f).compareTo(sortKey(s)) }, *items)
+fun <T, K: Comparable<K>> sortedSetOf(vararg items: T, ascending: Boolean = true, sortKey: (T) -> K): TreeSet<T> =
+        sortedSetOf(
+                if (ascending) Comparator { f, s -> sortKey(f).compareTo(sortKey(s)) }
+                else Comparator { f, s -> sortKey(s).compareTo(sortKey(f)) },
+                *items
+        )
