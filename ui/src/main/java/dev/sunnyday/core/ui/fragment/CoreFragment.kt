@@ -36,12 +36,16 @@ open class CoreFragment: Fragment(),
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        onActivityResultRegistry.onActivityResult(requestCode, resultCode, data)
+        if (!onActivityResultRegistry.onActivityResult(requestCode, resultCode, data)) {
+            checkedOnActivityResult(requestCode, resultCode, data)
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        onRequestPermissionResultRegistry.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (!onRequestPermissionResultRegistry.onRequestPermissionsResult(requestCode, permissions, grantResults)) {
+            checkedOnRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
     }
 
     override fun onStart() {
@@ -62,6 +66,14 @@ open class CoreFragment: Fragment(),
 
     }
 
-    override fun onBackPressed() = false
+    override fun onBackPressed(): Boolean = onBackPressedRegistry.onBackPressed() || checkedOnBackPressed()
+
+    protected open fun checkedOnBackPressed(): Boolean = false
+
+    protected open fun checkedOnRequestPermissionsResult(requestCode: Int,
+                                                         permissions: Array<out String>,
+                                                         grantResults: IntArray) { }
+
+    protected open fun checkedOnActivityResult(requestCode: Int, resultCode: Int, data: Intent?) { }
 
 }
