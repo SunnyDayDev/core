@@ -66,47 +66,88 @@ fun Maybe<Boolean>.mapToSignal(filterValue: Boolean): Maybe<Unit> =
 
 // region: throttleMap
 
-fun <T,R> Observable<T>.throttleMap(map: (T) -> Observable<out R>): Observable<R> {
+fun <T: Any, R: Any> Observable<T>.throttleMap(map: (T) -> ObservableSource<out R>): Observable<R> {
 
     val mapping = AtomicBoolean(false)
 
     return flatMap {
+
         if (mapping.getAndSet(true)) {
-            Observable.empty()
+
+            Observable.empty<R>()
+
         } else {
-            map(it).doFinally { mapping.set(false) }
+
+            Observable.just(it)
+                .flatMap(map)
+                .doFinally { mapping.set(false) }
+
         }
+
     }
 
 }
 
-fun <T,R> Observable<T>.throttleMapSingle(map: (T) -> Single<out R>): Observable<R> =
-        throttleMap { map(it).toObservable() }
+fun <T: Any, R: Any> Observable<T>.throttleMapSingle(map: (T) -> SingleSource<out R>): Observable<R> {
 
-fun <T,R> Observable<T>.throttleMapMaybe(map: (T) -> Maybe<out R>): Observable<R> {
+    val mapping = AtomicBoolean(false)
+
+    return flatMap {
+
+        if (mapping.getAndSet(true)) {
+
+            Observable.empty()
+
+        } else {
+
+            Single.defer { map(it) }
+                .doFinally { mapping.set(false) }
+                .toObservable()
+
+        }
+
+    }
+
+}
+
+fun <T: Any, R: Any> Observable<T>.throttleMapMaybe(map: (T) -> MaybeSource<out R>): Observable<R> {
 
     val mapping = AtomicBoolean(false)
 
     return flatMapMaybe {
+
         if (mapping.getAndSet(true)) {
+
             Maybe.empty()
+
         } else {
-            map(it).doFinally { mapping.set(false) }
+
+            Maybe.defer { map(it) }
+                .doFinally { mapping.set(false) }
+
         }
+
     }
 
 }
 
-fun <T> Observable<T>.throttleMapCompletable(map: (T) -> Completable): Completable {
+fun <T> Observable<T>.throttleMapCompletable(map: (T) -> CompletableSource): Completable {
 
     val mapping = AtomicBoolean(false)
 
     return flatMapCompletable {
+
         if (mapping.getAndSet(true)) {
+
             Completable.complete()
+
         } else {
-            map(it).doFinally { mapping.set(false) }
+
+            Completable.defer { map(it) }
+                .doFinally { mapping.set(false) }
+
         }
+
     }
 
 }

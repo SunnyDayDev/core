@@ -15,13 +15,17 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 
+
+    
+
+
 }
 
 subprojects {
 
     buildscript {
 
-        ext.lib_version = '0.0.11'
+        ext.lib_version = '0.0.12'
 
         repositories {
             google()

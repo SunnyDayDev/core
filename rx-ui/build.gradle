@@ -6,8 +6,8 @@ group ='dev.sunnyday.core'
 version = ext.lib_version
 
 android {
-    compileSdkVersion 28
 
+    compileSdkVersion 28
 
     defaultConfig {
         minSdkVersion 14
