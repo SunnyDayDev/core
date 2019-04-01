@@ -10,25 +10,21 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 // region: Map list
 
-fun <T, R> Flowable<List<T>>.mapList(mapper: (T) -> R): Flowable<List<R>> = map { it.map(mapper) }
+fun <T, R> Flowable<Iterable<T>>.mapList(mapper: (T) -> R): Flowable<List<R>> = map { it.map(mapper) }
 
-fun <T, R> Observable<List<T>>.mapList(mapper: (T) -> R): Observable<List<R>> = map { it.map(mapper) }
+fun <T, R> Observable<Iterable<T>>.mapList(mapper: (T) -> R): Observable<List<R>> = map { it.map(mapper) }
 
-fun <T, R> Single<List<T>>.mapList(mapper: (T) -> R): Single<List<R>> = map { it.map(mapper) }
+fun <T, R> Single<Iterable<T>>.mapList(mapper: (T) -> R): Single<List<R>> = map { it.map(mapper) }
 
-fun <T, R> Maybe<List<T>>.mapList(mapper: (T) -> R): Maybe<List<R>> = map { it.map(mapper) }
+fun <T, R> Maybe<Iterable<T>>.mapList(mapper: (T) -> R): Maybe<List<R>> = map { it.map(mapper) }
 
-@JvmName("mapSet")
-fun <T, R> Flowable<Set<T>>.mapList(mapper: (T) -> R): Flowable<Set<R>> = map { it.map(mapper).toSet() }
+fun <T, C: MutableCollection<in R>, R> Flowable<Iterable<T>>.mapListTo(collection: C, mapper: (T) -> R): Flowable<C> = map { it.mapTo(collection, mapper) }
 
-@JvmName("mapSet")
-fun <T, R> Observable<Set<T>>.mapList(mapper: (T) -> R): Observable<Set<R>> = map { it.map(mapper).toSet() }
+fun <T, C: MutableCollection<in R>, R> Observable<Iterable<T>>.mapListTo(collection: C, mapper: (T) -> R): Observable<C> = map { it.mapTo(collection, mapper) }
 
-@JvmName("mapSet")
-fun <T, R> Single<Set<T>>.mapList(mapper: (T) -> R): Single<Set<R>> = map { it.map(mapper).toSet() }
+fun <T, C: MutableCollection<in R>, R> Single<Iterable<T>>.mapListTo(collection: C, mapper: (T) -> R): Single<C> = map { it.mapTo(collection, mapper) }
 
-@JvmName("mapSet")
-fun <T, R> Maybe<Set<T>>.mapList(mapper: (T) -> R): Maybe<Set<R>> = map { it.map(mapper).toSet() }
+fun <T, C: MutableCollection<in R>, R> Maybe<Iterable<T>>.mapListTo(collection: C, mapper: (T) -> R): Maybe<C> = map { it.mapTo(collection, mapper) }
 
 // endregion
 
@@ -70,7 +66,7 @@ fun Maybe<Boolean>.mapToSignal(filterValue: Boolean): Maybe<Unit> =
 
 // region: throttleMap
 
-fun <T,R> Observable<T>.throttleMap(map: (T) -> Observable<R>): Observable<R> {
+fun <T,R> Observable<T>.throttleMap(map: (T) -> Observable<out R>): Observable<R> {
 
     val mapping = AtomicBoolean(false)
 
@@ -84,10 +80,10 @@ fun <T,R> Observable<T>.throttleMap(map: (T) -> Observable<R>): Observable<R> {
 
 }
 
-fun <T,R> Observable<T>.throttleMapSingle(map: (T) -> Single<R>): Observable<R> =
+fun <T,R> Observable<T>.throttleMapSingle(map: (T) -> Single<out R>): Observable<R> =
         throttleMap { map(it).toObservable() }
 
-fun <T,R> Observable<T>.throttleMapMaybe(map: (T) -> Maybe<R>): Observable<R> {
+fun <T,R> Observable<T>.throttleMapMaybe(map: (T) -> Maybe<out R>): Observable<R> {
 
     val mapping = AtomicBoolean(false)
 
