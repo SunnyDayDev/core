@@ -9,6 +9,25 @@ import kotlin.reflect.KClass
  * mail: mail@sunnydaydev.me
  */
 
+// region Common
+
+@Suppress("UNCHECKED_CAST")
+class SingleComponentFactoryProvider(private val factoryProvider: () -> Any):
+    ActivityComponentFactoryProvider,
+    ActivityComponentFactoryProvider.Owner,
+    FragmentComponentFactoryProvider,
+    FragmentComponentFactoryProvider.Owner {
+
+    constructor(factory: Any): this(factoryProvider = { factory })
+
+    override fun <F : Any> get(activity: Activity, clazz: KClass<F>): F? = factoryProvider() as? F
+    override fun <F : Any> get(fragment: Fragment, clazz: KClass<F>): F? = factoryProvider() as? F
+
+    override val activityComponentFactoryProvider: ActivityComponentFactoryProvider get() = this
+    override val fragmentComponentFactoryProvider: FragmentComponentFactoryProvider get() = this
+
+}
+
 object GlobalComponentFactoryProviders {
 
     var activityComponentFactoryProvider: ActivityComponentFactoryProvider? = null
@@ -16,6 +35,8 @@ object GlobalComponentFactoryProviders {
     var fragmentComponentFactoryProvider: FragmentComponentFactoryProvider? = null
 
 }
+
+// endregion
 
 // region Activity
 
