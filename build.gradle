@@ -15,34 +15,17 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 
-
-    
-
-
-}
-
-allprojects {
-
-    buildscript {
-        repositories {
-            google()
-            jcenter()
-        }
-    }
-
-    repositories {
-        google()
-        jcenter()
-        maven { url 'https://jitpack.io' }
-    }
-
 }
 
 subprojects {
 
     buildscript {
 
+        ext.lib_version = '0.0.11'
+
         repositories {
+            google()
+            jcenter()
             mavenCentral()
         }
 
@@ -52,6 +35,12 @@ subprojects {
 
         }
 
+    }
+
+    repositories {
+        google()
+        jcenter()
+        maven { url 'https://jitpack.io' }
     }
 
 }
