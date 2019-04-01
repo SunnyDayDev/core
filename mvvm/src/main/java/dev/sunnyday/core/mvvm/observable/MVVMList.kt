@@ -4,6 +4,8 @@ import androidx.databinding.ListChangeRegistry
 import androidx.databinding.ObservableList
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
+import dev.sunnyday.core.ui.util.DiffUtilDiffer
+import dev.sunnyday.core.ui.util.ListDiffUtilCallback
 
 /**
  * Created by sunny on 31.05.2018.
@@ -229,7 +231,7 @@ open class MVVMArrayList<T>(): ArrayList<T>(), MVVMList<T> {
 
 class MVVMDiffArrayList<T>(
         private val detectMoves: Boolean = true,
-        private val differ: Differ<T> = Differ.default()
+        private val differ: DiffUtilDiffer<T> = DiffUtilDiffer.default()
 ): ArrayList<T>(), MVVMList<T> {
 
     @Transient
@@ -321,27 +323,9 @@ class MVVMDiffArrayList<T>(
 
     private fun compareDiffAndNotify(prev: List<T>, current: List<T>) {
 
-        val result = DiffUtil.calculateDiff(DiffCallback(prev, current, differ), detectMoves)
+        val result = DiffUtil.calculateDiff(ListDiffUtilCallback(prev, current, differ), detectMoves)
 
         result.dispatchUpdatesTo(diffUpdateCallback)
-
-    }
-
-    private class DiffCallback<T>(
-            private val prev: List<T>,
-            private val current: List<T>,
-            private val differ: Differ<T>
-    ) : DiffUtil.Callback() {
-
-        override fun getOldListSize(): Int = prev.size
-
-        override fun getNewListSize(): Int = current.size
-
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-                differ.areSame(prev[oldItemPosition], current[newItemPosition])
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-                differ.areSameContent(prev[oldItemPosition], current[newItemPosition])
 
     }
 
@@ -364,26 +348,6 @@ class MVVMDiffArrayList<T>(
 
         override fun onRemoved(position: Int, count: Int) {
             listeners.notifyRemoved(list, position, count)
-        }
-
-    }
-
-    interface Differ<T> {
-
-        fun areSame(old: T, new: T): Boolean
-
-        fun areSameContent(old: T, new: T): Boolean
-
-        companion object {
-
-            fun <T> default(): Differ<T> = object : Differ<T> {
-
-                override fun areSame(old: T, new: T) = old == new
-
-                override fun areSameContent(old: T, new: T) = true
-
-            }
-
         }
 
     }
