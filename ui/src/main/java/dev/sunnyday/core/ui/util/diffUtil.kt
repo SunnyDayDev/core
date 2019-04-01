@@ -7,11 +7,42 @@ import androidx.recyclerview.widget.DiffUtil
  * mail: mail@sunnydaydev.me
  */
 
+object ExDiffUtil {
+
+    fun <T> calculateDiff(
+        old: List<T>,
+        new: List<T>,
+        differ: DiffUtilDiffer<T> = DiffUtilDiffer.default(),
+        detectMoves: Boolean = true
+    ): DiffUtil.DiffResult {
+        val callback = ListDiffUtilCallback(old, new, differ)
+        return DiffUtil.calculateDiff(callback, detectMoves)
+    }
+
+    fun <T> calculateDiffByUniqueId(
+        old: List<T>,
+        new: List<T>,
+        detectMoves: Boolean = true,
+        key: (T) -> Any
+    ): DiffUtil.DiffResult {
+        val callback = ListDiffUtilCallback(old, new, DiffUtilDiffer.byUniqueKey(key))
+        return DiffUtil.calculateDiff(callback, detectMoves)
+    }
+    
+}
+
 class ListDiffUtilCallback<T>(
     private val old: List<T>,
     private val new: List<T>,
     differ: DiffUtilDiffer<T> = DiffUtilDiffer.default()
 ): DifferDiffUtilCallback<T>(differ) {
+
+    companion object {
+
+        fun <T> byUniqueKey(old: List<T>, new: List<T>, key: (T) -> Any): ListDiffUtilCallback<T> =
+                ListDiffUtilCallback(old, new, DiffUtilDiffer.byUniqueKey(key))
+
+    }
 
     override fun getOldItem(position: Int): T = old[position]
 
