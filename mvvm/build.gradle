@@ -3,7 +3,8 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
 apply plugin: 'com.github.dcendents.android-maven'
-group='dev.sunnyday.core'
+group ='dev.sunnyday.core'
+version = ext.lib_version
 
 android {
     compileSdkVersion 28
