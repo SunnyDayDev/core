@@ -9,13 +9,13 @@ import io.reactivex.ObservableTransformer
  * mail: mail@sunnydaydev.me
  */
 
-internal fun <F: Any, E: Any> effectsHandler(
+fun <F: Any, E: Any> effectsHandler(
     handle: (effects: Observable<F>) -> Observable<out E>
 ): ObservableTransformer<F, E> = ObservableTransformer { effects ->
     handle(effects).map { it }
 }
 
-internal inline fun <F: Any, E: Any> effectHandler(
+inline fun <F: Any, E: Any> effectHandler(
     crossinline activation: Observable<F>.((F) -> ObservableSource<out E>) -> Observable<E> = Observable<F>::switchMap,
     noinline handle: (F) -> ObservableSource<out E>
 ): ObservableTransformer<F, E> = effectsHandler { effects ->
