@@ -54,7 +54,7 @@ class ListDiffUtilCallback<T>(
 
 }
 
-abstract class DifferDiffUtilCallback<T>(val differ: DiffUtilDiffer<T>): DiffUtil.Callback() {
+abstract class DifferDiffUtilCallback<T>(private val differ: DiffUtilDiffer<T>): DiffUtil.Callback() {
 
     abstract fun getOldItem(position: Int): T
 
