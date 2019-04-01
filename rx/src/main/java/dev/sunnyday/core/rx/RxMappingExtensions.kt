@@ -10,21 +10,33 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 // region: Map list
 
-fun <T, R> Flowable<Iterable<T>>.mapList(mapper: (T) -> R): Flowable<List<R>> = map { it.map(mapper) }
+fun <T, R> Flowable<out Iterable<T>>.mapList(mapper: (T) -> R): Flowable<List<R>> = map { it.map(mapper) }
 
-fun <T, R> Observable<Iterable<T>>.mapList(mapper: (T) -> R): Observable<List<R>> = map { it.map(mapper) }
+fun <T, R> Observable<out Iterable<T>>.mapList(mapper: (T) -> R): Observable<List<R>> = map { it.map(mapper) }
 
-fun <T, R> Single<Iterable<T>>.mapList(mapper: (T) -> R): Single<List<R>> = map { it.map(mapper) }
+fun <T, R> Single<out Iterable<T>>.mapList(mapper: (T) -> R): Single<List<R>> = map { it.map(mapper) }
 
-fun <T, R> Maybe<Iterable<T>>.mapList(mapper: (T) -> R): Maybe<List<R>> = map { it.map(mapper) }
+fun <T, R> Maybe<out Iterable<T>>.mapList(mapper: (T) -> R): Maybe<List<R>> = map { it.map(mapper) }
 
-fun <T, C: MutableCollection<in R>, R> Flowable<Iterable<T>>.mapListTo(collection: C, mapper: (T) -> R): Flowable<C> = map { it.mapTo(collection, mapper) }
+fun <T, C: MutableCollection<in R>, R> Flowable<out Iterable<T>>.mapListTo(collection: C, mapper: (T) -> R): Flowable<C> = map { it.mapTo(collection, mapper) }
 
-fun <T, C: MutableCollection<in R>, R> Observable<Iterable<T>>.mapListTo(collection: C, mapper: (T) -> R): Observable<C> = map { it.mapTo(collection, mapper) }
+fun <T, C: MutableCollection<in R>, R> Observable<out Iterable<T>>.mapListTo(collection: C, mapper: (T) -> R): Observable<C> = map { it.mapTo(collection, mapper) }
 
-fun <T, C: MutableCollection<in R>, R> Single<Iterable<T>>.mapListTo(collection: C, mapper: (T) -> R): Single<C> = map { it.mapTo(collection, mapper) }
+fun <T, C: MutableCollection<in R>, R> Single<out Iterable<T>>.mapListTo(collection: C, mapper: (T) -> R): Single<C> = map { it.mapTo(collection, mapper) }
 
-fun <T, C: MutableCollection<in R>, R> Maybe<Iterable<T>>.mapListTo(collection: C, mapper: (T) -> R): Maybe<C> = map { it.mapTo(collection, mapper) }
+fun <T, C: MutableCollection<in R>, R> Maybe<out Iterable<T>>.mapListTo(collection: C, mapper: (T) -> R): Maybe<C> = map { it.mapTo(collection, mapper) }
+
+// endregion
+
+// region: Cast
+
+inline fun <reified T> Flowable<out T>.cast(): Flowable<T> = cast(T::class.java)
+
+inline fun <reified T> Observable<out T>.cast(): Observable<T> = cast(T::class.java)
+
+inline fun <reified T> Single<out T>.cast(): Single<T> = cast(T::class.java)
+
+inline fun <reified T> Maybe<out T>.cast(): Maybe<T> = cast(T::class.java)
 
 // endregion
 
