@@ -1,6 +1,7 @@
 package dev.sunnyday.core.rx
 
 import io.reactivex.*
+import io.reactivex.functions.Function
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -163,6 +164,18 @@ fun <T> Observable<T>.throttleMapCompletable(map: (T) -> CompletableSource): Com
     }
 
 }
+
+fun <T: Any, R: Any> Observable<T>.throttleMap(map: Function<in T, out ObservableSource<out R>>): Observable<R> =
+    throttleMap(map::apply)
+
+fun <T: Any, R: Any> Observable<T>.throttleMapSingle(map: Function<in T, out SingleSource<out R>>): Observable<R> =
+    throttleMapSingle(map::apply)
+
+fun <T: Any, R: Any> Observable<T>.throttleMapMaybe(map: Function<in T, out MaybeSource<out R>>): Observable<R> =
+    throttleMapMaybe(map::apply)
+
+fun <T: Any> Observable<T>.throttleMapCompletable(map: Function<in T, out CompletableSource>): Completable =
+    throttleMapCompletable(map::apply)
 
 // endregion
 

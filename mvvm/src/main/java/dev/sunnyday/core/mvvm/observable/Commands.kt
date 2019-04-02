@@ -1,7 +1,7 @@
 package dev.sunnyday.core.mvvm.observable
 
 import androidx.databinding.BaseObservable
-import dev.sunnyday.core.util.Holder
+import dev.sunnyday.core.util.Wrapped
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicReference
 
@@ -12,10 +12,10 @@ import java.util.concurrent.atomic.AtomicReference
 
 open class BaseCommand<T>: BaseObservable() {
 
-    internal var value = AtomicReference<Holder<T>?>()
+    internal var value = AtomicReference<Wrapped<T>?>()
 
     protected fun internalFire(event: T) {
-        value.set(Holder(event))
+        value.set(Wrapped(event))
         notifyChange()
     }
 

@@ -5,4 +5,4 @@ package dev.sunnyday.core.util
  * mail: mail@sunnyday.dev
  */
  
-data class Holder<T>(val value: T)
+data class Wrapped<T>(val value: T)

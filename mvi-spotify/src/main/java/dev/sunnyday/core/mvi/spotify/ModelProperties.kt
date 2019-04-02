@@ -2,6 +2,7 @@ package dev.sunnyday.core.mvi.spotify
 
 import dev.sunnyday.core.util.equals
 import com.spotify.mobius.functions.Consumer
+import dev.sunnyday.core.util.Wrapped
 
 /**
  * Created by Aleksandr Tcikin (SunnyDay.Dev) on 2018-12-28.
@@ -38,25 +39,20 @@ class ModelProperty<M, P>(
     val onChange: (P) -> Unit
 ): Consumer<M> {
 
-    private var value: Value<P> = Value.NotInitialized()
+    private lateinit var currentValue: Wrapped<P>
 
     override fun accept(model: M) {
 
         val newValue = property(model)
-        val currentValue = value
 
-        if (currentValue is Value.NotInitialized ||
-            currentValue is Value.Initialized && !compare(currentValue.value, newValue)) {
-            value = Value.Initialized(newValue)
+        if (!::currentValue.isInitialized || changed(currentValue.value, newValue)) {
+            currentValue = Wrapped(newValue)
             onChange(newValue)
         }
 
     }
 
-    @Suppress("unused")
-    private sealed class Value<T> {
-        class NotInitialized<T>: Value<T>()
-        data class Initialized<T>(val value: T): Value<T>()
-    }
+    private fun changed(current: P, new: P): Boolean = !(
+            current === new || compare(current, new))
 
 }
