@@ -14,18 +14,14 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.5.0-alpha09'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
-
-
     
-
-
 }
 
 subprojects {
 
     buildscript {
 
-        ext.lib_version = '0.0.15'
+        ext.lib_version = '0.0.16'
 
         repositories {
             google()
