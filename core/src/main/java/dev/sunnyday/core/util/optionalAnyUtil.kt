@@ -7,4 +7,6 @@ package dev.sunnyday.core.util
 
 infix fun Any?.equals(other: Any?): Boolean = this == other
 
+infix fun Any?.equalsWithHashCode(other: Any?): Boolean = this.hashCode() == other.hashCode() && this == other
+
 infix fun Any?.isSameObject(other: Any?): Boolean = this === other

@@ -52,6 +52,7 @@ class ModelProperty<M, P>(
 
     }
 
-    private fun changed(current: P, new: P): Boolean = !(current === new || compare(current, new))
+    private fun changed(current: P, new: P): Boolean = !(
+            current === new || compare(current, new))
 
 }
