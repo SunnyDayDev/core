@@ -6,6 +6,7 @@ import io.reactivex.Scheduler
 import io.reactivex.functions.Consumer
 
 class SubtypeEffectHandlerBuilder<F, E> {
+
     val builder: RxMobius.SubtypeEffectHandlerBuilder<F, E> = RxMobius.subtypeEffectHandler()
 
     inline fun <reified G : F> addTransformer(
@@ -41,4 +42,5 @@ class SubtypeEffectHandlerBuilder<F, E> {
             apply { builder.withFatalErrorHandler { block(it) } }
 
     fun build(): ObservableTransformer<F, E> = builder.build()
+
 }
