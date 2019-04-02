@@ -2,6 +2,7 @@ package dev.sunnyday.core.mvi.spotify
 
 import com.spotify.mobius.rx2.RxMobius
 import io.reactivex.Observable
+import io.reactivex.ObservableSource
 import io.reactivex.ObservableTransformer
 import io.reactivex.Scheduler
 import io.reactivex.functions.Consumer
@@ -15,7 +16,7 @@ open class SubtypeEffectHandlerBuilder<F, E> {
             apply { builder.addTransformer(G::class.java, transformer) }
 
     inline fun <reified G : F> addTransformer(
-            noinline transformer: (Observable<G>) -> Observable<E>) =
+            noinline transformer: (Observable<G>) -> ObservableSource<E>) =
             addTransformer(ObservableTransformer(transformer))
 
     inline fun <reified G : F> addAction(
