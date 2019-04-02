@@ -7,7 +7,7 @@ import io.reactivex.ObservableTransformer
 import io.reactivex.Scheduler
 import io.reactivex.functions.Consumer
 
-open class SubtypeEffectHandlerBuilder<F, E> {
+open class SubtypeEffectHandlerBuilder<F: Any, E: Any> {
 
     val builder: RxMobius.SubtypeEffectHandlerBuilder<F, E> = RxMobius.subtypeEffectHandler()
 
@@ -17,7 +17,7 @@ open class SubtypeEffectHandlerBuilder<F, E> {
 
     inline fun <reified G : F> addTransformer(
             noinline transformer: (Observable<G>) -> ObservableSource<E>) =
-            addTransformer(ObservableTransformer(transformer))
+            addTransformer(effectsHandler(transformer))
 
     inline fun <reified G : F> addAction(
             crossinline block: () -> Unit,

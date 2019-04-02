@@ -13,11 +13,10 @@ import io.reactivex.functions.Function as RxFunction
  */
 
 private typealias Handle<F, E> = (effect: F) -> ObservableSource<out E>
+private typealias EmptyHandle<E> = () -> ObservableSource<out E>
 private typealias Handling<F, E> = (effects: Observable<F>) -> ObservableSource<E>
 
-fun <F: Any, E: Any> effectsHandler(
-    handle: (effects: Observable<F>) -> ObservableSource<E>
-): ObservableTransformer<F, E> = ObservableTransformer(handle)
+fun <F: Any, E: Any> effectsHandler(handle: Handling<F, E>): ObservableTransformer<F, E> = ObservableTransformer(handle)
 
 fun <F: Any, E: Any> flat(handle: Handle<F, E>): Handling<F, E>  = { it.flatMap(handle) }
 
@@ -27,10 +26,10 @@ fun <F: Any, E: Any> switch(handle: Handle<F, E>): Handling<F, E>  = { it.switch
 
 fun <F: Any, E: Any> throttle(handle: Handle<F, E>): Handling<F, E> = { it.throttleMap(handle) }
 
-fun <F: Any, E: Any> flatEffectHandler(handle: Handle<F, E>) = effectsHandler(flat(handle))
+inline fun <F: Any, E: Any> flat(crossinline handle: EmptyHandle<E>): Handling<F, E>  = { it.flatMap { handle() } }
 
-fun <F: Any, E: Any> concatEffectHandler(handle: Handle<F, E>) = effectsHandler(concat(handle))
+inline fun <F: Any, E: Any> concat(crossinline handle: EmptyHandle<E>): Handling<F, E> = { it.concatMap { handle() } }
 
-fun <F: Any, E: Any> switchEffectHandler(handle: Handle<F, E>) = effectsHandler(switch(handle))
+inline fun <F: Any, E: Any> switch(crossinline handle: EmptyHandle<E>): Handling<F, E>  = { it.switchMap { handle() } }
 
-fun <F: Any, E: Any> throttleEffectHandler(handle: Handle<F, E>) = effectsHandler(throttle(handle))
+inline fun <F: Any, E: Any> throttle(crossinline handle: EmptyHandle<E>): Handling<F, E> = { it.throttleMap { handle() } }
