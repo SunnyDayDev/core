@@ -16,10 +16,8 @@ private typealias RxHandle<F, E> = RxFunction<in F, out ObservableSource<out E>>
 private typealias RxActivation<F, E> = Observable<F>.(RxHandle<F, E>) -> Observable<E>
 
 fun <F: Any, E: Any> effectsHandler(
-    handle: (effects: Observable<F>) -> Observable<out E>
-): ObservableTransformer<F, E> = ObservableTransformer { effects ->
-    handle(effects).map { it }
-}
+    handle: (effects: Observable<F>) -> ObservableSource<E>
+): ObservableTransformer<F, E> = ObservableTransformer(handle)
 
 inline fun <F: Any, E: Any, H: RxHandle<F, E>> effectHandler(
     crossinline activation: RxActivation<F, E>, handle: H
