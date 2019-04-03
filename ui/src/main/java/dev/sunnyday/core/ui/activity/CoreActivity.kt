@@ -1,6 +1,8 @@
 package dev.sunnyday.core.ui.activity
 
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import dev.sunnyday.core.runtime.alsoDo
@@ -25,6 +27,7 @@ open class CoreActivity: AppCompatActivity(),
     override val onRequestPermissionResultRegistry: OnRequestPermissionResultListener.Registry =
         DefaultOnRequestPermissionResultRegistry()
 
+    protected var autoPruneRetainingStore = true
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (!onActivityResultRegistry.onActivityResult(requestCode, resultCode, data)) {
@@ -46,6 +49,13 @@ open class CoreActivity: AppCompatActivity(),
     override fun onBackPressed() {
         if (!onBackPressedRegistry.onBackPressed()) {
             checkedOnBackPressed()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (autoPruneRetainingStore && isRetainingStoreInitialized) {
+            Handler(Looper.getMainLooper()).post(retainingStore::clear)
         }
     }
 
