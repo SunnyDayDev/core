@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import dev.sunnyday.core.runtime.create
 import dev.sunnyday.core.runtime.tryOptional
+import kotlin.reflect.KClass
 
 /**
  * Created by Aleksandr Tcikin (SunnyDay.Dev) on 2019-01-31.
@@ -34,43 +35,25 @@ class RetainingStore internal constructor() {
 
     private data class Key(val clazz: Class<out Any>, val tag: String? = null)
 
-    operator fun <T: Any> set(clazz: Class<T>, value: T) {
-        store[Key(clazz)] = value
+    operator fun <T: Any> set(clazz: KClass<T>, value: T) {
+        store[Key(clazz.java)] = value
     }
 
-    operator fun <T: Any> set(clazz: Class<T>, tag: String, value: T) {
-        store[Key(clazz, tag)] = value
+    operator fun <T: Any> set(clazz: KClass<T>, tag: String, value: T) {
+        store[Key(clazz.java, tag)] = value
     }
 
     @Suppress("UNCHECKED_CAST")
-    operator fun <T: Any> get(clazz: Class<T>): T? = tryOptional { store[Key(clazz)] as? T }
+    operator fun <T: Any> get(clazz: KClass<T>): T? = tryOptional { store[Key(clazz.java)] as? T }
 
     @Suppress("UNCHECKED_CAST")
-    operator fun <T: Any> get(clazz: Class<T>, tag: String): T? = tryOptional { store[Key(clazz, tag)] as? T }
+    operator fun <T: Any> get(clazz: KClass<T>, tag: String): T? = tryOptional { store[Key(clazz.java, tag)] as? T }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T: Any> remove(clazz: Class<T>): T? = tryOptional { store.remove(Key(clazz)) as? T }
+    fun <T: Any> remove(clazz: KClass<T>): T? = tryOptional { store.remove(Key(clazz.java)) as? T }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T: Any> remove(clazz: Class<T>, tag: String): T? = tryOptional { store.remove(Key(clazz, tag)) as? T }
-
-    @Suppress("UNCHECKED_CAST")
-    inline fun <reified T: Any> get() = get(T::class.java)
-
-    inline fun <reified T: Any> get(tag: String) = get(T::class.java, tag)
-
-
-    inline fun <reified T: Any> set(value: T) {
-        this[T::class.java] = value
-    }
-
-    inline operator fun <reified T: Any> set(tag: String, value: T) {
-        this[T::class.java, tag] = value
-    }
-
-    inline fun <reified T: Any> remove() = remove(T::class.java)
-
-    inline fun <reified T: Any> remove(tag: String) = remove(T::class.java, tag)
+    fun <T: Any> remove(clazz: KClass<T>, tag: String): T? = tryOptional { store.remove(Key(clazz.java, tag)) as? T }
 
 }
 
