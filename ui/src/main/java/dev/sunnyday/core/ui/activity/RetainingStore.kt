@@ -12,7 +12,7 @@ import kotlin.reflect.KClass
  * mail: mail@sunnydaydev.me
  */
  
-private class RetainingStoreFragment: Fragment() {
+internal class RetainingStoreFragment: Fragment() {
 
     internal companion object {
 
@@ -31,29 +31,35 @@ private class RetainingStoreFragment: Fragment() {
 
 class RetainingStore internal constructor() {
 
-    private val store = mutableMapOf<Key, Any>()
+    private val store = mutableMapOf<Key<*>, Any>()
 
-    private data class Key(val clazz: Class<out Any>, val tag: String? = null)
+    data class Key<T>(val clazz: Class<T>, val tag: String? = null)
 
-    operator fun <T: Any> set(clazz: KClass<T>, value: T) {
-        store[Key(clazz.java)] = value
+    operator fun <T: Any> set(clazz: KClass<T>, value: T?) = set(Key(clazz.java), value)
+
+    operator fun <T: Any> set(key: Key<T>, value: T?) {
+        if (value != null) {
+            store[key] = value
+        } else {
+            store.remove(key)
+        }
     }
 
-    operator fun <T: Any> set(clazz: KClass<T>, tag: String, value: T) {
-        store[Key(clazz.java, tag)] = value
+    @Suppress("UNCHECKED_CAST")
+    operator fun <T: Any> get(clazz: KClass<T>): T? = get(Key(clazz.java))
+
+    @Suppress("UNCHECKED_CAST")
+    operator fun <T: Any> get(key: Key<T>): T? = tryOptional { store[key] as? T }
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T: Any> remove(clazz: KClass<T>): T? = remove(Key(clazz.java))
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T: Any> remove(key: Key<T>): T? = tryOptional { store.remove(key) as? T }
+
+    fun clear() {
+        store.clear()
     }
-
-    @Suppress("UNCHECKED_CAST")
-    operator fun <T: Any> get(clazz: KClass<T>): T? = tryOptional { store[Key(clazz.java)] as? T }
-
-    @Suppress("UNCHECKED_CAST")
-    operator fun <T: Any> get(clazz: KClass<T>, tag: String): T? = tryOptional { store[Key(clazz.java, tag)] as? T }
-
-    @Suppress("UNCHECKED_CAST")
-    fun <T: Any> remove(clazz: KClass<T>): T? = tryOptional { store.remove(Key(clazz.java)) as? T }
-
-    @Suppress("UNCHECKED_CAST")
-    fun <T: Any> remove(clazz: KClass<T>, tag: String): T? = tryOptional { store.remove(Key(clazz.java, tag)) as? T }
 
 }
 
@@ -71,3 +77,6 @@ val FragmentActivity.retainingStore: RetainingStore get() {
     return storeFragment.store
 
 }
+
+internal val FragmentActivity.isRetainingStoreInitialized: Boolean get() =
+        supportFragmentManager.findFragmentByTag(RetainingStoreFragment.TAG) as? RetainingStoreFragment != null
