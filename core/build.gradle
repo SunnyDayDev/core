@@ -28,6 +28,13 @@ android {
 
 }
 
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions.freeCompilerArgs += [
+            "-Xuse-experimental=kotlin.Experimental",
+            "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
+    ]
+}
+
 dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
