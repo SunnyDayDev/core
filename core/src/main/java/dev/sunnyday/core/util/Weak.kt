@@ -11,11 +11,9 @@ class Weak<T>(value: T? = null) {
 
     private var weakRef: WeakReference<T>? = null
 
-    @get:Synchronized
-    @set:Synchronized
     var value: T?
-        get() = weakRef?.get()
-        set(value) {
+        get() = synchronized(this) { weakRef?.get() }
+        set(value) = synchronized(this) {
             weakRef = when {
                 value == null -> null
                 value === this.value -> weakRef
@@ -27,11 +25,14 @@ class Weak<T>(value: T? = null) {
         this.value = value
     }
 
-    @Synchronized
-    fun getOrSet(provider: () -> T): T = value ?: provider().also { value = it }
+    operator fun component1(): T? = value
+
+    inline fun getOrSet(provider: () -> T): T = synchronized(this) {
+        value ?: provider().also { value = it }
+    }
 
     inline fun doIfPresent(action: (T) -> Unit) {
-        val currentValue = this.value
+        val currentValue = value
         if (currentValue != null) {
             action(currentValue)
         }

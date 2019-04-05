@@ -8,7 +8,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import dev.sunnyday.core.util.LateInitValue
+import dev.sunnyday.core.util.LateInitializer
 import dev.sunnyday.core.util.lateinit
 import dev.sunnyday.core.mvvm.viewModel.MVVMViewModel
 import dev.sunnyday.core.ui.fragment.CoreFragment
@@ -34,7 +34,7 @@ abstract class MVVMDialogFragment<Binding: ViewDataBinding>: CoreFragment() {
 
     // endregion
 
-    private val viewModelLateInit = LateInitValue<MVVMViewModel>()
+    private val viewModelLateInit = LateInitializer<MVVMViewModel>()
     protected val viewModel: MVVMViewModel by lateinit(viewModelLateInit)
 
     @Suppress("MemberVisibilityCanBePrivate")
