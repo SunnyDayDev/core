@@ -13,11 +13,11 @@ import timber.log.Timber
  */
 
 fun ContentResolver.query(uri: Uri,
-                          projection: Array<String>,
-                          selection: String?,
-                          selectionArgs: Array<String>?,
-                          sortOrder: String?,
-                          cancellationSignal: CancellationSignal?): Cursor? {
+                          projection: Array<String>? = null,
+                          selection: String? = null,
+                          selectionArgs: Array<String>? = null,
+                          sortOrder: String? = null,
+                          cancellationSignal: CancellationSignal? = null): Cursor? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
         query(uri, projection, selection, selectionArgs, sortOrder, cancellationSignal)
     } else {
