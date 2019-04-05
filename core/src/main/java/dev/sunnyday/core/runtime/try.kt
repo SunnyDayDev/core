@@ -9,7 +9,7 @@ import kotlin.contracts.contract
  * mail: mail@sunnyday.dev
  */
 
-inline fun <T> tryOptional(resolver: ErrorResolverStrategy<T?>?, action: () -> T): T? {
+inline fun <T> tryOptional(resolver: ErrorResolverStrategy<T?>? = null, action: () -> T): T? {
 
     contract {
         callsInPlace(action, InvocationKind.EXACTLY_ONCE)
