@@ -1,7 +1,7 @@
 package dev.sunnyday.core.util
 
 /**
- * Created by Aleksandr Tcikin (SunnyDay.Dev) on 2019-04-01.
+ * Created by Aleksandr Tcikin (SunnyDay.Dev) on 2019-04-05.
  * mail: mail@sunnydaydev.me
  */
 
