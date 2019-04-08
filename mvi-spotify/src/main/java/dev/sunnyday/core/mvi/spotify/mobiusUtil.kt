@@ -58,24 +58,37 @@ class ContramapConnectable<I, J, O> (
     }
 }
 
-inline fun <M, F> Next<M, F>.changeModel(change: (current: M?) -> M): Next<M, F> {
+inline fun <M, F> Next<M, F>.changeModel(change: (current: M?) -> M?): Next<M, F> {
 
-    val newModel = if (hasModel()) change(modelUnsafe())
-                   else change(null)
+    val model = if (hasModel()) change(modelUnsafe()) else change(null)
+    val effects = effects()
 
-    return Next.next(newModel, effects())
+    return when {
+        model != null -> Next.next(model, effects)
+        effects.isNotEmpty() -> Next.dispatch(effects)
+        else -> Next.noChange()
+    }
 
 }
 
 inline fun <M, F> Next<M, F>.changeEffects(change: (Set<F>) -> Set<F>): Next<M, F> {
 
-    val newEffects = change(effects())
+    val effects = change(effects())
+    val model = if (hasModel()) modelUnsafe() else null
 
-    return if (hasModel()) Next.next(modelUnsafe(), newEffects)
-    else Next.dispatch(newEffects)
+    return when {
+        model != null -> Next.next(model, effects)
+        effects.isNotEmpty() -> Next.dispatch(effects)
+        else -> Next.noChange()
+    }
 
 }
 
-fun <E> effects(vararg effects: E): Set<E> {
+inline fun <reified E: Any> effects(vararg effects: E): Set<E> {
     return com.spotify.mobius.Effects.effects(*effects)
+}
+
+@JvmName("effectsWithoutNulls")
+inline fun <reified E: Any> effects(vararg effects: E?): Set<E> {
+    return effects(*effects.filterNotNull().toTypedArray())
 }
