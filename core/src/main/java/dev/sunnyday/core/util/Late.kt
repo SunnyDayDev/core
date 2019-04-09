@@ -5,19 +5,14 @@ package dev.sunnyday.core.util
  * mail: mail@sunnyday.dev
  */
  
-class LateInitializer<T: Any> {
+class Late<T: Any> {
 
+    @set:Synchronized
     internal lateinit var value: T
-        private set
-
-    @Synchronized
-    fun set(value: T) {
-        this.value = value
-    }
 
 }
 
-fun <T: Any> lateinit(value: LateInitializer<T>): Lazy<T> {
+fun <T: Any> lateinit(value: Late<T>): Lazy<T> {
     val weak = Weak(value)
     return lazy { weak.value?.value ?: throw UninitializedPropertyAccessException() }
 }
