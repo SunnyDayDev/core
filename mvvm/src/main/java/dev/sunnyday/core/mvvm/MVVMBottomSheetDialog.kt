@@ -7,7 +7,7 @@ import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import dev.sunnyday.core.util.LateInitializer
+import dev.sunnyday.core.util.Late
 import dev.sunnyday.core.util.lateinit
 import dev.sunnyday.core.mvvm.viewModel.MVVMViewModel
 
@@ -40,7 +40,7 @@ abstract class MVVMBottomSheetDialog<Binding: ViewDataBinding>: BottomSheetDialo
 
     // endregion
 
-    private val lateinitViewModelValue = LateInitializer<MVVMViewModel>()
+    private val lateinitViewModelValue = Late<MVVMViewModel>()
     protected val viewModel: MVVMViewModel by lateinit(lateinitViewModelValue)
 
     override fun onCreate(savedInstanceState: Bundle?) {

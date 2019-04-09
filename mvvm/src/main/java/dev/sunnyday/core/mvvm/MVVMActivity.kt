@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.databinding.ViewDataBinding
 import android.os.Bundle
-import dev.sunnyday.core.util.LateInitializer
+import dev.sunnyday.core.util.Late
 import dev.sunnyday.core.util.lateinit
 import dev.sunnyday.core.mvvm.viewModel.MVVMViewModel
 import dev.sunnyday.core.ui.activity.CoreActivity
@@ -30,7 +30,7 @@ abstract class MVVMActivity<Binding: ViewDataBinding>: CoreActivity() {
 
     // endregion
 
-    private val lateinitViewModelValue = LateInitializer<MVVMViewModel>()
+    private val lateinitViewModelValue = Late<MVVMViewModel>()
     protected val viewModel: MVVMViewModel by lateinit(lateinitViewModelValue)
 
     override fun onCreate(savedInstanceState: Bundle?) {

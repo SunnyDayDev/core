@@ -10,6 +10,7 @@ import timber.log.Timber
  */
 
 object RxDebug {
+
     var enabled = false
     
 }
