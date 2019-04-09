@@ -8,7 +8,7 @@ package dev.sunnyday.core.util
 class Late<T: Any> {
 
     @set:Synchronized
-    internal lateinit var value: T
+    lateinit var value: T
 
 }
 

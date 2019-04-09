@@ -7,8 +7,6 @@ import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import dev.sunnyday.core.util.Late
-import dev.sunnyday.core.util.lateinit
 import dev.sunnyday.core.mvvm.viewModel.MVVMViewModel
 
 /**
@@ -40,8 +38,8 @@ abstract class MVVMBottomSheetDialog<Binding: ViewDataBinding>: BottomSheetDialo
 
     // endregion
 
-    private val lateinitViewModelValue = Late<MVVMViewModel>()
-    protected val viewModel: MVVMViewModel by lateinit(lateinitViewModelValue)
+    protected lateinit var viewModel: MVVMViewModel
+        private set
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val injected = proceedInjectionBeforeOnCreate()
@@ -51,14 +49,14 @@ abstract class MVVMBottomSheetDialog<Binding: ViewDataBinding>: BottomSheetDialo
     }
 
     protected open fun onViewModelCreate(savedInstanceState: Bundle?) {
-        val viewModelValue = getViewModel(ViewModelProviders.of(activity, viewModelFactory))
-        lateinitViewModelValue.set(viewModelValue)
+
+        viewModel = getViewModel(ViewModelProviders.of(activity, viewModelFactory))
 
         with(viewModel) {
 
             binding.setVariable(viewModelVariableId, this)
 
-            onViewModelCreated(viewModel)
+            onViewModelCreated(this)
 
         }
 
