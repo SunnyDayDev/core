@@ -12,35 +12,22 @@ import timber.log.Timber
  
 class MobiusTimberLogger<M: Any, E: Any, F: Any>(
         private val tag: String,
-        private val mapper: ToStringMapper<M, E, F> = ToStringMapper.default()
+        private val mapper: Mapper<M, E, F> = Mapper.Default()
 ): MobiusLoop.Logger<M, E, F> {
 
-    companion object {
-
-        fun <M: Any, E: Any, F: Any> tag(
-                tag: String,
-                mapper: ToStringMapper<M, E, F> = ToStringMapper.default()
-        ): MobiusLoop.Logger<M, E, F> = MobiusTimberLogger(tag, mapper)
-
-    }
-
-    interface ToStringMapper<M, E, F> {
+    interface Mapper<M: Any, E: Any, F: Any> {
 
         fun mapModel(model: M): String
         fun mapEvent(event: E): String
         fun mapEffect(effect: F): String
 
-        companion object {
+        open class Default<M: Any, E: Any, F: Any>: Mapper<M, E, F> {
 
-            fun <M: Any, E: Any, F: Any> default(): ToStringMapper<M, E, F> = object : ToStringMapper<M, E, F> {
-                
-                override fun mapModel(model: M): String = model::class.java.simpleName
+            override fun mapModel(model: M): String = model::class.java.simpleName
 
-                override fun mapEvent(event: E): String = event::class.java.simpleName
+            override fun mapEvent(event: E): String = event::class.java.simpleName
 
-                override fun mapEffect(effect: F): String = effect::class.java.simpleName
-
-            }
+            override fun mapEffect(effect: F): String = effect::class.java.simpleName
 
         }
 
@@ -53,7 +40,7 @@ class MobiusTimberLogger<M: Any, E: Any, F: Any>(
 
     override fun afterInit(model: M, result: First<M, F>) {
         Timber.tag(tag)
-        Timber.d("Loop initialized, starting from model: ${result.model()}")
+        Timber.d("Loop initialized, starting from model: ${mapper.mapModel(result.model())}")
 
         for (effect in result.effects()) {
             Timber.tag(tag)
@@ -74,7 +61,7 @@ class MobiusTimberLogger<M: Any, E: Any, F: Any>(
     override fun afterUpdate(model: M, event: E, result: Next<M, F>) {
         if (result.hasModel()) {
             Timber.tag(tag)
-            Timber.d("Model updated: ${result.modelUnsafe()}")
+            Timber.d("Model updated: ${mapper.mapModel(result.modelUnsafe())}")
         }
 
         for (effect in result.effects()) {
