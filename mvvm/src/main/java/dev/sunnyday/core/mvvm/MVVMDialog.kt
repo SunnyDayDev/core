@@ -7,8 +7,6 @@ import androidx.databinding.ViewDataBinding
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
-import dev.sunnyday.core.util.Late
-import dev.sunnyday.core.util.lateinit
 import dev.sunnyday.core.mvvm.viewModel.MVVMViewModel
 
 /**
@@ -40,8 +38,8 @@ abstract class MVVMDialog<Binding: ViewDataBinding>: Dialog  {
 
     // endregion
 
-    private val lateinitViewModelValue = Late<MVVMViewModel>()
-    protected val viewModel: MVVMViewModel by lateinit(lateinitViewModelValue)
+    protected lateinit var viewModel: MVVMViewModel
+        private set
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val injected = proceedInjectionBeforeOnCreate()
@@ -51,16 +49,11 @@ abstract class MVVMDialog<Binding: ViewDataBinding>: Dialog  {
     }
 
     protected open fun onViewModelCreate(savedInstanceState: Bundle?) {
-        val viewModelValue = getViewModel(ViewModelProviders.of(activity, viewModelFactory))
-        lateinitViewModelValue.set(viewModelValue)
 
-        with(viewModel) {
+        viewModel = getViewModel(ViewModelProviders.of(activity, viewModelFactory))
 
-            binding.setVariable(viewModelVariableId, this)
-
-            onViewModelCreated(viewModel)
-
-        }
+        binding.setVariable(viewModelVariableId, viewModel)
+        onViewModelCreated(viewModel)
 
     }
 

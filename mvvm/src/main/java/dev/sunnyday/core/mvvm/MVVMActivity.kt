@@ -4,8 +4,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.databinding.ViewDataBinding
 import android.os.Bundle
-import dev.sunnyday.core.util.Late
-import dev.sunnyday.core.util.lateinit
 import dev.sunnyday.core.mvvm.viewModel.MVVMViewModel
 import dev.sunnyday.core.ui.activity.CoreActivity
 import dev.sunnyday.core.ui.listener.OnBackPressedListener
@@ -30,8 +28,8 @@ abstract class MVVMActivity<Binding: ViewDataBinding>: CoreActivity() {
 
     // endregion
 
-    private val lateinitViewModelValue = Late<MVVMViewModel>()
-    protected val viewModel: MVVMViewModel by lateinit(lateinitViewModelValue)
+    protected lateinit var viewModel: MVVMViewModel
+        private set
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val injected = proceedInjectionBeforeOnCreate()
@@ -41,8 +39,8 @@ abstract class MVVMActivity<Binding: ViewDataBinding>: CoreActivity() {
     }
 
     protected open fun onViewModelCreate(savedInstanceState: Bundle?) {
-        val viewModelValue = getViewModel(ViewModelProviders.of(this, viewModelFactory))
-        lateinitViewModelValue.set(viewModelValue)
+
+        viewModel = getViewModel(ViewModelProviders.of(this, viewModelFactory))
 
         with(viewModel) {
 
@@ -51,7 +49,7 @@ abstract class MVVMActivity<Binding: ViewDataBinding>: CoreActivity() {
                 onBackPressedRegistry.add(this)
             }
 
-            onViewModelCreated(viewModel)
+            onViewModelCreated(this)
 
         }
 
