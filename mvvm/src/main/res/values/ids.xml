@@ -20,4 +20,8 @@
     <item name="binding_webview_data" type="id"/>
     <item name="binding_webview_javascript_interface" type="id"/>
 
+    <item name="binding__autopageradapter_page_title" type="id"/>
+
+    <item name="binding_tabLayout_tabs_core" type="id"/>
+
 </resources>
