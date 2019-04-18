@@ -10,6 +10,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import androidx.databinding.adapters.ListenerUtil
 import dev.sunnyday.core.mvvm.observable.Command
 import dev.sunnyday.core.mvvm.observable.TargetedCommand
@@ -107,9 +109,20 @@ object ViewBindings: Bindings() {
     // region Visibility
 
     @JvmStatic
+    @BindingAdapter("isVisible")
+    fun bindIsVisible(view: View, visible: Boolean) {
+        view.isVisible = visible
+    }
+
+    @JvmStatic
+    @BindingAdapter("isInvisible")
+    fun bindIsInvisible(view: View, invisible: Boolean) {
+        view.isInvisible = invisible
+    }
+
+    @JvmStatic
     @BindingAdapter(value = ["visible", "goneOnInvisible"], requireAll = false)
-    fun bindVisible(view: View, visible: Boolean?, gone: Boolean?) {
-        visible ?: return
+    fun bindVisible(view: View, visible: Boolean, gone: Boolean?) {
         view.visibility = when {
             visible -> View.VISIBLE
             gone != false -> View.GONE
