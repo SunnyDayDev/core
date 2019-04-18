@@ -14,7 +14,6 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.bumptech.glide.load.Transformation
 import com.bumptech.glide.request.RequestOptions
 import dev.sunnyday.core.mvvm.R
-import dev.sunnyday.core.mvvm.binding.internal.BindableCore
 import dev.sunnyday.core.ui.util.findActivity
 import timber.log.Timber
 import java.lang.IllegalArgumentException
@@ -38,59 +37,59 @@ object ImageViewBindings: Bindings() {
 
     @JvmStatic
     @BindingAdapter("imageSource")
-    fun bindImageDrawable(view: ImageView, source: ImageSource?) = view.sourceCore.setSource(source)
+    fun bindImageDrawable(view: ImageView, source: ImageSource?) = view.core.setSource(source)
 
     @JvmStatic
     @BindingAdapter("imageDrawable")
     fun bindImageDrawable(view: ImageView, drawable: Drawable?) =
-            view.sourceCore.setDrawable(drawable)
+            view.core.setDrawable(drawable)
 
     @JvmStatic
     @BindingAdapter("imageUri")
-    fun bindImageUri(view: ImageView, uri: Uri?) = view.sourceCore.setUri(uri)
+    fun bindImageUri(view: ImageView, uri: Uri?) = view.core.setUri(uri)
 
     @JvmStatic
     @BindingAdapter("imageUriCenterCrop")
     fun bindImageUriCenterCrop(view: ImageView, uri: Boolean?) =
-            view.sourceCore.setUriCenterCrop(uri)
+            view.core.setUriCenterCrop(uri)
 
     @JvmStatic
     @BindingAdapter("imageUriCenterInside")
     fun bindImageUriCenterInside(view: ImageView, uri: Boolean?) =
-            view.sourceCore.setUriCenterInside(uri)
+            view.core.setUriCenterInside(uri)
 
     @JvmStatic
     @BindingAdapter("imageUriCircleCrop")
     fun bindImageUriCircleCrop(view: ImageView, uri: Boolean?) =
-            view.sourceCore.setUriCircleCrop(uri)
+            view.core.setUriCircleCrop(uri)
 
     @JvmStatic
     @BindingAdapter("imageUriFitCenter")
     fun bindImageUriFitCenter(view: ImageView, uri: Boolean?) =
-            view.sourceCore.setUriFitCenter(uri)
+            view.core.setUriFitCenter(uri)
 
     @JvmStatic
     @BindingAdapter("imageUriTransformation")
     fun bindImageUriTransformation(view: ImageView, transformation: Transformation<Bitmap>?) =
-            view.sourceCore.setUriTransformation(transformation)
+            view.core.setUriTransformation(transformation)
 
     @JvmStatic
     @BindingAdapter("imageUriOptions")
     fun bindImageUriOptions(view: ImageView, options: RequestOptions?) =
-            view.sourceCore.setUriOptions(options)
+            view.core.setUriOptions(options)
 
     @JvmStatic
     @BindingAdapter("srcCompat")
-    fun bindSrcCompat(view: ImageView, @DrawableRes id: Int) = view.sourceCore.setSrcCompat(id)
+    fun bindSrcCompat(view: ImageView, @DrawableRes id: Int) = view.core.setSrcCompat(id)
 
     @JvmStatic
     @BindingAdapter("src")
-    fun bindSrc(view: ImageView, @DrawableRes id: Int) = view.sourceCore.setSrc(id)
+    fun bindSrc(view: ImageView, @DrawableRes id: Int) = view.core.setSrc(id)
 
-    private val ImageView.sourceCore get() =
+    private val ImageView.core get() =
         getOrSetListener(R.id.binding_imageview_source_core) { SourceCore(this) }
 
-    private class SourceCore(private val view: ImageView): BindableCore() {
+    private class SourceCore(view: ImageView): BindableCore<ImageView, BindableCore.Change.Simple>(view) {
 
         private val uriConfig by lazy { UriConfig() }
 
@@ -104,7 +103,7 @@ object ImageViewBindings: Bindings() {
             is ImageSource.Resource -> setSrcCompat(source.id)
             null -> {
                 applier = { view.setImageDrawable(null) }
-                notifyChanged()
+                notifyChanges()
             }
         }
 
@@ -112,14 +111,14 @@ object ImageViewBindings: Bindings() {
             applier = {
                 view.setImageDrawable(drawable)
             }
-            notifyChanged()
+            notifyChanges()
         }
 
         fun setUri(uri: Uri?) {
             uriMode = true
             uriConfig.uri = uri
             applier = { applyUri(uriConfig) }
-            notifyChanged()
+            notifyChanges()
         }
 
         fun setUriCenterCrop(use: Boolean?) {
@@ -161,7 +160,7 @@ object ImageViewBindings: Bindings() {
                     view.setImageDrawable(ContextCompat.getDrawable(view.context, id))
                 }
             }
-            notifyChanged()
+            notifyChanges()
         }
 
         fun setSrcCompat(@DrawableRes id: Int) {
@@ -187,17 +186,17 @@ object ImageViewBindings: Bindings() {
                     }
                 }
             }
-            notifyChanged()
+            notifyChanges()
         }
 
-        override fun applyChanges() {
+        override fun applyChanges(changes: List<Change.Simple>) {
             applier?.invoke(view)
         }
 
         private fun onUriConfigChanged() {
             if (uriMode) {
                 applier = { applyUri(uriConfig) }
-                notifyChanged()
+                notifyChanges()
             }
         }
 

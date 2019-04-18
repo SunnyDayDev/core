@@ -10,7 +10,6 @@ import com.github.nitrico.lastadapter.BaseType
 import com.github.nitrico.lastadapter.LastAdapter
 import com.github.nitrico.lastadapter.TypeHandler
 import dev.sunnyday.core.mvvm.R
-import dev.sunnyday.core.mvvm.binding.internal.BindableCore
 import dev.sunnyday.core.mvvm.observable.Command
 import java.lang.ref.WeakReference
 import kotlin.reflect.KClass
@@ -269,7 +268,7 @@ object RecyclerViewBindings: Bindings() {
 
     // region Classes
 
-    internal class AdapterCore(private val view: RecyclerView): BindableCore() {
+    internal class AdapterCore(view: RecyclerView): BindableCore<RecyclerView, BindableCore.Change.Simple>(view) {
 
         private var items: WeakReference<List<Any>>? = null
         private var stableId: Boolean = false
@@ -278,22 +277,22 @@ object RecyclerViewBindings: Bindings() {
         fun <T: Any> setItems(items: List<T>) {
             if (this.items?.get() === items) return
             this.items = WeakReference(items)
-            notifyChanged(itemsMap?.get() != null)
+            notifyChanges(post = itemsMap?.get() != null)
         }
 
         fun setItemsMap(map: ItemsMap) {
             if (this.itemsMap?.get()?.id == map.id) return
             this.itemsMap = WeakReference(map)
-            notifyChanged(items?.get() != null)
+            notifyChanges(post = items?.get() != null)
         }
 
         fun setStableId(stableId: Boolean) {
             if (this.stableId == stableId) return
             this.stableId = stableId
-            notifyChanged()
+            notifyChanges()
         }
 
-        override fun applyChanges() {
+        override fun applyChanges(changes: List<Change.Simple>) {
 
             val items = this.items?.get()
             val itemsMap = this.itemsMap?.get()
@@ -314,9 +313,9 @@ object RecyclerViewBindings: Bindings() {
                     val klazz = item::class
 
                     val itemMapping = itemsMap.map[klazz] ?: alternate[klazz] ?: itemsMap.map.keys
-                            .single { it.java.isAssignableFrom(klazz.java) }
-                            .also { alternate[klazz] = itemsMap.map[it]!! }
-                            .let { alternate[klazz]!! }
+                        .single { it.java.isAssignableFrom(klazz.java) }
+                        .also { alternate[klazz] = itemsMap.map[it]!! }
+                        .let { alternate[klazz]!! }
 
                     return BaseType(itemMapping.layout, itemMapping.variable)
 
@@ -325,8 +324,8 @@ object RecyclerViewBindings: Bindings() {
             }
 
             view.adapter = LastAdapter(items, stableId)
-                    .handler(handler)
-                    .into(view)
+                .handler(handler)
+                .into(view)
 
         }
 
