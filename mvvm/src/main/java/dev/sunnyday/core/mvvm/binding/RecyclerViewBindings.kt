@@ -11,7 +11,7 @@ import com.github.nitrico.lastadapter.LastAdapter
 import com.github.nitrico.lastadapter.TypeHandler
 import dev.sunnyday.core.mvvm.R
 import dev.sunnyday.core.mvvm.observable.Command
-import java.lang.ref.WeakReference
+import dev.sunnyday.core.util.Weak
 import kotlin.reflect.KClass
 
 /**
@@ -51,8 +51,7 @@ object RecyclerViewBindings: Bindings() {
 
     @JvmStatic
     @BindingAdapter("itemsStableId")
-    fun bindItemsStableId(view: RecyclerView, stableId: Boolean) =
-            view.adapterCore.setStableId(stableId)
+    fun bindItemsStableId(view: RecyclerView, stableId: Boolean) = view.adapterCore.setStableId(stableId)
 
     @JvmStatic
     @BindingAdapter(
@@ -206,16 +205,16 @@ object RecyclerViewBindings: Bindings() {
 
     class AdapterPositionListener(
             private val callback: Callback?,
-            private val firstCallback: AdapterPositionListener.SingleCallback?,
-            private val lastCallback: AdapterPositionListener.SingleCallback?
+            private val firstCallback: SingleCallback?,
+            private val lastCallback: SingleCallback?
     ): RecyclerView.OnScrollListener() {
 
         private var handledFirst: Int? = null
         private var handledLast: Int? = null
 
         fun isSame(callback: Callback?,
-                   first: AdapterPositionListener.SingleCallback?,
-                   last: AdapterPositionListener.SingleCallback?): Boolean =
+                   first: SingleCallback?,
+                   last: SingleCallback?): Boolean =
                 callback == this.callback && first == firstCallback && last == lastCallback
 
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -268,22 +267,22 @@ object RecyclerViewBindings: Bindings() {
 
     // region Classes
 
-    internal class AdapterCore(view: RecyclerView): BindableCore<RecyclerView, BindableCore.Change.Simple>(view) {
+    private class AdapterCore(view: RecyclerView): BindableCore<RecyclerView, BindableCore.Change.Simple>(view) {
 
-        private var items: WeakReference<List<Any>>? = null
+        private var items = Weak<List<Any>>()
         private var stableId: Boolean = false
-        private var itemsMap: WeakReference<ItemsMap>? = null
+        private var itemsMap: ItemsMap? = null
 
         fun <T: Any> setItems(items: List<T>) {
-            if (this.items?.get() === items) return
-            this.items = WeakReference(items)
-            notifyChanges(post = itemsMap?.get() != null)
+            if (this.items.value === items) return
+            this.items.value = items
+            notifyChanges(post = itemsMap == null)
         }
 
-        fun setItemsMap(map: ItemsMap) {
-            if (this.itemsMap?.get()?.id == map.id) return
-            this.itemsMap = WeakReference(map)
-            notifyChanges(post = items?.get() != null)
+        fun setItemsMap(map: ItemsMap?) {
+            if (this.itemsMap?.id == map?.id) return
+            this.itemsMap = map
+            notifyChanges()
         }
 
         fun setStableId(stableId: Boolean) {
@@ -294,8 +293,8 @@ object RecyclerViewBindings: Bindings() {
 
         override fun applyChanges(changes: List<Change.Simple>) {
 
-            val items = this.items?.get()
-            val itemsMap = this.itemsMap?.get()
+            val items = this.items.value
+            val itemsMap = this.itemsMap
 
             if (items == null || itemsMap == null) {
                 if (view.adapter != null) {
@@ -363,15 +362,6 @@ object RecyclerViewBindings: Bindings() {
 
         }
 
-    }
-
-    private data class AdapterInfo<T>(
-            val adapter: WeakReference<LastAdapter>,
-            val items: WeakReference<List<T>>,
-            val itemsMap: WeakReference<ItemsMap>
-    ) {
-        constructor(adapter: LastAdapter, items: List<T>, map: ItemsMap):
-                this(WeakReference(adapter) ,WeakReference(items), WeakReference(map))
     }
 
     class ItemsMap (internal val id: Int = 0) {
