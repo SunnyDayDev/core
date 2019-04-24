@@ -108,7 +108,7 @@ object ImageViewBindings: Bindings() {
 
     @JvmStatic
     @BindingConversion
-    fun convertBitmapToSource(bitmap: Bitmap?): BindableSource<Drawable>? = bitmap?.let(DrawableSource::Bitmap)
+    fun convertBitmapToSource(bitmap: Bitmap?): BindableSource<Drawable>? = bitmap?.let { DrawableSource.Bitmap(it) }
 
     // endregion
 
