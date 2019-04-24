@@ -2,8 +2,10 @@ package dev.sunnyday.core.mvvm.binding
 
 import android.content.Context
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
+import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
@@ -117,6 +119,18 @@ sealed class DrawableSource: BindableSource<Drawable>  {
         override fun get(context: Context): Drawable = BitmapDrawable(context.resources, value).apply {
             config?.invoke(this)
         }
+
+    }
+
+    data class Color(@ColorInt val color: Int): DrawableSource() {
+
+        override fun get(context: Context): Drawable = ColorDrawable(color)
+
+    }
+
+    data class ColorRes(@androidx.annotation.ColorRes val colorResId: Int): DrawableSource() {
+
+        override fun get(context: Context): Drawable = ColorDrawable(ContextCompat.getColor(context, colorResId))
 
     }
 
