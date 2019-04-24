@@ -1,6 +1,7 @@
 package dev.sunnyday.core.ui.util
 
 import android.app.Activity
+import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.os.Bundle
@@ -40,9 +41,9 @@ fun Activity.findViewWithTransitionName(value: String) : View? {
 val Activity.contentView: View? get() = window.decorView
     .findViewById<ViewGroup>(android.R.id.content).getChildAt(0)
 
-fun View.findActivity(): Activity? {
+fun Context.findActivity(): Activity? {
 
-    var context = context
+    var context = this
 
     while (context is ContextWrapper) {
         if (context is Activity) {
@@ -54,3 +55,5 @@ fun View.findActivity(): Activity? {
     return null
 
 }
+
+fun View.findActivity(): Activity? = context.findActivity()

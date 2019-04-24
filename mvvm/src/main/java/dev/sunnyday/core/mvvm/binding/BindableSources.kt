@@ -1,21 +1,27 @@
 package dev.sunnyday.core.mvvm.binding
 
 import android.content.Context
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
+import dev.sunnyday.core.ui.util.findActivity
 
 /**
  * Created by Aleksandr Tcikin (SunnyDay.Dev) on 2019-04-18.
  * mail: mail@sunnydaydev.me
  */
 
-sealed class StringSource {
+interface BindableSource<T> {
 
-    abstract fun get(context: Context): String
+    fun get(context: Context): T
+
+}
+
+sealed class StringSource: BindableSource<String> {
 
     data class Res(@StringRes val resId: Int): StringSource() {
 
@@ -23,7 +29,13 @@ sealed class StringSource {
 
     }
 
-    data class ResWithFormat(@StringRes val resId: Int, val args: Array<Any>): StringSource() {
+    data class ResWithFormat(@StringRes val resId: Int, val args: Array<out Any>): StringSource() {
+
+        companion object {
+
+            fun create(@StringRes resId: Int, vararg args: Any) = ResWithFormat(resId, args)
+
+        }
 
         override fun get(context: Context): String = context.getString(resId, *args)
 
@@ -54,9 +66,7 @@ sealed class StringSource {
 
 }
 
-sealed class DrawableSource {
-
-    internal abstract fun get(context: Context): Drawable
+sealed class DrawableSource: BindableSource<Drawable>  {
 
     data class Uri(val uri: android.net.Uri): DrawableSource() {
 
@@ -97,6 +107,15 @@ sealed class DrawableSource {
 
             }
 
+        }
+
+    }
+
+    data class Bitmap(val value: android.graphics.Bitmap,
+                      val config: ((BitmapDrawable) -> Unit)? = null): DrawableSource() {
+
+        override fun get(context: Context): Drawable = BitmapDrawable(context.resources, value).apply {
+            config?.invoke(this)
         }
 
     }
