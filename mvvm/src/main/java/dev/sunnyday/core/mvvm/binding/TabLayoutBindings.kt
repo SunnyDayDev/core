@@ -105,6 +105,12 @@ object TabLayoutBindings: Bindings() {
     private class TabsCore<T>(view: TabLayout): BindableCore<TabLayout, TabsCore.Changes>(view),
         TabLayout.OnTabSelectedListener {
 
+        val selectedTab: Tab<T>
+            get() {
+                val tabs = this.tabs ?: error("Tabs is null")
+                return getSelectedTab(tabs, selectedValue)
+            }
+
         private var tabs: List<Tab<T>>? = null
         private var onTabSelected: ((Int, Tab<T>) -> Unit)? = null
         private var onTabUnselected: ((Int, Tab<T>) -> Unit)? = null
@@ -114,11 +120,7 @@ object TabLayoutBindings: Bindings() {
 
         private var selectedValue: T? = null
 
-        val selectedTab: Tab<T>
-            get() {
-                val tabs = this.tabs ?: error("Tabs is null")
-                return getSelectedTab(tabs, selectedValue)
-            }
+        private var isTabsInChanging = false
 
         init {
             view.addOnTabSelectedListener(this)
@@ -178,21 +180,21 @@ object TabLayoutBindings: Bindings() {
 
         override fun onTabReselected(tab: TabLayout.Tab) {
             notifyListener(onTabReselected, tab)
-            updateSelected(tab)
+            updateSelectedByTab(tab)
         }
 
         override fun onTabUnselected(tab: TabLayout.Tab) = notifyListener(onTabUnselected, tab)
 
         override fun onTabSelected(tab: TabLayout.Tab) {
             notifyListener(onTabSelected, tab)
-            updateSelected(tab)
+            updateSelectedByTab(tab)
         }
 
         override fun applyChanges(changes: List<Changes>) {
             changes.forEach {
                 Do exhaustive when(it) {
-                    Changes.TABS -> onTabsChanged()
-                    Changes.SELECTED -> onSelectedChanged()
+                    Changes.TABS -> applyChangedTabs()
+                    Changes.SELECTED -> applyChangedSelected()
                     Changes.LISTENERS -> noop()
                     Changes.SELECTED_INVERSE -> noop()
                 }
@@ -208,7 +210,9 @@ object TabLayoutBindings: Bindings() {
 
         }
 
-        private fun updateSelected(tab: TabLayout.Tab) {
+        private fun updateSelectedByTab(tab: TabLayout.Tab) {
+
+            if (isTabsInChanging) return
 
             val tabs = this.tabs ?: return
 
@@ -221,7 +225,9 @@ object TabLayoutBindings: Bindings() {
 
         }
 
-        private fun onTabsChanged() {
+        private fun applyChangedTabs() {
+
+            isTabsInChanging = true
 
             view.removeAllTabs()
 
@@ -236,22 +242,29 @@ object TabLayoutBindings: Bindings() {
                 })
             }
 
-            val selectedTab = tabs.find { it.value == selectedValue }
+            val selectedValue = this.selectedValue
+            val selectedTabIndex = tabs.indexOfFirst { it.value == selectedValue }
 
-            if (selectedTab != null) {
-                view.getTabAt(tabs.indexOf(selectedTab))?.select()
+            if (selectedTabIndex != -1) {
+                view.getTabAt(selectedTabIndex)?.select()
             } else {
                 this.selectedValue = tabs.first().value
+                view.getTabAt(0)?.select()
                 selectedInverse?.onChange()
             }
 
+            isTabsInChanging = false
+
         }
 
-        private fun onSelectedChanged() {
+        private fun applyChangedSelected() {
 
             val tabs = this.tabs ?: return
+            val tab = view.getTabAt(tabs.indexOf(getSelectedTab(tabs, selectedValue))) ?: return
 
-            view.getTabAt(tabs.indexOf(getSelectedTab(tabs, selectedValue)))?.select()
+            if (!tab.isSelected) {
+                tab.select()
+            }
 
         }
 
