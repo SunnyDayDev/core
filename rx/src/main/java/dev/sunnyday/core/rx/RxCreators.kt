@@ -12,21 +12,29 @@ import io.reactivex.rxkotlin.Singles
  */
 
 fun <T> Observables.combineLatest(sources: Iterable<Observable<T>>): Observable<List<T>> {
+
+    if (sources.none()) return Observable.just(emptyList())
+
     return Observable.combineLatest(sources) { results ->
         results.map {
             @Suppress("UNCHECKED_CAST")
             it as T
         }
     }
+
 }
 
 fun <T> Singles.zip(sources: Iterable<Single<T>>): Single<List<T>> {
+
+    if (sources.none()) return Single.just(emptyList())
+
     return Single.zip(sources) { results ->
         results.map {
             @Suppress("UNCHECKED_CAST")
             it as T
         }
     }
+
 }
 
 fun <T> Singles.concat(list: List<Single<T>>): Flowable<T> {
