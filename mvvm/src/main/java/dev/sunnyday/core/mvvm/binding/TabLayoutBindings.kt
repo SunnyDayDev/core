@@ -1,11 +1,6 @@
 package dev.sunnyday.core.mvvm.binding
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import android.graphics.drawable.Drawable
-import android.os.Handler
-import android.os.Looper
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.databinding.BindingAdapter
@@ -22,15 +17,15 @@ import dev.sunnyday.core.runtime.noop
  */
 
 class Tab<T> constructor(
-    internal val text: StringSource,
-    internal val icon: DrawableSource?,
+    internal val text: BindableSource<String>,
+    internal val icon: BindableSource<Drawable>?,
     val value: T
 ) {
 
     class Builder<T>(private val value: T) {
 
-        private lateinit var textSource: StringSource
-        private var iconSource: DrawableSource? = null
+        private var textSource: BindableSource<String> = StringSource.Raw("")
+        private var iconSource: BindableSource<Drawable>? = null
 
         fun text(@StringRes resId: Int) = apply {
             textSource = StringSource.Res(resId)
@@ -48,31 +43,9 @@ class Tab<T> constructor(
             iconSource = DrawableSource.Raw(icon)
         }
 
-        fun create(): Tab<T> {
-
-            if (!this::textSource.isInitialized) error("Text should be setted.")
-
-            return Tab(textSource, iconSource, value)
-
-        }
-
+        fun create(): Tab<T> = Tab(textSource, iconSource, value)
 
     }
-
-}
-
-fun Context.findActivity(): Activity? {
-
-    var context = this
-
-    while (context is ContextWrapper) {
-        if (context is Activity) {
-            return context
-        }
-        context = context.baseContext
-    }
-
-    return null
 
 }
  
@@ -86,18 +59,17 @@ object TabLayoutBindings: Bindings() {
     @JvmStatic
     @InverseBindingAdapter(attribute = "selectedTab")
     fun <T> inverseSelectedTab(view: TabLayout): Tab<T> =
-        view.core<T>().selected
+        view.core<T>().selectedTab
 
     @JvmStatic
     @BindingAdapter("selectedTab", "selectedTabAttrChanged", requireAll = false)
     fun <T> bindTabsSelected(view: TabLayout, tab: Tab<T>, inverse: InverseBindingListener?) =
-        view.core<T>().setSelected(tab, inverse)
+        view.core<T>().setSelected(tab.value, inverse)
 
     @JvmStatic
     @InverseBindingAdapter(attribute = "selectedValue")
     fun <T> inverseSelectedValue(view: TabLayout): T =
-        view.core<T>().selected.value
-
+        view.core<T>().selectedTab.value
 
     @JvmStatic
     @BindingAdapter("selectedValue", "selectedValueAttrChanged", requireAll = false)
@@ -133,10 +105,6 @@ object TabLayoutBindings: Bindings() {
     private class TabsCore<T>(view: TabLayout): BindableCore<TabLayout, TabsCore.Changes>(view),
         TabLayout.OnTabSelectedListener {
 
-        lateinit var selected: Tab<T>
-
-        private val uiHandler = Handler(Looper.getMainLooper())
-
         private var tabs: List<Tab<T>>? = null
         private var onTabSelected: ((Int, Tab<T>) -> Unit)? = null
         private var onTabUnselected: ((Int, Tab<T>) -> Unit)? = null
@@ -144,23 +112,41 @@ object TabLayoutBindings: Bindings() {
 
         private var selectedInverse: InverseBindingListener? = null
 
+        private var selectedValue: T? = null
+
+        val selectedTab: Tab<T>
+            get() {
+                val tabs = this.tabs ?: error("Tabs is null")
+                return getSelectedTab(tabs, selectedValue)
+            }
+
         init {
             view.addOnTabSelectedListener(this)
         }
 
         fun setTabs(tabs: List<Tab<T>>?) {
+
+            if (tabs?.isEmpty() == true) {
+                error("Tabs should be not empty.")
+            }
+
+            if (tabs != null && tabs.distinctBy { it.value } .size != tabs.size) {
+                error("Tabs should have unique values.")
+            }
+
             if (this.tabs === tabs) return
             this.tabs = tabs
-            notifyChanges(Changes.TABS, Changes.SELECTED)
+
+            notifyChanges(Changes.TABS)
+
         }
 
-        fun setSelected(tab: Tab<T>, inverse: InverseBindingListener?) {
+        fun setSelected(value: T, inverse: InverseBindingListener?) {
 
-            if ((this::selected.isInitialized && this.selected === tab) &&
-                this.selectedInverse === inverse) return
+            if (this.selectedValue == value && this.selectedInverse === inverse) return
 
-            if (!this::selected.isInitialized || this.selected !== tab) {
-                this.selected = tab
+            if (this.selectedValue != value) {
+                this.selectedValue = value
                 notifyChanges(Changes.SELECTED)
             }
 
@@ -168,13 +154,6 @@ object TabLayoutBindings: Bindings() {
                 this.selectedInverse = inverse
                 notifyChanges(Changes.SELECTED_INVERSE)
             }
-
-        }
-
-        fun setSelected(value: T, inverse: InverseBindingListener?) {
-
-            val tab = tabs?.find { it.value == value } ?: return
-            setSelected(tab, inverse)
 
         }
 
@@ -235,9 +214,9 @@ object TabLayoutBindings: Bindings() {
 
             val newSelected = tabs[tab.position]
 
-            if (this::selected.isInitialized && selected === newSelected) return
+            if (selectedValue == newSelected.value) return
 
-            selected = newSelected
+            selectedValue = newSelected.value
             selectedInverse?.onChange()
 
         }
@@ -257,9 +236,13 @@ object TabLayoutBindings: Bindings() {
                 })
             }
 
-            if (this::selected.isInitialized) {
+            val selectedTab = tabs.find { it.value == selectedValue }
 
-
+            if (selectedTab != null) {
+                view.getTabAt(tabs.indexOf(selectedTab))?.select()
+            } else {
+                this.selectedValue = tabs.first().value
+                selectedInverse?.onChange()
             }
 
         }
@@ -268,11 +251,14 @@ object TabLayoutBindings: Bindings() {
 
             val tabs = this.tabs ?: return
 
-            view.getTabAt(tabs.indexOf(selected))?.select()
+            view.getTabAt(tabs.indexOf(getSelectedTab(tabs, selectedValue)))?.select()
 
         }
 
-        internal enum class Changes(override val applyingOrder: Int): BindableCore.Change {
+        private fun getSelectedTab(tabs: List<Tab<T>>, selectedValue: T?): Tab<T> =
+            tabs.find { it.value == selectedValue } ?: tabs.first()
+
+        internal enum class Changes(override val applyingOrder: Int): Change {
             TABS(1), SELECTED(2), SELECTED_INVERSE(3), LISTENERS(4)
         }
 
