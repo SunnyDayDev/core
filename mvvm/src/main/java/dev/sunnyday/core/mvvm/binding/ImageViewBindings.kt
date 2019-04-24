@@ -7,14 +7,11 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import androidx.databinding.BindingConversion
 import android.graphics.Bitmap
-import android.os.Build
 import androidx.annotation.DrawableRes
-import androidx.core.content.ContextCompat
-import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.bumptech.glide.load.Transformation
 import com.bumptech.glide.request.RequestOptions
 import dev.sunnyday.core.mvvm.R
-import dev.sunnyday.core.ui.util.findActivity
+import dev.sunnyday.core.runtime.alsoDo
 import timber.log.Timber
 import java.lang.IllegalArgumentException
 import java.net.URL
@@ -27,189 +24,198 @@ import java.net.URL
 
 object ImageViewBindings: Bindings() {
 
-    @JvmStatic
-    @BindingConversion
-    fun convertStringToUri(string: String?): Uri? = string?.let { Uri.parse(it) }
-
-    @JvmStatic
-    @BindingConversion
-    fun convertURLToUri(string: URL?): Uri? = string?.let { Uri.parse(it.toString()) }
+    // region Bindings
 
     @JvmStatic
     @BindingAdapter("imageSource")
-    fun bindImageDrawable(view: ImageView, source: ImageSource?) = view.core.setSource(source)
+    fun bindImageSource(view: ImageView, source: BindableSource<Drawable>?) =
+        view.core.setSource(source)
 
     @JvmStatic
-    @BindingAdapter("imageDrawable")
-    fun bindImageDrawable(view: ImageView, drawable: Drawable?) =
-            view.core.setDrawable(drawable)
-
-    @JvmStatic
-    @BindingAdapter("imageUri")
-    fun bindImageUri(view: ImageView, uri: Uri?) = view.core.setUri(uri)
+    @BindingAdapter("imageUriForceUseLoader")
+    fun bindImageUriForceUseLoader(view: ImageView, forceUseLoader: Boolean) =
+        view.core.setForceUseLoader(forceUseLoader)
 
     @JvmStatic
     @BindingAdapter("imageUriCenterCrop")
     fun bindImageUriCenterCrop(view: ImageView, uri: Boolean?) =
-            view.core.setUriCenterCrop(uri)
+        view.core.setUriCenterCrop(uri)
 
     @JvmStatic
     @BindingAdapter("imageUriCenterInside")
     fun bindImageUriCenterInside(view: ImageView, uri: Boolean?) =
-            view.core.setUriCenterInside(uri)
+        view.core.setUriCenterInside(uri)
 
     @JvmStatic
     @BindingAdapter("imageUriCircleCrop")
     fun bindImageUriCircleCrop(view: ImageView, uri: Boolean?) =
-            view.core.setUriCircleCrop(uri)
+        view.core.setUriCircleCrop(uri)
 
     @JvmStatic
     @BindingAdapter("imageUriFitCenter")
     fun bindImageUriFitCenter(view: ImageView, uri: Boolean?) =
-            view.core.setUriFitCenter(uri)
+        view.core.setUriFitCenter(uri)
 
     @JvmStatic
     @BindingAdapter("imageUriTransformation")
     fun bindImageUriTransformation(view: ImageView, transformation: Transformation<Bitmap>?) =
-            view.core.setUriTransformation(transformation)
+        view.core.setUriTransformation(transformation)
 
     @JvmStatic
     @BindingAdapter("imageUriOptions")
     fun bindImageUriOptions(view: ImageView, options: RequestOptions?) =
-            view.core.setUriOptions(options)
+        view.core.setUriOptions(options)
 
     @JvmStatic
     @BindingAdapter("srcCompat")
-    fun bindSrcCompat(view: ImageView, @DrawableRes id: Int) = view.core.setSrcCompat(id)
+    fun bindSrcCompat(view: ImageView, @DrawableRes id: Int) = bindSrc(view, id)
 
     @JvmStatic
     @BindingAdapter("src")
-    fun bindSrc(view: ImageView, @DrawableRes id: Int) = view.core.setSrc(id)
+    fun bindSrc(view: ImageView, @DrawableRes id: Int) = bindImageSource(view, convertResIdToSource(id))
+
+    // endregion
+
+    // region: Conversion
+
+    @JvmStatic
+    @BindingConversion
+    fun convertUriToSource(uri: Uri?): BindableSource<Drawable>? = uri?.let(DrawableSource::Uri)
+
+    @JvmStatic
+    @BindingConversion
+    fun convertURLToSource(url: URL?): BindableSource<Drawable>? {
+        url ?: return null
+        val uri = Uri.parse(url.toString())
+        return convertUriToSource(uri)
+    }
+
+    @JvmStatic
+    @BindingConversion
+    fun convertStringToSource(string: String?): BindableSource<Drawable>? {
+        string ?: return null
+        val uri = Uri.parse(string)
+        return convertUriToSource(uri)
+    }
+
+    @JvmStatic
+    @BindingConversion
+    fun convertResIdToSource(@DrawableRes resId: Int?): BindableSource<Drawable>? = resId?.let(DrawableSource::Res)
+
+    @JvmStatic
+    @BindingConversion
+    fun convertDrawableToSource(drawable: Drawable?): BindableSource<Drawable>? = drawable?.let(DrawableSource::Raw)
+
+    @JvmStatic
+    @BindingConversion
+    fun convertBitmapToSource(bitmap: Bitmap?): BindableSource<Drawable>? = bitmap?.let(DrawableSource::Bitmap)
+
+    // endregion
+
+    // region Helpers
 
     private val ImageView.core get() =
-        getOrSetListener(R.id.binding_imageview_source_core) { SourceCore(this) }
+        getOrSetListener(R.id.binding_imageview_source_core) { ImageSourceCore(this) }
 
-    private class SourceCore(view: ImageView): BindableCore<ImageView, BindableCore.Change.Simple>(view) {
+    private class ImageSourceCore(view: ImageView): BindableCore<ImageView, BindableCore.Change.Simple>(view) {
 
-        private val uriConfig by lazy { UriConfig() }
+        private val uriConfig by lazy { UriConfig() alsoDo {
+            uriConfigInitialized = true
+        } }
+        private var source: BindableSource<Drawable>? = null
 
-        private var applier: ((ImageView) -> Unit)? = null
+        private var isGlideUsed = false
+        private var uriConfigInitialized = false
 
-        private var uriMode = false
-
-        fun setSource(source: ImageSource?) = when(source) {
-            is ImageSource.Uri -> setUri(source.uri)
-            is ImageSource.Drawable -> setDrawable(source.drawable)
-            is ImageSource.Resource -> setSrcCompat(source.id)
-            null -> {
-                applier = { view.setImageDrawable(null) }
-                notifyChanges()
-            }
-        }
-
-        fun setDrawable(drawable: Drawable?) {
-            applier = {
-                view.setImageDrawable(drawable)
-            }
+        fun setSource(source: BindableSource<Drawable>?) {
+            if (source == this.source) return
+            this.source = source
             notifyChanges()
         }
 
-        fun setUri(uri: Uri?) {
-            uriMode = true
-            uriConfig.uri = uri
-            applier = { applyUri(uriConfig) }
+        fun setUriCenterCrop(centerCrop: Boolean?) {
+            if (uriConfig.centerCrop == centerCrop) return
+            uriConfig.centerCrop = centerCrop
             notifyChanges()
         }
 
-        fun setUriCenterCrop(use: Boolean?) {
-            uriConfig.centerCrop = use
-            onUriConfigChanged()
+        fun setUriCenterInside(centerInside: Boolean?) {
+            if (uriConfig.centerInside == centerInside) return
+            uriConfig.centerInside = centerInside
+            notifyChanges()
         }
 
-        fun setUriCenterInside(use: Boolean?) {
-            uriConfig.centerInside = use
-            onUriConfigChanged()
+        fun setUriCircleCrop(circleCrop: Boolean?) {
+            if (uriConfig.circleCrop == circleCrop) return
+            uriConfig.circleCrop = circleCrop
+            notifyChanges()
         }
 
-        fun setUriCircleCrop(use: Boolean?) {
-            uriConfig.circleCrop = use
-            onUriConfigChanged()
-        }
-
-        fun setUriFitCenter(use: Boolean?) {
-            uriConfig.fitCenter = use
-            onUriConfigChanged()
+        fun setUriFitCenter(fitCenter: Boolean?) {
+            if (uriConfig.fitCenter == fitCenter) return
+            uriConfig.fitCenter = fitCenter
+            notifyChanges()
         }
 
         fun setUriTransformation(transformation: Transformation<Bitmap>?) {
+            if (uriConfig.transformation == transformation) return
             uriConfig.transformation = transformation
-            onUriConfigChanged()
-        }
-
-        fun setUriOptions(options: RequestOptions?) {
-            uriConfig.options = options
-            onUriConfigChanged()
-        }
-
-        fun setSrc(@DrawableRes id: Int) {
-            uriMode = false
-            applier = {
-                if (id == -1) {
-                    view.setImageDrawable(null)
-                } else {
-                    view.setImageDrawable(ContextCompat.getDrawable(view.context, id))
-                }
-            }
             notifyChanges()
         }
 
-        fun setSrcCompat(@DrawableRes id: Int) {
-            uriMode = false
-            applier = {
-                if (id == -1) {
-                    view.setImageDrawable(null)
-                } else {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        view.setImageDrawable(ContextCompat.getDrawable(view.context, id))
-                    } else {
-                        try {
-                            view.setImageDrawable(ContextCompat.getDrawable(view.context, id))
-                        } catch (e: Throwable) {
-                            try {
-                                val vector = VectorDrawableCompat.create(
-                                        view.resources, id, view.findActivity()?.theme)
-                                view.setImageDrawable(vector)
-                            } catch (ignored: Throwable) {
-                                throw e
-                            }
-                        }
-                    }
-                }
-            }
+        fun setUriOptions(options: RequestOptions?) {
+            if (uriConfig.options == options) return
+            uriConfig.options = options
+            notifyChanges()
+        }
+
+        fun setForceUseLoader(forceUseLoader: Boolean) {
+            if (uriConfig.forceUseLoader == forceUseLoader) return
+            uriConfig.forceUseLoader = forceUseLoader
             notifyChanges()
         }
 
         override fun applyChanges(changes: List<Change.Simple>) {
-            applier?.invoke(view)
+
+            clearGlideIfWasUsed()
+
+            when (val source = this.source) {
+                is DrawableSource.Uri -> applyUriSource(source)
+                else -> applyCommonSource()
+            }
+
         }
 
-        private fun onUriConfigChanged() {
-            if (uriMode) {
-                applier = { applyUri(uriConfig) }
-                notifyChanges()
+        private fun applyUriSource(source: DrawableSource.Uri) {
+            if (uriConfigInitialized && uriConfig.forceUseLoader) {
+                applyUriByLoader(source.uri)
+            } else {
+                when (source.uri.scheme) {
+                    "http", "https" -> applyUriByLoader(source.uri)
+                    else -> applyCommonSource()
+                }
             }
         }
 
-        private fun applyUri(uriConfig: UriConfig) {
+        private fun applyCommonSource() {
+            view.setImageDrawable(source?.get(view.context))
+        }
+
+        private fun clearGlideIfWasUsed() {
+            if (isGlideUsed) {
+                Glide.with(view).clear(view)
+                isGlideUsed = false
+            }
+        }
+
+        private fun applyUriByLoader(uri: Uri) {
             try {
+
+                isGlideUsed = true
 
                 val glide = Glide.with(view)
 
-                glide.clear(view)
-
-                val uri = uriConfig.uri ?: return Unit.also {
-                    view.setImageDrawable(null)
-                }
+                val uriConfig = this.uriConfig.copy()
 
                 val options = (uriConfig.options ?: RequestOptions())
                         .applyIf(uriConfig.centerCrop) { centerCrop() }
@@ -244,7 +250,8 @@ object ImageViewBindings: Bindings() {
                 var centerInside: Boolean? = null,
                 var circleCrop: Boolean? = null,
                 var fitCenter: Boolean? = null,
-                var transformation: Transformation<Bitmap>? = null
+                var transformation: Transformation<Bitmap>? = null,
+                var forceUseLoader: Boolean = false
         )
 
         private fun RequestOptions.applyIf(
@@ -259,14 +266,6 @@ object ImageViewBindings: Bindings() {
 
     }
 
-}
-
-sealed class ImageSource {
-
-    class Uri(val uri: android.net.Uri?): ImageSource()
-
-    class Drawable(val drawable: android.graphics.drawable.Drawable?): ImageSource()
-
-    class Resource(@DrawableRes val id: Int): ImageSource()
+    // endregion
 
 }

@@ -11,7 +11,7 @@ import kotlin.contracts.contract
 @Suppress("NOTHING_TO_INLINE")
 inline infix fun <T> T.alsoDo(@Suppress("UNUSED_PARAMETER") stub: Any): T = this
 
-inline infix fun <T> T.alsoDo(action: () -> Any): T {
+inline infix fun <T> T.alsoDo(action: () -> Unit): T {
     contract {
         callsInPlace(action, InvocationKind.EXACTLY_ONCE)
     }
