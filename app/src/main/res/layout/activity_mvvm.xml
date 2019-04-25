@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable name="vm" type="dev.sunnyday.core_uisample.MVVMActivity.ViewModel"/>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".MainActivity">
+
+        <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                app:imageSource="@{vm.drawable}"
+                tools:ignore="ContentDescription" android:id="@+id/imageView2"
+                app:layout_constraintStart_toEndOf="@+id/imageView3" app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="16dp"/>
+
+        <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                app:imageSource="@{vm.drawable2}"
+                tools:ignore="ContentDescription" android:id="@+id/imageView"
+                app:layout_constraintStart_toEndOf="@+id/imageView4" app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintEnd_toStartOf="@+id/imageView3" app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="16dp"/>
+
+        <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                app:imageSource="@{vm.drawable3}"
+                tools:ignore="ContentDescription" android:id="@+id/imageView3"
+                app:layout_constraintStart_toEndOf="@+id/imageView"
+                app:layout_constraintHorizontal_bias="0.5" app:layout_constraintEnd_toStartOf="@+id/imageView2"
+                app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="16dp"/>
+
+        <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                app:imageSource="@{vm.drawable3}"
+                app:imageUriForceUseLoader="@{false}"
+                tools:ignore="ContentDescription" android:id="@+id/imageView4"
+                app:layout_constraintStart_toStartOf="parent" app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintEnd_toStartOf="@+id/imageView" app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="16dp"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

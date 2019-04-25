@@ -1,5 +1,6 @@
 package dev.sunnyday.core.mvvm.binding
 
+import android.content.ContentResolver
 import androidx.databinding.BindingAdapter
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -33,7 +34,7 @@ object ImageViewBindings: Bindings() {
 
     @JvmStatic
     @BindingAdapter("imageUriForceUseLoader")
-    fun bindImageUriForceUseLoader(view: ImageView, forceUseLoader: Boolean) =
+    fun bindImageUriForceUseLoader(view: ImageView, forceUseLoader: Boolean?) =
         view.core.setForceUseLoader(forceUseLoader)
 
     @JvmStatic
@@ -169,7 +170,7 @@ object ImageViewBindings: Bindings() {
             notifyChanges()
         }
 
-        fun setForceUseLoader(forceUseLoader: Boolean) {
+        fun setForceUseLoader(forceUseLoader: Boolean?) {
             if (uriConfig.forceUseLoader == forceUseLoader) return
             uriConfig.forceUseLoader = forceUseLoader
             notifyChanges()
@@ -187,14 +188,16 @@ object ImageViewBindings: Bindings() {
         }
 
         private fun applyUriSource(source: DrawableSource.Uri) {
-            if (uriConfigInitialized && uriConfig.forceUseLoader) {
+
+            val forceNotUseLoader = uriConfigInitialized && uriConfig.forceUseLoader == false
+            val forceUseLoader = uriConfigInitialized && uriConfig.forceUseLoader == true
+
+            if (forceUseLoader || !forceNotUseLoader && canLoadByLoader(source.uri)) {
                 applyUriByLoader(source.uri)
             } else {
-                when (source.uri.scheme) {
-                    "http", "https" -> applyUriByLoader(source.uri)
-                    else -> applyCommonSource()
-                }
+                applyCommonSource()
             }
+
         }
 
         private fun applyCommonSource() {
@@ -243,6 +246,16 @@ object ImageViewBindings: Bindings() {
 
         }
 
+        private fun canLoadByLoader(uri: Uri): Boolean {
+
+            val scheme = uri.scheme
+
+            return scheme == "http" || scheme == "https" ||
+                    scheme == ContentResolver.SCHEME_FILE ||
+                    scheme == ContentResolver.SCHEME_CONTENT
+
+        }
+
         private data class UriConfig(
                 var uri: Uri? = null,
                 var options: RequestOptions? = null,
@@ -251,7 +264,7 @@ object ImageViewBindings: Bindings() {
                 var circleCrop: Boolean? = null,
                 var fitCenter: Boolean? = null,
                 var transformation: Transformation<Bitmap>? = null,
-                var forceUseLoader: Boolean = false
+                var forceUseLoader: Boolean? = null
         )
 
         private fun RequestOptions.applyIf(
