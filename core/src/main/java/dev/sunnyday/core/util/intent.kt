@@ -18,21 +18,28 @@ fun Intent.makeRestartActivityTask(): Intent {
 
 }
 
-inline fun <reified T: Context> createIntent(pkg: String, config: Intent.() -> Unit = { }) : Intent {
-    return Intent()
-            .setComponent(componentName(pkg, T::class.java))
-            .apply(config)
-}
+inline fun <reified T: Context> intent(pkg: String, config: Intent.() -> Unit = { }) : Intent = Intent()
+    .setComponent(componentName(pkg, T::class.java))
+    .apply(config)
 
-inline fun <reified T: Context> createIntent(
-        context: Context, config: Intent.() -> Unit = { }
-) : Intent = createIntent<T>(context.packageName, config)
+inline fun <reified T: Context> intent(
+        context: Context,
+        config: Intent.() -> Unit = { }
+) : Intent = intent<T>(context.packageName, config)
+
+inline fun <reified T: Context> intent(config: Intent.() -> Unit = { }) : Intent =
+    intent<T>(AppGlobals.applicationContext, config)
 
 fun componentName(pkg: String, klass: Class<*>): ComponentName =
-        ComponentName(pkg, klass.name)
+    ComponentName(pkg, klass.name)
 
-inline fun Intent.withExtras(build: Bundle.() -> Unit): Intent {
+fun componentName(context: Context, klass: Class<*>): ComponentName =
+    ComponentName(context.packageName, klass.name)
+
+fun componentName(klass: Class<*>): ComponentName =
+    ComponentName(AppGlobals.applicationContext, klass.name)
+
+inline fun Intent.withExtras(build: Bundle.() -> Unit): Intent = apply {
     val bundle = extras ?: Bundle()
     putExtras(bundle.apply(build))
-    return this
 }

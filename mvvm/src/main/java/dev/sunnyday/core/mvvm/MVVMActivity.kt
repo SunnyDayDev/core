@@ -55,7 +55,7 @@ abstract class MVVMActivity<Binding: ViewDataBinding>: CoreActivity() {
 
     }
 
-    private fun onViewModelCreated(viewModel: MVVMViewModel) {
+    protected fun onViewModelCreated(viewModel: MVVMViewModel) {
         // no-op
     }
 
