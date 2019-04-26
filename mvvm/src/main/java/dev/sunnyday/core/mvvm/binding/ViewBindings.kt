@@ -9,6 +9,7 @@ import androidx.databinding.InverseBindingListener
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.annotation.RequiresApi
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -16,6 +17,7 @@ import androidx.databinding.adapters.ListenerUtil
 import dev.sunnyday.core.mvvm.observable.Command
 import dev.sunnyday.core.mvvm.observable.TargetedCommand
 import dev.sunnyday.core.mvvm.R
+import dev.sunnyday.core.util.getSystemService
 
 /**
  * Created by sunny on 30.05.2018.
@@ -235,6 +237,22 @@ object ViewBindings: Bindings() {
     @BindingAdapter("tag")
     fun bindTags(view: View, tag: Any) {
         view.tag = tag
+    }
+
+    // endregion
+
+    // region Show/Hide input
+
+    @JvmStatic
+    @BindingAdapter("showInputCommand")
+    fun bindShowInputCommand(view: View, command: Command<Unit>) = command.handle {
+        view.context.getSystemService<InputMethodManager>().showSoftInput(view, 0)
+    }
+
+    @JvmStatic
+    @BindingAdapter("hideInputCommand")
+    fun bindHideInputCommand(view: View, command: Command<Unit>) = command.handle {
+        view.context.getSystemService<InputMethodManager>().hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     // endregion

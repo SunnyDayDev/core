@@ -6,7 +6,6 @@ import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
 import androidx.databinding.adapters.ListenerUtil
 import dev.sunnyday.core.mvvm.R
-import dev.sunnyday.core.mvvm.view.MVVMEditText
 import dev.sunnyday.core.mvvm.view.util.OnSelectionChangedListener
 import timber.log.Timber
 import kotlin.math.min
@@ -74,6 +73,18 @@ object EditTextBindings: Bindings() {
     @InverseBindingAdapter(attribute = "selection")
     fun bindSelectionInverse(view: EditText): TextSelection {
         return TextSelection(view.selectionStart, view.selectionEnd)
+    }
+
+    @JvmStatic
+    @BindingAdapter("imeOptions")
+    fun bindImeOptions(view: EditText, ime: Int) {
+        view.imeOptions = ime
+    }
+
+    @JvmStatic
+    @BindingAdapter("rawInputType")
+    fun bindRawInputType(view: EditText, type: Int) {
+        view.setRawInputType(type)
     }
 
     private class TextSelectionListener(
