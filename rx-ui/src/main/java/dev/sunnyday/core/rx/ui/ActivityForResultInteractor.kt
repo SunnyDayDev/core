@@ -118,7 +118,14 @@ class DefaultActivityForResultInteractor constructor(
                 activeRequests.remove(activeRequest)
             }
             .filter { it.resultCode != Activity.RESULT_CANCELED }
-            .map { request.resultMapper(it.data ?: Intent()) }
+            .flatMap {
+
+                val mappedResult = request.resultMapper(it.data ?: Intent())
+
+                if (mappedResult != null) Maybe.just(mappedResult)
+                else Maybe.empty()
+
+            }
 
     }
 
