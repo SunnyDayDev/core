@@ -58,6 +58,8 @@ interface ActivityForResultInteractor {
 
     fun <T> request(request: ActivityResultRequest<T>): Maybe<T>
 
+    fun <T> checkUnhandled(request: ActivityResultRequest<T>): Maybe<T>
+
 }
 
 class DefaultActivityForResultInteractor constructor(
@@ -68,11 +70,15 @@ class DefaultActivityForResultInteractor constructor(
 
     private val activeRequests = mutableListOf<Int>()
 
+    private val unhandledResults = mutableSetOf<Result>()
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
 
         val willHandled = activeRequests.contains(requestCode)
 
-        resultEventPublisher.onNext(Result(requestCode, resultCode, data))
+        val result = Result(requestCode, resultCode, data)
+        unhandledResults.add(result)
+        resultEventPublisher.onNext(result)
 
         return willHandled
 
@@ -92,11 +98,24 @@ class DefaultActivityForResultInteractor constructor(
                         resultEventPublisher
                                 .filter { it.requestCode == request.requestCode }
                                 .firstElement()
+                                .doOnSuccess { unhandledResults.remove(it) }
                                 .filter { it.resultCode != Activity.RESULT_CANCELED }
                                 .map { request.resultMapper(it.data ?: Intent()) }
                                 .doFinally { activeRequests.remove(request.requestCode) }
 
                     }
+
+    override fun <T> checkUnhandled(request: ActivityResultRequest<T>): Maybe<T> {
+
+        val result = unhandledResults
+            .find { it.requestCode == request.requestCode }
+            ?.also { unhandledResults.remove(it) }
+            ?.takeIf { it.resultCode != Activity.RESULT_CANCELED }
+            ?: return Maybe.empty()
+
+        return Maybe.just(request.resultMapper(result.data ?: Intent()))
+
+    }
 
     private data class Result(val requestCode: Int, val resultCode: Int, val data: Intent?)
 
