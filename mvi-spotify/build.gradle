@@ -5,6 +5,8 @@ apply plugin: 'com.github.dcendents.android-maven'
 group ='dev.sunnyday.core'
 version = ext.lib_version
 
+apply from: '../local_publish.gradle'
+
 android {
 
     compileSdkVersion 28
@@ -40,11 +42,11 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 
-    implementation 'com.spotify.mobius:mobius-core:1.2.1'
+    implementation 'com.spotify.mobius:mobius-core:1.2.2'
     testImplementation 'com.spotify.mobius:mobius-test:1.2.1'
 
-    implementation 'com.spotify.mobius:mobius-rx2:1.2.1'
-    implementation 'com.spotify.mobius:mobius-android:1.2.1'
-    implementation 'com.spotify.mobius:mobius-extras:1.2.1'
+    implementation 'com.spotify.mobius:mobius-rx2:1.2.2'
+    implementation 'com.spotify.mobius:mobius-android:1.2.2'
+    implementation 'com.spotify.mobius:mobius-extras:1.2.2'
 
 }
