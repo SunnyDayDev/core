@@ -3,11 +3,12 @@ package dev.sunnyday.core.rx.ui
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import dev.sunnyday.core.runtime.tryOptional
+import dev.sunnyday.core.rx.invoke
 import dev.sunnyday.core.ui.listener.OnActivityResultListener
 import dev.sunnyday.core.util.equals
 import io.reactivex.Maybe
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
+import io.reactivex.subjects.SingleSubject
 
 /**
  * Created by Aleksandr Tcikin (SunnyDay.Dev) on 09.08.2018.
@@ -58,23 +59,23 @@ interface ActivityForResultInteractor {
 
     fun <T> request(request: ActivityResultRequest<T>): Maybe<T>
 
+    fun <T> checkHasResult(request: ActivityResultRequest<T>): Maybe<T>
+
 }
 
 class DefaultActivityForResultInteractor constructor(
         private val activityTracker: ActivityTracker
 ): ActivityForResultInteractor, OnActivityResultListener {
 
-    private val resultEventPublisher: Subject<Result> = PublishSubject.create()
-
-    private val activeRequests = mutableListOf<Int>()
+    private val activeRequests = mutableListOf<ActiveRequest<*>>()
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
 
-        val willHandled = activeRequests.contains(requestCode)
+        val activeRequest = activeRequests.findLast { it.request.requestCode == requestCode } ?: return false
 
-        resultEventPublisher.onNext(Result(requestCode, resultCode, data))
+        activeRequest.result(Result(resultCode, data))
 
-        return willHandled
+        return true
 
     }
 
@@ -87,18 +88,45 @@ class DefaultActivityForResultInteractor constructor(
 
                         activity.startActivityForResult(request.intentCreator(activity), request.requestCode)
 
-                        activeRequests.add(request.requestCode)
+                        val activeRequest = ActiveRequest(request)
 
-                        resultEventPublisher
-                                .filter { it.requestCode == request.requestCode }
-                                .firstElement()
-                                .filter { it.resultCode != Activity.RESULT_CANCELED }
-                                .map { request.resultMapper(it.data ?: Intent()) }
-                                .doFinally { activeRequests.remove(request.requestCode) }
+                        activeRequests.add(activeRequest)
+
+                        activeRequest.handle()
 
                     }
 
-    private data class Result(val requestCode: Int, val resultCode: Int, val data: Intent?)
+    override fun <T> checkHasResult(request: ActivityResultRequest<T>): Maybe<T> {
+
+         val activeRequestWithResult = tryOptional {
+             @Suppress("UNCHECKED_CAST")
+             activeRequests.findLast {
+                 it.request.requestCode == request.requestCode &&
+                        it.result.hasValue()
+             } as? ActiveRequest<T>
+         } ?: return Maybe.empty()
+
+        return activeRequestWithResult.handle()
+
+    }
+
+    private fun <T> ActiveRequest<T>.handle(): Maybe<T> {
+
+        return result
+            .doOnSuccess {
+                val activeRequest = activeRequests.findLast { it.result === result } ?: return@doOnSuccess
+                activeRequests.remove(activeRequest)
+            }
+            .filter { it.resultCode != Activity.RESULT_CANCELED }
+            .map { request.resultMapper(it.data ?: Intent()) }
+
+    }
+
+    private data class Result(val resultCode: Int, val data: Intent?)
+
+    private class ActiveRequest<T>(val request: ActivityResultRequest<T>) {
+        val result = SingleSubject.create<Result>()
+    }
 
 }
 
