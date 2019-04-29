@@ -74,7 +74,7 @@ abstract class MVVMDialogFragment<Binding: ViewDataBinding>: CoreFragment() {
 
     }
 
-    private fun onViewModelCreated(viewModel: MVVMViewModel) {
+    protected open fun onViewModelCreated(viewModel: MVVMViewModel) {
         // no-op
     }
 
