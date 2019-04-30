@@ -225,3 +225,5 @@ inline fun <reified R: Any> Observable<*>.filter(): Observable<R> =
         mapNotNull { it as? R }
 
 // endregion
+
+inline fun <T> acceptUnit(crossinline creator: () -> T): (Unit) -> T = { creator() }

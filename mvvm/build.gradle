@@ -6,6 +6,8 @@ apply plugin: 'com.github.dcendents.android-maven'
 group ='dev.sunnyday.core'
 version = ext.lib_version
 
+apply from: '../local_publish.gradle'
+
 android {
     compileSdkVersion 28
 

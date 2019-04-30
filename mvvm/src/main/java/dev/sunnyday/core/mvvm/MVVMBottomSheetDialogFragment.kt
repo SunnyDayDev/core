@@ -63,7 +63,7 @@ abstract class MVVMBottomSheetDialogFragment<Binding: ViewDataBinding>: BottomSh
                     .also { binding = it }
                     .root
 
-    private fun onViewModelCreated(viewModel: MVVMViewModel) {
+    protected open fun onViewModelCreated(viewModel: MVVMViewModel) {
         // no-op
     }
 

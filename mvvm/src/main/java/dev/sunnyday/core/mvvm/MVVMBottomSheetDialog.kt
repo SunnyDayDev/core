@@ -69,7 +69,7 @@ abstract class MVVMBottomSheetDialog<Binding: ViewDataBinding>: BottomSheetDialo
         return binding
     }
 
-    private fun onViewModelCreated(viewModel: MVVMViewModel) {
+    protected open fun onViewModelCreated(viewModel: MVVMViewModel) {
         // no-op
     }
 
