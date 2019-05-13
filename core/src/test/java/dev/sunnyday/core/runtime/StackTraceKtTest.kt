@@ -20,8 +20,6 @@ class StackTraceKtTest {
             Any().stackTraceElement(),
             Any().stackTraceElement2(),
             Any().stackTraceElement2(0),
-            Any().stackTraceElement3(),
-            Any().stackTraceElement3(0),
             Any().stackTraceElement4(),
             Any().stackTraceElement4(0)
         )
@@ -31,15 +29,16 @@ class StackTraceKtTest {
 
     }
 
+    @Test
+    fun currentStackTraceElementFunctionTest() {
+        assert(currentStackTraceElement().methodName == "currentStackTraceElementFunctionTest")
+    }
 
-    fun Any.stackTraceElement(): StackTraceElement {
+    private fun Any.stackTraceElement(): StackTraceElement {
         return currentStackTraceElement(shift = 1)
     }
 
     private fun Any.stackTraceElement2(value: Int = 0, stackTraceElement: StackTraceElement = currentStackTraceElement()): StackTraceElement =
-        stackTraceElement
-
-    private fun Any.stackTraceElement3(value: Int = 0, stackTraceElement: StackTraceElement = currentStackTraceElement(shift = 1)): StackTraceElement =
         stackTraceElement
 
     fun Any.stackTraceElement4(value: Int = 0): StackTraceElement {

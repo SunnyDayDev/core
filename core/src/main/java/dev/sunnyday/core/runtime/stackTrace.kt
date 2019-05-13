@@ -7,8 +7,11 @@ package dev.sunnyday.core.runtime
 
 fun currentStackTraceElement(shift: Int = 0): StackTraceElement {
 
-    return Thread.currentThread().stackTrace
-        .drop(2 + shift)
-        .first { !it.methodName.endsWith("\$default") }
+    val filteredStackTrace = Thread.currentThread().stackTrace
+        .filterNot { it.methodName.endsWith("\$default") }
+        .drop(2)
+        .dropWhile { it.className == "dev.sunnyday.core.runtime.StackTraceKt" }
+
+    return filteredStackTrace[shift]
 
 }

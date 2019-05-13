@@ -105,7 +105,7 @@ fun Completable.debug(tag: String? = null): Completable {
 // region Utils
 
 private fun tagByStackTrace(): String {
-    val callLine = Thread.currentThread().stackTrace[5]
+    val callLine = currentStackTraceElement(2)
     return "${callLine.className.split(".").last()}.${callLine.methodName}:${callLine.lineNumber}"
 }
 
