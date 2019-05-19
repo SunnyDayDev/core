@@ -30,7 +30,7 @@ object Bindables {
         get() = manualFields ?: reflectFields
         set(value) { manualFields = value }
 
-    fun scanFieldsMap(clazz: Class<*>): Map<String, Int> = clazz.fields
+    private fun scanFieldsMap(clazz: Class<*>): Map<String, Int> = clazz.fields
             .filter { it.type == Int::class.javaObjectType || it.type == Int::class.javaPrimitiveType }
             .associate { it.name to it.get(null) as Int }
 
@@ -39,6 +39,7 @@ object Bindables {
 internal class BindableDelegate<in R: NotifiableObservable, T: Any?> (
         private var value: T,
         private val id: Int?,
+        private var notifyOnlyIfChanged: Boolean,
         private val onChange: ((T) -> Unit)? = null
 ): ReadWriteProperty<R, T> {
 
@@ -48,12 +49,21 @@ internal class BindableDelegate<in R: NotifiableObservable, T: Any?> (
 
     override operator fun setValue(thisRef: R, property: KProperty<*>, value: T) {
 
+        val shouldNotify = !notifyOnlyIfChanged || this.value != value
+
         this.value = value
+
+        if (shouldNotify) {
+            notifyChanged(thisRef, property, value)
+        }
+
+    }
+
+    private fun notifyChanged(thisRef: R, property: KProperty<*>, value: T) {
 
         val checkedId = getBindablePropertyId(property)
 
         thisRef.notifyPropertyChanged(checkedId)
-
         onChange?.invoke(value)
 
     }
@@ -88,11 +98,7 @@ internal class BindableDelegate<in R: NotifiableObservable, T: Any?> (
 
 fun <R: NotifiableObservable, T: Any?> bindable(
         initialValue: T,
+        id: Int? = null,
+        notifyOnlyIfChanged: Boolean = true,
         onChange: ((T) -> Unit)? = null
-): ReadWriteProperty<R, T> = bindable(initialValue, null, onChange)
-
-fun <R: NotifiableObservable, T: Any?> bindable(
-        initialValue: T,
-        id: Int?,
-        onChange: ((T) -> Unit)? = null
-): ReadWriteProperty<R, T> = BindableDelegate(initialValue, id, onChange)
+): ReadWriteProperty<R, T> = BindableDelegate(initialValue, id, notifyOnlyIfChanged, onChange)
