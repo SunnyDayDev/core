@@ -1,12 +1,14 @@
 package dev.sunnyday.core.mvvm.binding
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.webkit.*
 import androidx.databinding.BindingAdapter
+import androidx.databinding.BindingConversion
 import androidx.databinding.adapters.ListenerUtil
 import dev.sunnyday.core.mvvm.R
 import dev.sunnyday.core.mvvm.observable.Command
@@ -60,8 +62,14 @@ object WebViewBindings: Bindings() {
 
     @JvmStatic
     @BindingAdapter("settingsConfigurator")
-    fun bindSettingsConfigurator(view: WebView, configurator: WebViewSettingsConfigurator) {
-        configurator.configure(view.settings)
+    fun bindSettingsConfigurator(view: WebView, configurator: WebSettings.() -> Unit) {
+        configurator(view.settings)
+    }
+
+    @JvmStatic
+    @BindingAdapter("configurator")
+    fun bindConfigurator(view: WebView, configurator: WebView.() -> Unit) {
+        configurator(view)
     }
 
     @JvmStatic
@@ -215,6 +223,14 @@ object WebViewBindings: Bindings() {
 
     }
 
+    @BindingConversion
+    @JvmStatic
+    fun convertStringToWebViewUrl(url: String) = WebViewUrl(url)
+
+    @BindingConversion
+    @JvmStatic
+    fun convertUriToWebViewUrl(url: Uri) = WebViewUrl(url.toString())
+
     private fun WebBackForwardList.backStackIsBlank(): Boolean =
             (0 until currentIndex)
                     .map { getItemAtIndex(it).originalUrl }
@@ -241,12 +257,6 @@ object WebViewBindings: Bindings() {
         clearViewCompat()
         clearCache(false)
         clearHistory()
-    }
-
-    interface WebViewSettingsConfigurator {
-
-        fun configure(settings: WebSettings)
-
     }
 
 }
