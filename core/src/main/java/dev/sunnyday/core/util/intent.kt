@@ -18,16 +18,16 @@ fun Intent.makeRestartActivityTask(): Intent {
 
 }
 
-inline fun <reified T: Context> intent(pkg: String, config: Intent.() -> Unit = { }) : Intent = Intent()
+inline fun <reified T: Any> intent(pkg: String, config: Intent.() -> Unit = { }) : Intent = Intent()
     .setComponent(componentName(pkg, T::class.java))
     .apply(config)
 
-inline fun <reified T: Context> intent(
+inline fun <reified T: Any> intent(
         context: Context,
         config: Intent.() -> Unit = { }
 ) : Intent = intent<T>(context.packageName, config)
 
-inline fun <reified T: Context> intent(config: Intent.() -> Unit = { }) : Intent =
+inline fun <reified T: Any> intent(config: Intent.() -> Unit = { }) : Intent =
     intent<T>(AppGlobals.applicationContext, config)
 
 fun componentName(pkg: String, klass: Class<*>): ComponentName =
