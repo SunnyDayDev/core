@@ -28,105 +28,89 @@ interface AppSchedulers {
 
 }
 
-fun ioToBackground(schedulers: AppSchedulers): SchedulesApplier =
-    SchedulesApplier(subscribe = schedulers.io, observe = schedulers.background)
+fun ioToBackground(schedulers: AppSchedulers): CombinedSchedules =
+    CombinedSchedules(subscribe = schedulers.io, observe = schedulers.background)
 
-fun ioToUI(schedulers: AppSchedulers): SchedulesApplier =
-    SchedulesApplier(subscribe = schedulers.io, observe = schedulers.ui)
+fun ioToUI(schedulers: AppSchedulers): CombinedSchedules =
+    CombinedSchedules(subscribe = schedulers.io, observe = schedulers.ui)
 
-fun backgroundToUI(schedulers: AppSchedulers): SchedulesApplier =
-    SchedulesApplier(subscribe = schedulers.background, observe = schedulers.ui)
+fun backgroundToUI(schedulers: AppSchedulers): CombinedSchedules =
+    CombinedSchedules(subscribe = schedulers.background, observe = schedulers.ui)
 
-fun ui(schedulers: AppSchedulers): SchedulesApplier =
-    SchedulesApplier(subscribe = null, observe = schedulers.ui)
+fun ui(schedulers: AppSchedulers): CombinedSchedules =
+    CombinedSchedules(observe = schedulers.ui)
 
-data class SchedulesApplier(
-    val subscribe: Scheduler?,
-    val observe: Scheduler?
+data class CombinedSchedules(
+    val subscribe: Scheduler? = null,
+    val observe: Scheduler? = null
 ) {
 
-    fun <T> apply(upstream: Flowable<T>): Flowable<T> {
-        val subscribed = subscribe?.let(upstream::subscribeOn) ?: upstream
-        return observe?.let(subscribed::observeOn) ?: subscribed
+    companion object {
+
+        fun subscribe(scheduler: Scheduler) = CombinedSchedules(subscribe = scheduler)
+
+        fun observe(scheduler: Scheduler) = CombinedSchedules(observe = scheduler)
+
     }
 
-    fun <T> apply(upstream: Observable<T>): Observable<T> {
-        val subscribed = subscribe?.let(upstream::subscribeOn) ?: upstream
-        return observe?.let(subscribed::observeOn) ?: subscribed
-    }
-
-    fun <T> apply(upstream: Single<T>): Single<T> {
-        val subscribed = subscribe?.let(upstream::subscribeOn) ?: upstream
-        return observe?.let(subscribed::observeOn) ?: subscribed
-    }
-
-    fun <T> apply(upstream: Maybe<T>): Maybe<T> {
-        val subscribed = subscribe?.let(upstream::subscribeOn) ?: upstream
-        return observe?.let(subscribed::observeOn) ?: subscribed
-    }
-
-    fun apply(upstream: Completable): Completable {
-        val subscribed = subscribe?.let(upstream::subscribeOn) ?: upstream
-        return observe?.let(subscribed::observeOn) ?: subscribed
-    }
-
-    internal operator fun plus(schedulesApplier: SchedulesApplier): SchedulesApplier =
-        SchedulesApplier(
+    internal operator fun plus(schedulesApplier: CombinedSchedules): CombinedSchedules =
+        CombinedSchedules(
             subscribe = this.subscribe ?: schedulesApplier.subscribe,
             observe = schedulesApplier.observe ?: this.observe
         )
 
 }
 
-fun <T> Flowable<T>.applySchedules(applier: SchedulesApplier): Flowable<T> {
+fun <T> Flowable<T>.applySchedules(schedules: CombinedSchedules): Flowable<T> {
     return if (this is SchedulesApplierFlowable) {
-        SchedulesApplierFlowable(this.applier + applier, this.upstream)
+        SchedulesApplierFlowable(this.schedules + schedules, this.upstream)
     } else {
-        SchedulesApplierFlowable(applier, this)
+        SchedulesApplierFlowable(schedules, this)
     }
 }
 
-fun <T> Observable<T>.applySchedules(applier: SchedulesApplier): Observable<T> {
+fun <T> Observable<T>.applySchedules(schedules: CombinedSchedules): Observable<T> {
     return if (this is SchedulesApplierObservable) {
-        SchedulesApplierObservable(this.applier + applier, this.upstream)
+        SchedulesApplierObservable(this.schedules + schedules, this.upstream)
     } else {
-        SchedulesApplierObservable(applier, this)
+        SchedulesApplierObservable(schedules, this)
     }
 }
 
-fun <T> Single<T>.applySchedules(applier: SchedulesApplier): Single<T> {
+fun <T> Single<T>.applySchedules(schedules: CombinedSchedules): Single<T> {
     return if (this is SchedulesApplierSingle) {
-        SchedulesApplierSingle(this.applier + applier, this.upstream)
+        SchedulesApplierSingle(this.schedules + schedules, this.upstream)
     } else {
-        SchedulesApplierSingle(applier, this)
+        SchedulesApplierSingle(schedules, this)
     }
 }
 
-fun <T> Maybe<T>.applySchedules(applier: SchedulesApplier): Maybe<T> {
+fun <T> Maybe<T>.applySchedules(schedules: CombinedSchedules): Maybe<T> {
     return if (this is SchedulesApplierMaybe) {
-        SchedulesApplierMaybe(this.applier + applier, this.upstream)
+        SchedulesApplierMaybe(this.schedules + schedules, this.upstream)
     } else {
-        SchedulesApplierMaybe(applier, this)
+        SchedulesApplierMaybe(schedules, this)
     }
 }
 
-fun Completable.applySchedules(applier: SchedulesApplier): Completable {
+fun Completable.applySchedules(schedules: CombinedSchedules): Completable {
     return if (this is SchedulesApplierCompletable) {
-        SchedulesApplierCompletable(this.applier + applier, this.upstream)
+        SchedulesApplierCompletable(this.schedules + schedules, this.upstream)
     } else {
-        SchedulesApplierCompletable(applier, this)
+        SchedulesApplierCompletable(schedules, this)
     }
 }
 
 private class SchedulesApplierFlowable<T>(
-    internal var applier: SchedulesApplier,
+    internal var schedules: CombinedSchedules,
     internal val upstream: Flowable<T>
 ): Flowable<T>() {
 
     override fun subscribeActual(observer: Subscriber<in T>) {
 
         upstream
-            .applySchedules(applier)
+            .let { schedules.subscribe?.let(it::subscribeOn) ?:  it }
+            .let { schedules.observe?.let(it::observeOn) ?:  it }
             .subscribe(observer)
 
     }
@@ -134,14 +118,15 @@ private class SchedulesApplierFlowable<T>(
 }
 
 private class SchedulesApplierObservable<T>(
-    internal var applier: SchedulesApplier,
+    internal var schedules: CombinedSchedules,
     internal val upstream: Observable<T>
 ): Observable<T>() {
 
     override fun subscribeActual(observer: Observer<in T>) {
 
         upstream
-            .applySchedules(applier)
+            .let { schedules.subscribe?.let(it::subscribeOn) ?:  it }
+            .let { schedules.observe?.let(it::observeOn) ?:  it }
             .subscribe(observer)
 
     }
@@ -149,14 +134,15 @@ private class SchedulesApplierObservable<T>(
 }
 
 private class SchedulesApplierSingle<T>(
-    internal var applier: SchedulesApplier,
+    internal var schedules: CombinedSchedules,
     internal val upstream: Single<T>
 ): Single<T>() {
 
     override fun subscribeActual(observer: SingleObserver<in T>) {
 
         upstream
-            .applySchedules(applier)
+            .let { schedules.subscribe?.let(it::subscribeOn) ?:  it }
+            .let { schedules.observe?.let(it::observeOn) ?:  it }
             .subscribe(observer)
 
     }
@@ -164,14 +150,15 @@ private class SchedulesApplierSingle<T>(
 }
 
 private class SchedulesApplierMaybe<T>(
-    internal var applier: SchedulesApplier,
+    internal var schedules: CombinedSchedules,
     internal val upstream: Maybe<T>
 ): Maybe<T>() {
 
     override fun subscribeActual(observer: MaybeObserver<in T>) {
 
         upstream
-            .applySchedules(applier)
+            .let { schedules.subscribe?.let(it::subscribeOn) ?:  it }
+            .let { schedules.observe?.let(it::observeOn) ?:  it }
             .subscribe(observer)
 
     }
@@ -179,14 +166,15 @@ private class SchedulesApplierMaybe<T>(
 }
 
 private class SchedulesApplierCompletable(
-    internal var applier: SchedulesApplier,
+    internal var schedules: CombinedSchedules,
     internal val upstream: Completable
 ): Completable() {
 
     override fun subscribeActual(observer: CompletableObserver) {
 
         upstream
-            .applySchedules(applier)
+            .let { schedules.subscribe?.let(it::subscribeOn) ?:  it }
+            .let { schedules.observe?.let(it::observeOn) ?:  it }
             .subscribe(observer)
 
     }
