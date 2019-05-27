@@ -3,6 +3,7 @@ package dev.sunnyday.core.rx
 import io.reactivex.*
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.android.schedulers.AndroidSchedulers
+import org.reactivestreams.Subscriber
 
 /**
  * Created by Aleksandr Tcikin (SunnyDay.Dev) on 2019-05-21.
@@ -27,18 +28,21 @@ interface AppSchedulers {
 
 }
 
-fun ioToBackground(schedulers: AppSchedulers): ScheduleApplier =
-    ScheduleApplier(schedulers.io, schedulers.background)
+fun ioToBackground(schedulers: AppSchedulers): SchedulesApplier =
+    SchedulesApplier(subscribe = schedulers.io, observe = schedulers.background)
 
-fun ioToUI(schedulers: AppSchedulers): ScheduleApplier =
-    ScheduleApplier(schedulers.io, schedulers.ui)
+fun ioToUI(schedulers: AppSchedulers): SchedulesApplier =
+    SchedulesApplier(subscribe = schedulers.io, observe = schedulers.ui)
 
-fun backgroundToUI(schedulers: AppSchedulers): ScheduleApplier =
-    ScheduleApplier(schedulers.background, schedulers.ui)
+fun backgroundToUI(schedulers: AppSchedulers): SchedulesApplier =
+    SchedulesApplier(subscribe = schedulers.background, observe = schedulers.ui)
 
-class ScheduleApplier(
-    private val subscribe: Scheduler?,
-    private val observe: Scheduler?
+fun ui(schedulers: AppSchedulers): SchedulesApplier =
+    SchedulesApplier(subscribe = null, observe = schedulers.ui)
+
+data class SchedulesApplier(
+    val subscribe: Scheduler?,
+    val observe: Scheduler?
 ) {
 
     fun <T> apply(upstream: Flowable<T>): Flowable<T> {
@@ -66,14 +70,125 @@ class ScheduleApplier(
         return observe?.let(subscribed::observeOn) ?: subscribed
     }
 
+    internal operator fun plus(schedulesApplier: SchedulesApplier): SchedulesApplier =
+        SchedulesApplier(
+            subscribe = this.subscribe ?: schedulesApplier.subscribe,
+            observe = schedulesApplier.observe ?: this.observe
+        )
+
 }
 
-fun <T> Flowable<T>.applySchedules(applier: ScheduleApplier): Flowable<T> = compose(applier::apply)
+fun <T> Flowable<T>.applySchedules(applier: SchedulesApplier): Flowable<T> {
+    return if (this is SchedulesApplierFlowable) {
+        SchedulesApplierFlowable(this.applier + applier, this.upstream)
+    } else {
+        SchedulesApplierFlowable(applier, this)
+    }
+}
 
-fun <T> Observable<T>.applySchedules(applier: ScheduleApplier): Observable<T> = compose(applier::apply)
+fun <T> Observable<T>.applySchedules(applier: SchedulesApplier): Observable<T> {
+    return if (this is SchedulesApplierObservable) {
+        SchedulesApplierObservable(this.applier + applier, this.upstream)
+    } else {
+        SchedulesApplierObservable(applier, this)
+    }
+}
 
-fun <T> Single<T>.applySchedules(applier: ScheduleApplier): Single<T> = compose(applier::apply)
+fun <T> Single<T>.applySchedules(applier: SchedulesApplier): Single<T> {
+    return if (this is SchedulesApplierSingle) {
+        SchedulesApplierSingle(this.applier + applier, this.upstream)
+    } else {
+        SchedulesApplierSingle(applier, this)
+    }
+}
 
-fun <T> Maybe<T>.applySchedules(applier: ScheduleApplier): Maybe<T> = compose(applier::apply)
+fun <T> Maybe<T>.applySchedules(applier: SchedulesApplier): Maybe<T> {
+    return if (this is SchedulesApplierMaybe) {
+        SchedulesApplierMaybe(this.applier + applier, this.upstream)
+    } else {
+        SchedulesApplierMaybe(applier, this)
+    }
+}
 
-fun Completable.applySchedules(applier: ScheduleApplier): Completable = compose(applier::apply)
+fun Completable.applySchedules(applier: SchedulesApplier): Completable {
+    return if (this is SchedulesApplierCompletable) {
+        SchedulesApplierCompletable(this.applier + applier, this.upstream)
+    } else {
+        SchedulesApplierCompletable(applier, this)
+    }
+}
+
+private class SchedulesApplierFlowable<T>(
+    internal var applier: SchedulesApplier,
+    internal val upstream: Flowable<T>
+): Flowable<T>() {
+
+    override fun subscribeActual(observer: Subscriber<in T>) {
+
+        upstream
+            .applySchedules(applier)
+            .subscribe(observer)
+
+    }
+
+}
+
+private class SchedulesApplierObservable<T>(
+    internal var applier: SchedulesApplier,
+    internal val upstream: Observable<T>
+): Observable<T>() {
+
+    override fun subscribeActual(observer: Observer<in T>) {
+
+        upstream
+            .applySchedules(applier)
+            .subscribe(observer)
+
+    }
+
+}
+
+private class SchedulesApplierSingle<T>(
+    internal var applier: SchedulesApplier,
+    internal val upstream: Single<T>
+): Single<T>() {
+
+    override fun subscribeActual(observer: SingleObserver<in T>) {
+
+        upstream
+            .applySchedules(applier)
+            .subscribe(observer)
+
+    }
+
+}
+
+private class SchedulesApplierMaybe<T>(
+    internal var applier: SchedulesApplier,
+    internal val upstream: Maybe<T>
+): Maybe<T>() {
+
+    override fun subscribeActual(observer: MaybeObserver<in T>) {
+
+        upstream
+            .applySchedules(applier)
+            .subscribe(observer)
+
+    }
+
+}
+
+private class SchedulesApplierCompletable(
+    internal var applier: SchedulesApplier,
+    internal val upstream: Completable
+): Completable() {
+
+    override fun subscribeActual(observer: CompletableObserver) {
+
+        upstream
+            .applySchedules(applier)
+            .subscribe(observer)
+
+    }
+
+}
