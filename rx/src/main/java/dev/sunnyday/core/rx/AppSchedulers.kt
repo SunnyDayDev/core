@@ -28,17 +28,9 @@ interface AppSchedulers {
 
 }
 
-fun ioToBackground(schedulers: AppSchedulers): CombinedSchedules =
-    CombinedSchedules(subscribe = schedulers.io, observe = schedulers.background)
+fun observeOn(scheduler: Scheduler): CombinedSchedules = CombinedSchedules.observe(scheduler)
 
-fun ioToUI(schedulers: AppSchedulers): CombinedSchedules =
-    CombinedSchedules(subscribe = schedulers.io, observe = schedulers.ui)
-
-fun backgroundToUI(schedulers: AppSchedulers): CombinedSchedules =
-    CombinedSchedules(subscribe = schedulers.background, observe = schedulers.ui)
-
-fun ui(schedulers: AppSchedulers): CombinedSchedules =
-    CombinedSchedules(observe = schedulers.ui)
+fun subscribeOn(scheduler: Scheduler): CombinedSchedules = CombinedSchedules.subscribe(scheduler)
 
 data class CombinedSchedules(
     val subscribe: Scheduler? = null,
@@ -53,7 +45,7 @@ data class CombinedSchedules(
 
     }
 
-    internal operator fun plus(schedulesApplier: CombinedSchedules): CombinedSchedules =
+    operator fun plus(schedulesApplier: CombinedSchedules): CombinedSchedules =
         CombinedSchedules(
             subscribe = this.subscribe ?: schedulesApplier.subscribe,
             observe = schedulesApplier.observe ?: this.observe
@@ -61,7 +53,7 @@ data class CombinedSchedules(
 
 }
 
-fun <T> Flowable<T>.applySchedules(schedules: CombinedSchedules): Flowable<T> {
+fun <T> Flowable<T>.schedule(schedules: CombinedSchedules): Flowable<T> {
     return if (this is SchedulesApplierFlowable) {
         SchedulesApplierFlowable(this.schedules + schedules, this.upstream)
     } else {
@@ -69,7 +61,7 @@ fun <T> Flowable<T>.applySchedules(schedules: CombinedSchedules): Flowable<T> {
     }
 }
 
-fun <T> Observable<T>.applySchedules(schedules: CombinedSchedules): Observable<T> {
+fun <T> Observable<T>.schedule(schedules: CombinedSchedules): Observable<T> {
     return if (this is SchedulesApplierObservable) {
         SchedulesApplierObservable(this.schedules + schedules, this.upstream)
     } else {
@@ -77,7 +69,7 @@ fun <T> Observable<T>.applySchedules(schedules: CombinedSchedules): Observable<T
     }
 }
 
-fun <T> Single<T>.applySchedules(schedules: CombinedSchedules): Single<T> {
+fun <T> Single<T>.schedule(schedules: CombinedSchedules): Single<T> {
     return if (this is SchedulesApplierSingle) {
         SchedulesApplierSingle(this.schedules + schedules, this.upstream)
     } else {
@@ -85,7 +77,7 @@ fun <T> Single<T>.applySchedules(schedules: CombinedSchedules): Single<T> {
     }
 }
 
-fun <T> Maybe<T>.applySchedules(schedules: CombinedSchedules): Maybe<T> {
+fun <T> Maybe<T>.schedule(schedules: CombinedSchedules): Maybe<T> {
     return if (this is SchedulesApplierMaybe) {
         SchedulesApplierMaybe(this.schedules + schedules, this.upstream)
     } else {
@@ -93,7 +85,7 @@ fun <T> Maybe<T>.applySchedules(schedules: CombinedSchedules): Maybe<T> {
     }
 }
 
-fun Completable.applySchedules(schedules: CombinedSchedules): Completable {
+fun Completable.schedule(schedules: CombinedSchedules): Completable {
     return if (this is SchedulesApplierCompletable) {
         SchedulesApplierCompletable(this.schedules + schedules, this.upstream)
     } else {
