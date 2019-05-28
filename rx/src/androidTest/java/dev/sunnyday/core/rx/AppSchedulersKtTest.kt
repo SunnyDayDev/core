@@ -30,46 +30,24 @@ class AppSchedulersKtTest {
     }
 
     @Test
-    fun ioToBackground() {
+    fun observeOn() {
 
         val schedulers = TestAppSchedulers()
 
-        val applier = ioToBackground(schedulers)
-        assertTrue(applier.subscribe === schedulers.io)
-        assertTrue(applier.observe === schedulers.background)
-
-    }
-
-    @Test
-    fun ioToUI() {
-
-        val schedulers = TestAppSchedulers()
-
-        val applier = ioToUI(schedulers)
-        assertTrue(applier.subscribe === schedulers.io)
-        assertTrue(applier.observe === schedulers.ui)
-
-    }
-
-    @Test
-    fun backgroundToUI() {
-
-        val schedulers = TestAppSchedulers()
-
-        val applier = backgroundToUI(schedulers)
-        assertTrue(applier.subscribe === schedulers.background)
-        assertTrue(applier.observe === schedulers.ui)
-
-    }
-
-    @Test
-    fun ui() {
-
-        val schedulers = TestAppSchedulers()
-
-        val applier = ui(schedulers)
+        val applier = observeOn(schedulers.io)
         assertTrue(applier.subscribe === null)
-        assertTrue(applier.observe === schedulers.ui)
+        assertTrue(applier.observe === schedulers.io)
+
+    }
+
+    @Test
+    fun subscribeOn() {
+
+        val schedulers = TestAppSchedulers()
+
+        val applier = subscribeOn(schedulers.io)
+        assertTrue(applier.subscribe === schedulers.io)
+        assertTrue(applier.observe === null)
 
     }
 
@@ -87,7 +65,7 @@ class AppSchedulersKtTest {
                 emitter(Unit)
                 emitter()
             }, BackpressureStrategy.LATEST)
-            .applySchedules(backgroundToUI(schedulers))
+            .schedule(subscribeOn(schedulers.background) + observeOn(schedulers.ui))
             .doOnNext {
                 observedOnUI = schedulers.ui.activeThreads.contains(Thread.currentThread())
             }
@@ -112,7 +90,7 @@ class AppSchedulersKtTest {
                 emitter(Unit)
                 emitter()
             }
-            .applySchedules(ioToBackground(schedulers))
+            .schedule(subscribeOn(schedulers.io) + observeOn(schedulers.background))
             .doOnNext {
                 observedOnBackground = schedulers.background.activeThreads.contains(Thread.currentThread())
             }
@@ -136,7 +114,7 @@ class AppSchedulersKtTest {
                 subscribedOnIO = schedulers.io.activeThreads.contains(Thread.currentThread())
                 emitter(Unit)
             }
-            .applySchedules(ioToUI(schedulers))
+            .schedule(subscribeOn(schedulers.io) + observeOn(schedulers.ui))
             .doOnSuccess {
                 observedOnUI = schedulers.ui.activeThreads.contains(Thread.currentThread())
             }
@@ -162,7 +140,7 @@ class AppSchedulersKtTest {
                 subscribedOnCurrentThread = thread === Thread.currentThread()
                 emitter(Unit)
             }
-            .applySchedules(ui(schedulers))
+            .schedule(observeOn(schedulers.ui))
             .doOnSuccess {
                 observedOnUI = schedulers.ui.activeThreads.contains(Thread.currentThread())
             }
@@ -185,7 +163,7 @@ class AppSchedulersKtTest {
                 subscribedOnBackground = schedulers.background.activeThreads.contains(Thread.currentThread())
                 emitter()
             }
-            .applySchedules(backgroundToUI(schedulers))
+            .schedule(subscribeOn(schedulers.background) + observeOn(schedulers.ui))
             .doOnComplete {
                 observedOnUI = schedulers.ui.activeThreads.contains(Thread.currentThread())
             }
@@ -202,9 +180,11 @@ class AppSchedulersKtTest {
         val schedulers = TestAppSchedulers()
 
         Completable.create { emitter -> emitter() }
-            .applySchedules(ioToBackground(schedulers))
-            .applySchedules(backgroundToUI(schedulers))
-            .applySchedules(ui(schedulers))
+            .schedule(subscribeOn(schedulers.io) + observeOn(schedulers.background))
+            .schedule(subscribeOn(schedulers.background) + observeOn(schedulers.ui))
+            .schedule(observeOn(schedulers.ui))
+            .schedule(observeOn(schedulers.background))
+            .schedule(observeOn(schedulers.ui))
             .blockingGet()
 
         assertTrue(schedulers.io.executedThreadsCount == 1)
@@ -219,13 +199,13 @@ class AppSchedulersKtTest {
         val schedulers = TestAppSchedulers()
 
         Completable.create { emitter -> emitter() }
-            // equals to applySchedules(ioToBackground(schedulers))
+            // equals to schedule(subscribeOn(schedulers.io) + observeOn(schedulers.background))
             .subscribeOn(schedulers.io)
             .observeOn(schedulers.background)
-            // equals to applySchedules(backgroundToUI(schedulers))
+            // equals to schedule(subscribeOn(schedulers.background) + observeOn(schedulers.ui))
             .subscribeOn(schedulers.background)
             .observeOn(schedulers.ui)
-            // equals to applySchedules(ui(schedulers))
+            // equals to schedule(observeOn(schedulers.ui))
             .observeOn(schedulers.ui)
             .blockingGet()
 
