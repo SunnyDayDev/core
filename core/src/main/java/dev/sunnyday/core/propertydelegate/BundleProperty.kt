@@ -2,7 +2,6 @@ package dev.sunnyday.core.propertydelegate
 
 import android.os.Bundle
 import android.os.Parcelable
-import dev.sunnyday.core.util.isNullable
 import org.parceler.Parcels
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -12,131 +11,258 @@ import kotlin.reflect.KProperty
  * mail: mail@sunnyday.dev
  */
 
-inline fun <reified T: Boolean?> bundleBoolean(
-        name: String,
-        noinline defaultValue: () -> T = ::commonPropertyDefaultValue
-) = bundleProperty<T, Boolean>(
-        name = name,
-        defaultValue = defaultValue,
-        set = { bundle -> { key, value -> bundle.putBoolean(key, value) } },
-        get = { bundle -> { key -> bundle.getBoolean(key) } }
-)
+fun bundleBoolean(
+    name: String? = null,
+    default: Boolean
+) = object: BundleProperty<Boolean>(name) {
 
-inline fun <reified T: Int?> bundleInt(
-        name: String,
-        noinline defaultValue: () -> T = ::commonPropertyDefaultValue
-) = bundleProperty<T, Int>(
-        name = name,
-        defaultValue = defaultValue,
-        set = { bundle -> { key, value -> bundle.putInt(key, value) } },
-        get = { bundle -> { key -> bundle.getInt(key) } }
-)
+    override fun getValue(bundle: Bundle, name: String): Boolean = bundle.getBoolean(name)
 
-inline fun <reified T: Long?> bundleLong(
-        name: String,
-        noinline defaultValue: () -> T = ::commonPropertyDefaultValue
-) = bundleProperty<T, Long>(
-        name = name,
-        defaultValue = defaultValue,
-        set = { bundle -> { key, value -> bundle.putLong(key, value) } },
-        get = { bundle -> { key -> bundle.getLong(key) } }
-)
+    override fun setValue(bundle: Bundle, name: String, value: Boolean) = bundle.putBoolean(name, value)
 
-inline fun <reified T: Float?> bundleFloat(
-        name: String,
-        noinline defaultValue: () -> T = ::commonPropertyDefaultValue
-) = bundleProperty<T, Float>(
-        name = name,
-        defaultValue = defaultValue,
-        set = { bundle -> { key, value -> bundle.putFloat(key, value) } },
-        get = { bundle -> { key -> bundle.getFloat(key) } }
-)
+    override fun getUnexistsValue(): Boolean = default
 
-inline fun <reified T: Double?> bundleDouble(
-        name: String,
-        noinline defaultValue: () -> T = ::commonPropertyDefaultValue
-) = bundleProperty<T, Double>(
-        name = name,
-        defaultValue = defaultValue,
-        set = { bundle -> { key, value -> bundle.putDouble(key, value) } },
-        get = { bundle -> { key -> bundle.getDouble(key) } }
-)
+}
 
-inline fun <reified T: String?> bundleString(
-        name: String,
-        noinline defaultValue: () -> T = ::commonPropertyDefaultValue
-) = bundleProperty<T, String>(
-        name = name,
-        defaultValue = defaultValue,
-        set = { bundle -> { key, value -> bundle.putString(key, value) } },
-        get = { bundle -> { key -> bundle.getString(key)!! } }
-)
+fun bundleBoolean(
+        name: String? = null
+) = object : OptionalBundleProperty<Boolean>(name) {
 
-inline fun <reified T: Parcelable?> bundleParcellable(
-        name: String,
-        noinline defaultValue: () -> T = ::commonPropertyDefaultValue
-) = bundleProperty<T, Parcelable>(
-        name = name,
-        defaultValue = defaultValue,
-        set = { bundle -> { key, value -> bundle.putParcelable(key, value) } },
-        get = { bundle -> { key -> bundle.getParcelable(key)!! } }
-)
+    override fun getValue(bundle: Bundle, name: String): Boolean? = bundle.getBoolean(name)
 
+    override fun setValue(bundle: Bundle, name: String, value: Boolean) = bundle.putBoolean(name, value)
 
-inline fun <reified T: Any?> bundleParcels(
-        name: String,
-        noinline defaultValue: () -> T = ::commonPropertyDefaultValue
-) = bundleProperty<T, Any>(
-        name = name,
-        defaultValue = defaultValue,
-        set = { bundle ->
-            { key, value ->
-                val parceled = Parcels.wrap(value)
-                bundle.putParcelable(key, parceled)
-            }
-        },
-        get = { bundle ->
-            { key ->
-                val parceled: Parcelable = bundle.getParcelable(key)!!
-                Parcels.unwrap(parceled)
-            }
-        }
-)
+}
 
-inline fun <reified T: TNN?, TNN: Any> bundleProperty(
-        name: String,
-        noinline defaultValue: () -> T = ::commonPropertyDefaultValue,
-        noinline set: (bundle: Bundle) -> (key: String, value: TNN) -> Unit,
-        noinline get: (bundle: Bundle) -> (key: String) -> TNN
-):ReadWriteProperty<Bundle, T> = BundleProperty<T, TNN>(name, defaultValue, set, get)
+fun bundleInt(
+    name: String? = null,
+    default: Int
+) = object: BundleProperty<Int>(name) {
 
-class BundleProperty<T: TNN?, TNN: Any>(
-        private val name: String,
-        private val defaultValue: () -> T,
-        private val setterProvider: (bundle: Bundle) -> (key: String, value: TNN) -> Unit,
-        private val getterProvider: (bundle: Bundle) -> (key: String) -> TNN
-): ReadWriteProperty<Bundle, T> {
+    override fun getValue(bundle: Bundle, name: String): Int = bundle.getInt(name)
 
-    override fun getValue(thisRef: Bundle, property: KProperty<*>): T {
+    override fun setValue(bundle: Bundle, name: String, value: Int) = bundle.putInt(name, value)
 
-        return if (thisRef.containsKey(name)) getterProvider(thisRef)(name) as T
-               else defaultValue()
+    override fun getUnexistsValue(): Int = default
 
+}
+
+fun bundleInt(
+    name: String? = null
+) = object: OptionalBundleProperty<Int>(name) {
+
+    override fun getValue(bundle: Bundle, name: String): Int = bundle.getInt(name)
+
+    override fun setValue(bundle: Bundle, name: String, value: Int) = bundle.putInt(name, value)
+
+}
+
+fun bundleLong(
+    name: String? = null,
+    default: Long
+) = object: BundleProperty<Long>(name) {
+
+    override fun getValue(bundle: Bundle, name: String): Long = bundle.getLong(name)
+
+    override fun setValue(bundle: Bundle, name: String, value: Long) = bundle.putLong(name, value)
+
+    override fun getUnexistsValue(): Long = default
+
+}
+
+fun bundleLong(
+        name: String? = null
+) = object : OptionalBundleProperty<Long>(name) {
+
+    override fun getValue(bundle: Bundle, name: String): Long? = bundle.getLong(name)
+
+    override fun setValue(bundle: Bundle, name: String, value: Long) = bundle.putLong(name, value)
+
+}
+
+fun bundleFloat(
+    name: String? = null,
+    default: Float
+) = object: BundleProperty<Float>(name) {
+
+    override fun getValue(bundle: Bundle, name: String): Float = bundle.getFloat(name)
+
+    override fun setValue(bundle: Bundle, name: String, value: Float) = bundle.putFloat(name, value)
+
+    override fun getUnexistsValue(): Float = default
+
+}
+
+fun bundleFloat(
+    name: String? = null
+) = object : OptionalBundleProperty<Float>(name) {
+
+    override fun getValue(bundle: Bundle, name: String): Float? = bundle.getFloat(name)
+
+    override fun setValue(bundle: Bundle, name: String, value: Float) = bundle.putFloat(name, value)
+
+}
+
+fun bundleDouble(
+    name: String? = null,
+    default: Double
+) = object: BundleProperty<Double>(name) {
+
+    override fun getValue(bundle: Bundle, name: String): Double = bundle.getDouble(name)
+
+    override fun setValue(bundle: Bundle, name: String, value: Double) = bundle.putDouble(name, value)
+
+    override fun getUnexistsValue(): Double = default
+
+}
+
+fun bundleDouble(
+    name: String? = null
+) = object : OptionalBundleProperty<Double>(name) {
+
+    override fun getValue(bundle: Bundle, name: String): Double? = bundle.getDouble(name)
+
+    override fun setValue(bundle: Bundle, name: String, value: Double) = bundle.putDouble(name, value)
+
+}
+
+fun bundleString(
+    name: String? = null,
+    default: String
+) = object: BundleProperty<String>(name) {
+
+    override fun getValue(bundle: Bundle, name: String): String = bundle.getString(name, default)
+
+    override fun setValue(bundle: Bundle, name: String, value: String) = bundle.putString(name, value)
+
+    override fun getUnexistsValue(): String = default
+
+}
+
+fun bundleString(
+    name: String? = null
+) = object : OptionalBundleProperty<String>(name) {
+
+    override fun getValue(bundle: Bundle, name: String): String? = bundle.getString(name)
+
+    override fun setValue(bundle: Bundle, name: String, value: String) = bundle.putString(name, value)
+
+}
+
+fun <T: Parcelable> bundleParcelable(
+    name: String? = null,
+    default: T
+) = object: BundleProperty<T>(name) {
+
+    override fun getValue(bundle: Bundle, name: String): T = bundle.getParcelable(name)!!
+
+    override fun setValue(bundle: Bundle, name: String, value: T) = bundle.putParcelable(name, value)
+
+    override fun getUnexistsValue(): T = default
+
+}
+
+fun <T: Parcelable> bundleParcelable(
+    name: String? = null
+) = object : OptionalBundleProperty<T>(name) {
+
+    override fun getValue(bundle: Bundle, name: String): T? = bundle.getParcelable(name)
+
+    override fun setValue(bundle: Bundle, name: String, value: T) = bundle.putParcelable(name, value)
+
+}
+
+fun <T: Any, D: T> bundleParcels(
+    name: String? = null,
+    default: D
+) = object: BundleProperty<T>(name) {
+
+    override fun getValue(bundle: Bundle, name: String): T {
+        val parceled: Parcelable = bundle.getParcelable(name)!!
+        return Parcels.unwrap(parceled)
     }
 
-    override fun setValue(thisRef: Bundle, property: KProperty<*>, value: T) {
+    override fun setValue(bundle: Bundle, name: String, value: T) {
+        val parceled = Parcels.wrap(value)
+        bundle.putParcelable(name, parceled)
+    }
 
-        if (value == null) {
-            thisRef.remove(name)
-        } else {
-            setterProvider(thisRef)(name, value)
-        }
+    override fun getUnexistsValue(): T = default
 
+}
+
+fun <T: Any> bundleParcels(
+    name: String? = null
+) = object : OptionalBundleProperty<T>(name) {
+
+    override fun getValue(bundle: Bundle, name: String): T {
+        val parceled: Parcelable = bundle.getParcelable(name)!!
+        return Parcels.unwrap(parceled)
+    }
+
+    override fun setValue(bundle: Bundle, name: String, value: T) {
+        val parceled = Parcels.wrap(value)
+        bundle.putParcelable(name, parceled)
     }
 
 }
 
-inline fun <reified T> commonPropertyDefaultValue(): T {
-    return if (isNullable<T>())  null as T
-    else error("Doesn't have default value.")
+abstract class BundleProperty<T: Any>(
+        private val name: String?
+): ReadWriteProperty<Bundle, T> {
+
+    override fun getValue(thisRef: Bundle, property: KProperty<*>): T {
+
+        val key = key(property)
+
+        return if (thisRef.containsKey(key)) getValue(thisRef, key)
+               else getUnexistsValue()
+
+    }
+
+    override fun setValue(thisRef: Bundle, property: KProperty<*>, value: T) {
+        setValue(thisRef, key(property), value)
+    }
+
+    protected abstract fun getValue(bundle: Bundle, name: String): T
+
+    protected abstract fun setValue(bundle: Bundle, name: String, value: T)
+
+    protected abstract fun getUnexistsValue(): T
+
+    private fun key(property: KProperty<*>): String = name ?: property.name
+
+}
+
+abstract class OptionalBundleProperty<T: Any>(
+    private val name: String?
+): ReadWriteProperty<Bundle, T?> {
+
+    override fun getValue(thisRef: Bundle, property: KProperty<*>): T? {
+
+        val key = key(property)
+
+        return if (thisRef.containsKey(key)) getValue(thisRef, key)
+        else null
+
+    }
+
+    override fun setValue(thisRef: Bundle, property: KProperty<*>, value: T?) {
+
+        val key = key(property)
+
+        if (value == null) {
+            thisRef.remove(key)
+        } else {
+            setValue(thisRef, key, value)
+        }
+
+    }
+
+    protected abstract fun getValue(bundle: Bundle, name: String): T?
+
+    protected abstract fun setValue(bundle: Bundle, name: String, value: T)
+
+    private fun key(property: KProperty<*>): String = name ?: property.name
+
 }
