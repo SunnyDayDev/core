@@ -1,18 +1,16 @@
 package dev.sunnyday.core_uisample
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import dev.sunnyday.core.propertydelegate.bundleBoolean
-import dev.sunnyday.core.rx.RxDebug
 import dev.sunnyday.core.rx.cachedWhileNotTerminated
 import dev.sunnyday.core.rx.debug
-import dev.sunnyday.core.util.AppGlobals
+import dev.sunnyday.core.ui.activity.CoreActivity
 import dev.sunnyday.core.util.intent
 import io.reactivex.Single
 import io.reactivex.rxkotlin.Singles
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : CoreActivity() {
 
     companion object {
 
@@ -28,6 +26,8 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.mvvm).setOnClickListener { startActivity(intent<MVVMActivity>()) }
 
         runInvisibleTests()
+
+        lifecycle
 
     }
 
