@@ -17,31 +17,32 @@ class StackTraceKtTest {
         val elements = arrayOf(
             currentStackTraceElement(),
             currentStackTraceElement(shift = 0),
-            Any().stackTraceElement(),
-            Any().stackTraceElement2(),
-            Any().stackTraceElement2(0),
-            Any().stackTraceElement4(),
-            Any().stackTraceElement4(0)
+            Extension().currentStackTraceElement(),
+            Extension().currentStackTraceElement2(),
+            Extension().currentStackTraceElement2(0),
+            Extension().currentStackTraceElement4(),
+            Extension().currentStackTraceElement4(0)
         )
 
-        elements.forEach { println("$it") }
-        elements.forEach { assert(it.methodName == elements[0].methodName) }
+        elements.forEachIndexed { i, it ->
+            assert(it.methodName == "currentStackTraceElementTest")
+            assert(it.lineNumber == elements[0].lineNumber + i)
+        }
 
     }
+    
+    private class Extension
 
-    @Test
-    fun currentStackTraceElementFunctionTest() {
-        assert(currentStackTraceElement().methodName == "currentStackTraceElementFunctionTest")
-    }
-
-    private fun Any.stackTraceElement(): StackTraceElement {
+    private fun Extension.currentStackTraceElement(): StackTraceElement {
         return currentStackTraceElement(shift = 1)
     }
 
-    private fun Any.stackTraceElement2(value: Int = 0, stackTraceElement: StackTraceElement = currentStackTraceElement()): StackTraceElement =
-        stackTraceElement
+    private fun Extension.currentStackTraceElement2(
+        value: Int = 0,
+        stackTraceElement: StackTraceElement = currentStackTraceElement()
+    ): StackTraceElement = stackTraceElement
 
-    fun Any.stackTraceElement4(value: Int = 0): StackTraceElement {
+    private fun Extension.currentStackTraceElement4(value: Int = 0): StackTraceElement {
         return currentStackTraceElement(shift = 1)
     }
 
