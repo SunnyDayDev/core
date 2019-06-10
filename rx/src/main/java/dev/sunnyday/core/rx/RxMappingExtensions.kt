@@ -1,5 +1,6 @@
 package dev.sunnyday.core.rx
 
+import dev.sunnyday.core.util.Optional
 import io.reactivex.*
 import io.reactivex.functions.Function
 import java.util.concurrent.atomic.AtomicBoolean
@@ -26,6 +27,22 @@ fun <T, C: MutableCollection<in R>, R> Observable<out Iterable<T>>.mapListTo(col
 fun <T, C: MutableCollection<in R>, R> Single<out Iterable<T>>.mapListTo(collection: C, mapper: (T) -> R): Single<C> = map { it.mapTo(collection, mapper) }
 
 fun <T, C: MutableCollection<in R>, R> Maybe<out Iterable<T>>.mapListTo(collection: C, mapper: (T) -> R): Maybe<C> = map { it.mapTo(collection, mapper) }
+
+// endregion
+
+// region: Map optional
+
+fun <T, R> Flowable<Optional<T>>.map(mapper: (T) -> R): Flowable<Optional<R>> =
+    map { (source) -> Optional(source?.let(mapper)) }
+
+fun <T, R> Observable<Optional<T>>.map(mapper: (T) -> R): Observable<Optional<R>> =
+    map { (source) -> Optional(source?.let(mapper)) }
+
+fun <T, R> Single<Optional<T>>.map(mapper: (T) -> R): Single<Optional<R>> =
+    map { (source) -> Optional(source?.let(mapper)) }
+
+fun <T, R> Maybe<Optional<T>>.map(mapper: (T) -> R): Maybe<Optional<R>> =
+    map { (source) -> Optional(source?.let(mapper)) }
 
 // endregion
 
