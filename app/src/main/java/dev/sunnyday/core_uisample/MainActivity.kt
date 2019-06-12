@@ -3,7 +3,7 @@ package dev.sunnyday.core_uisample
 import android.os.Bundle
 import android.view.View
 import dev.sunnyday.core.propertydelegate.bundleBoolean
-import dev.sunnyday.core.rx.cachedWhileNotTerminated
+import dev.sunnyday.core.rx.deferShared
 import dev.sunnyday.core.rx.debug
 import dev.sunnyday.core.ui.activity.CoreActivity
 import dev.sunnyday.core.util.intent
@@ -39,7 +39,7 @@ class MainActivity : CoreActivity() {
 
     private fun testSingesCachedWhileNotTerminated() {
 
-        Singles.cachedWhileNotTerminated(mutableMapOf()) {
+        Singles.deferShared(mutableMapOf()) {
             Single.fromCallable { true }
                 .debug()
         }
