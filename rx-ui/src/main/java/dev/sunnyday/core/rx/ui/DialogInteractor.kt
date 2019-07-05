@@ -46,7 +46,7 @@ interface DialogInteractor {
         title: String? = null,
         initialValue: String? = null,
         inputType: Int = InputType.TYPE_CLASS_TEXT,
-        inputViewType: Int = Config.DEFAULT_INPUT_VIEW,
+        inputViewType: InputViewType = InputViewType.Default,
         validate: (String) -> InputCheckResult = { InputCheckResult.Success },
         cancellable: Boolean = true,
         theme: Int? = null
@@ -126,7 +126,7 @@ interface DialogInteractor {
             internal val defaultPositiveText: (Context) -> String,
             internal val defaultNeutralText: (Context) -> String,
             internal val defaultNegativeText: (Context) -> String,
-            internal val inputViewProvider: (type: Int, Context) -> Pair<View, EditText>
+            internal val inputViewProvider: (type: InputViewType, Context) -> Pair<View, EditText>
     ) {
 
         companion object {
@@ -150,7 +150,7 @@ interface DialogInteractor {
                     { it.getString(android.R.string.no) }
 
             private val inputViewProvidersMap =
-                    mutableMapOf<Int, (Context) -> Pair<View, EditText>>()
+                    mutableMapOf<InputViewType, (Context) -> Pair<View, EditText>>()
 
             fun defaultDialogTheme(theme: Int) = apply {
                 defaultDialogTheme = theme
@@ -185,7 +185,7 @@ interface DialogInteractor {
             }
 
             fun registerInputView(
-                type: Int = DEFAULT_INPUT_VIEW,
+                type: InputViewType = InputViewType.Default,
                 provider: (Context) -> Pair<View, EditText>) = apply {
                 inputViewProvidersMap[type] = provider
             }
@@ -214,6 +214,12 @@ interface DialogInteractor {
             }
 
         }
+
+    }
+    
+    interface InputViewType {
+
+        object Default: InputViewType
 
     }
 
@@ -306,7 +312,7 @@ open class DefaultDialogInteractor constructor(
             title: String?,
             initialValue: String?,
             inputType: Int,
-            inputViewType: Int,
+            inputViewType: DialogInteractor.InputViewType,
             validate: (String) -> InputCheckResult,
             cancellable: Boolean,
             theme: Int?
