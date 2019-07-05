@@ -24,6 +24,7 @@ import dev.sunnyday.core.rx.invoke
 import java.util.*
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.reflect.KClass
 
 /**
  * Created by Aleksandr Tcikin (SunnyDay.Dev) on 12.09.2018.
@@ -120,7 +121,7 @@ interface DialogInteractor {
 
     }
 
-    data class Config(
+    class Config private constructor(
             internal val defaultDialogTheme: Int?,
             internal val defaultProgressDialogTheme: Int?,
             internal val defaultPositiveText: (Context) -> String,
@@ -128,12 +129,6 @@ interface DialogInteractor {
             internal val defaultNegativeText: (Context) -> String,
             internal val inputViewProvider: (type: InputViewType, Context) -> Pair<View, EditText>
     ) {
-
-        companion object {
-
-            const val DEFAULT_INPUT_VIEW = -1
-
-        }
 
         class Builder() {
 
@@ -149,8 +144,9 @@ interface DialogInteractor {
             private var defaultNegativeText: (Context) -> String =
                     { it.getString(android.R.string.no) }
 
-            private val inputViewProvidersMap =
-                    mutableMapOf<InputViewType, (Context) -> Pair<View, EditText>>()
+            @PublishedApi
+            internal val inputViewProvidersMap =
+                    mutableMapOf<KClass<out InputViewType>, InputViewFactory<*>>()
 
             fun defaultDialogTheme(theme: Int) = apply {
                 defaultDialogTheme = theme
@@ -184,10 +180,10 @@ interface DialogInteractor {
                 defaultNegativeText = { text }
             }
 
-            fun registerInputView(
-                type: InputViewType = InputViewType.Default,
-                provider: (Context) -> Pair<View, EditText>) = apply {
-                inputViewProvidersMap[type] = provider
+            inline fun <reified T: InputViewType> registerInputView(
+                factory: InputViewFactory<T>
+            ) = apply {
+                inputViewProvidersMap[T::class] = factory
             }
 
             fun build() = Config(
@@ -197,19 +193,24 @@ interface DialogInteractor {
                     defaultNeutralText = defaultNeutralText,
                     defaultNegativeText = defaultNegativeText,
                     inputViewProvider = { type, context ->
-                        val provider = inputViewProvidersMap[type] ?: defaultInputViewProvider
-                        provider(context)
+
+                        @Suppress("UNCHECKED_CAST")
+                        val provider = inputViewProvidersMap[type::class]
+                                as? InputViewFactory<InputViewType>
+                            ?: return@Config defaultInputViews(context)
+
+                        provider.create(type, context)
+
                     }
             )
 
-            companion object {
+            private fun defaultInputViews(context: Context): Pair<View, EditText> {
 
-                private val defaultInputViewProvider: (Context) -> Pair<View, EditText> get() = {
-                    val editText = EditText(it).apply {
-                        id = R.id.dialog_interactor_input_view
-                    }
-                    editText to editText
+                val editText = EditText(context).apply {
+                    id = R.id.dialog_interactor_input_view
                 }
+
+                return editText to editText
 
             }
 
@@ -221,6 +222,10 @@ interface DialogInteractor {
 
         object Default: InputViewType
 
+    }
+
+    interface InputViewFactory<T: InputViewType> {
+        fun create(viewType: T, context: Context): Pair<View, EditText>
     }
 
     object Factory {
