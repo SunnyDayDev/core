@@ -302,7 +302,6 @@ open class DefaultDialogInteractor constructor(
 
     }
 
-    @SuppressLint("InflateParams")
     override fun requestInput(
             title: String?,
             initialValue: String?,
@@ -310,25 +309,38 @@ open class DefaultDialogInteractor constructor(
             inputViewType: Int,
             validate: (String) -> InputCheckResult,
             cancellable: Boolean,
-            theme: Int?) =  maybeDialog { activity ->
+            theme: Int?
+    ) = requestInput(title, initialValue, validate, cancellable, theme) {
+        config.inputViewProvider(inputViewType, it)
+    }
+
+    @SuppressLint("InflateParams")
+    protected fun requestInput(
+        title: String?,
+        initialValue: String?,
+        validate: (String) -> InputCheckResult,
+        cancellable: Boolean,
+        theme: Int?,
+        inputFieldFactory: (Context) -> Pair<View, EditText>
+    ) =  maybeDialog { activity ->
 
         val subject = subject<String>()
 
         val checkedTheme = theme ?: config.defaultDialogTheme
 
         val builder =
-                if (checkedTheme != null) AlertDialog.Builder(activity, checkedTheme)
-                else AlertDialog.Builder(activity)
+            if (checkedTheme != null) AlertDialog.Builder(activity, checkedTheme)
+            else AlertDialog.Builder(activity)
 
         builder.setTitle(title)
-                .setCancelable(cancellable)
-                .setOnCancelListener {
-                    subject.cancelled()
-                }
+            .setCancelable(cancellable)
+            .setOnCancelListener {
+                subject.cancelled()
+            }
 
-        val (container, input) = config.inputViewProvider(inputViewType, activity)
+        val (inputContainer, inputView) = inputFieldFactory(activity)
 
-        input.apply {
+        inputView.apply {
 
             this.inputType = inputType
 
@@ -336,9 +348,9 @@ open class DefaultDialogInteractor constructor(
 
             addTextChangedListener(object : TextWatcher {
 
-                override fun afterTextChanged(p0: Editable) {}
+                override fun afterTextChanged(p0: Editable) = Unit
 
-                override fun beforeTextChanged(p0: CharSequence, p1: Int, p2: Int, p3: Int) {}
+                override fun beforeTextChanged(p0: CharSequence, p1: Int, p2: Int, p3: Int) = Unit
 
                 override fun onTextChanged(p0: CharSequence, p1: Int, p2: Int, p3: Int) {
                     if (this@apply.error != null) this@apply.error = null
@@ -348,12 +360,12 @@ open class DefaultDialogInteractor constructor(
 
         }
 
-        container.layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
+        inputContainer.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
         )
 
-        builder.setView(container)
+        builder.setView(inputContainer)
 
         builder.setNegativeButton(config.defaultNegativeText(activity)) { dialog, _ ->
             dialog.cancel()
@@ -365,24 +377,23 @@ open class DefaultDialogInteractor constructor(
 
         val dialog = builder.create()
 
-        dialog.setOnShowListener { _ ->
+        dialog.setOnShowListener {
 
             val button = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
 
-            button.setOnClickListener { _ ->
+            button.setOnClickListener {
 
-                val text = input.text.toString()
-                val checkResult = validate(text)
+                val text = inputView.text.toString()
 
-                when(checkResult) {
+                when(val checkResult = validate(text)) {
                     is InputCheckResult.Success -> subject(text)
-                    is InputCheckResult.NotValid -> input.error = checkResult.message
+                    is InputCheckResult.NotValid -> inputView.error = checkResult.message
                 }
 
             }
 
-            input.requestFocus()
-            input.setSelection(input.text?.length ?: 0)
+            inputView.requestFocus()
+            inputView.setSelection(inputView.text?.length ?: 0)
 
         }
 
@@ -527,7 +538,7 @@ open class BaseDialogInteractor(
     }
 
     protected fun <T> SingleSubject<DialogResult<T>>.cancelled() = this(DialogResult.Cancelled())
-    operator protected fun <T> SingleSubject<DialogResult<T>>.invoke(result: T) =
+    protected operator fun <T> SingleSubject<DialogResult<T>>.invoke(result: T) =
             this(DialogResult.Success(result))
 
     @Suppress("unused")
