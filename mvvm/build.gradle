@@ -9,12 +9,12 @@ version = ext.lib_version
 apply from: '../local_publish.gradle'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
 
     defaultConfig {
         minSdkVersion 17
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
 
@@ -47,9 +47,9 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
     implementation 'com.google.android.material:material:1.0.0'
 
-    implementation 'androidx.core:core-ktx:1.1.0-rc01'
+    implementation 'androidx.core:core-ktx:1.1.0-rc02'
 
-    implementation 'androidx.core:core:1.1.0-rc01'
+    implementation 'androidx.core:core:1.1.0-rc02'
     implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
