@@ -53,6 +53,7 @@ class DrawableWrapper(drawable: Drawable? = null) : Drawable(), Drawable.Callbac
 
     override fun setDither(dither: Boolean) {
         values.isDitherValue = dither
+        @Suppress("DEPRECATION")
         wrappedDrawable?.setDither(dither)
     }
 
@@ -86,6 +87,7 @@ class DrawableWrapper(drawable: Drawable? = null) : Drawable(), Drawable.Callbac
 
     override fun jumpToCurrentState() {
         val drawable = wrappedDrawable ?: return
+        @Suppress("DEPRECATION")
         DrawableCompat.jumpToCurrentState(drawable)
     }
 
@@ -99,6 +101,7 @@ class DrawableWrapper(drawable: Drawable? = null) : Drawable(), Drawable.Callbac
     }
 
     override fun getOpacity(): Int {
+        @Suppress("DEPRECATION")
         return wrappedDrawable?.opacity ?: fallbackDrawable.opacity
     }
 
@@ -177,10 +180,10 @@ class DrawableWrapper(drawable: Drawable? = null) : Drawable(), Drawable.Callbac
         DrawableCompat.setTintList(drawable, tint)
     }
 
-    override fun setTintMode(tintMode: PorterDuff.Mode) {
+    override fun setTintMode(tintMode: PorterDuff.Mode?) {
         values.tintModeValue = tintMode
         val drawable = wrappedDrawable ?: return
-        DrawableCompat.setTintMode(drawable, tintMode)
+        DrawableCompat.setTintMode(drawable, tintMode ?: PorterDuff.Mode.SRC_IN)
     }
 
     override fun setHotspot(x: Float, y: Float) {
@@ -204,7 +207,10 @@ class DrawableWrapper(drawable: Drawable? = null) : Drawable(), Drawable.Callbac
         values.isVisibleValue?.let { drawable.setVisible(it, true) }
         values.boundsValue?.let { drawable.bounds = it }
         values.colorFilterValue?.let { values.colorFilterValue = it }
-        values.isDitherValue?.let { drawable.setDither(it) }
+        values.isDitherValue?.let {
+            @Suppress("DEPRECATION")
+            drawable.setDither(it)
+        }
         values.isFilterBitmapValue?.let { drawable.isFilterBitmap = it }
         values.tintValue?.let { DrawableCompat.setTint(drawable, it) }
         values.tintListValue?.let { DrawableCompat.setTintList(drawable, it) }

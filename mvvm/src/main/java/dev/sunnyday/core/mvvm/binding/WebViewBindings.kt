@@ -328,7 +328,7 @@ data class WebViewUrl(val url: String, val headers: Map<String, String>? = null)
         private fun Parcel.readStringMap(): Map<String, String>? {
             if (readByte() == 0.toByte()) return null
             return (1 .. readInt())
-                    .associate { readString() to readString() }
+                    .associate { readString()!! to readString()!! }
         }
 
         private fun Parcel.writeStringMap(headers: Map<String, String>?) {

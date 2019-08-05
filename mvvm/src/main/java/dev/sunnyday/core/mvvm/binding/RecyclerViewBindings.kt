@@ -54,6 +54,12 @@ object RecyclerViewBindings: Bindings() {
     fun bindItemsStableId(view: RecyclerView, stableId: Boolean) = view.adapterCore.setStableId(stableId)
 
     @JvmStatic
+    @BindingAdapter("recreateAdapterOnItemsChanges")
+    fun bindRecreateAdapterOnItemsChanges(view: RecyclerView, recreate: Boolean) {
+        view.adapterCore.recreateAdapterOnItemsChanges = recreate
+    }
+
+    @JvmStatic
     @BindingAdapter(
             value = [
                 "onItemMoved",
@@ -272,9 +278,10 @@ object RecyclerViewBindings: Bindings() {
         private var items = Weak<List<Any>>()
         private var stableId: Boolean = false
         private var itemsMap: ItemsMap? = null
+        var recreateAdapterOnItemsChanges = false
 
         fun <T: Any> setItems(items: List<T>) {
-            if (this.items.value === items) return
+            if (this.items.value === items && !recreateAdapterOnItemsChanges) return
             this.items.value = items
             notifyChanges(post = itemsMap == null)
         }
