@@ -1,6 +1,9 @@
 package dev.sunnyday.core.mvi.spotify
 
 import dev.sunnyday.core.rx.throttleMap
+import dev.sunnyday.core.rx.throttleMapCompletable
+import dev.sunnyday.core.rx.throttleMapMaybe
+import dev.sunnyday.core.rx.throttleMapSingle
 import io.reactivex.*
 
 import io.reactivex.functions.Function as RxFunction
@@ -62,6 +65,38 @@ fun <T: Any, R: Any> flat(creator: () -> Completable): ObservableTransformer<T, 
     it.flatMapCompletable { creator() } .toObservable()
 }
 
+@JvmName("concatSingle")
+fun <T: Any, R: Any> concat(creator: (T) -> SingleSource<out R>): ObservableTransformer<T, R> = ObservableTransformer {
+    it.concatMapSingle(creator)
+}
+
+@JvmName("concatSingle")
+fun <T: Any, R: Any> concat(creator: () -> SingleSource<out R>): ObservableTransformer<T, R> = ObservableTransformer {
+    it.concatMapSingle { creator() }
+}
+
+@JvmName("concatMaybe")
+fun <T: Any, R: Any> concat(transformer: (T) -> MaybeSource<out R>): ObservableTransformer<T, R> = ObservableTransformer {
+    it.concatMapMaybe(transformer)
+}
+
+@JvmName("concatMaybe")
+fun <T: Any, R: Any> concat(creator: () -> MaybeSource<out R>): ObservableTransformer<T, R> = ObservableTransformer {
+    it.concatMapMaybe { creator() }
+}
+
+@JvmName("concatCompletable")
+fun <T: Any, R: Any> concat(transformer: (T) -> Completable): ObservableTransformer<T, R> = ObservableTransformer {
+    it.concatMapCompletable(transformer)
+        .toObservable()
+}
+
+@JvmName("concatCompletable")
+fun <T: Any, R: Any> concat(creator: () -> Completable): ObservableTransformer<T, R> = ObservableTransformer {
+    it.concatMapCompletable { creator() }
+        .toObservable()
+}
+
 @JvmName("switchSingle")
 fun <T: Any, R: Any> switch(creator: (T) -> SingleSource<out R>): ObservableTransformer<T, R> = ObservableTransformer {
     it.switchMapSingle(creator)
@@ -91,5 +126,37 @@ fun <T: Any, R: Any> switch(transformer: (T) -> Completable): ObservableTransfor
 @JvmName("switchCompletable")
 fun <T: Any, R: Any> switch(creator: () -> Completable): ObservableTransformer<T, R> = ObservableTransformer {
     it.switchMapCompletable { creator() }
+        .toObservable()
+}
+
+@JvmName("throttleSingle")
+fun <T: Any, R: Any> throttle(creator: (T) -> SingleSource<out R>): ObservableTransformer<T, R> = ObservableTransformer {
+    it.throttleMapSingle(creator)
+}
+
+@JvmName("throttleSingle")
+fun <T: Any, R: Any> throttle(creator: () -> SingleSource<out R>): ObservableTransformer<T, R> = ObservableTransformer {
+    it.throttleMapSingle { creator() }
+}
+
+@JvmName("throttleMaybe")
+fun <T: Any, R: Any> throttle(transformer: (T) -> MaybeSource<out R>): ObservableTransformer<T, R> = ObservableTransformer {
+    it.throttleMapMaybe(transformer)
+}
+
+@JvmName("throttleMaybe")
+fun <T: Any, R: Any> throttle(creator: () -> MaybeSource<out R>): ObservableTransformer<T, R> = ObservableTransformer {
+    it.throttleMapMaybe { creator() }
+}
+
+@JvmName("throttleCompletable")
+fun <T: Any, R: Any> throttle(transformer: (T) -> Completable): ObservableTransformer<T, R> = ObservableTransformer {
+    it.throttleMapCompletable(transformer)
+        .toObservable()
+}
+
+@JvmName("throttleCompletable")
+fun <T: Any, R: Any> throttle(creator: () -> Completable): ObservableTransformer<T, R> = ObservableTransformer {
+    it.throttleMapCompletable { creator() }
         .toObservable()
 }
