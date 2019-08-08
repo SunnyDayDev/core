@@ -9,7 +9,7 @@ import android.os.Bundle
  * mail: mail@sunnyday.dev
  */
  
-class PureActivityLifecycleCallbacks: Application.ActivityLifecycleCallbacks {
+open class PureActivityLifecycleCallbacks: Application.ActivityLifecycleCallbacks {
     
     override fun onActivityPaused(activity: Activity) { }
 
