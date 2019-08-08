@@ -8,7 +8,7 @@ import android.text.TextWatcher
  * mail: mail@sunnyday.dev
  */
 
-class PureTextWatcher: TextWatcher {
+open class PureTextWatcher: TextWatcher {
 
     override fun afterTextChanged(p0: Editable) {
 
