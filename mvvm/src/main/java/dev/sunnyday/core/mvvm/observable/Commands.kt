@@ -3,7 +3,6 @@ package dev.sunnyday.core.mvvm.observable
 import androidx.databinding.BaseObservable
 import dev.sunnyday.core.util.Wrapped
 import timber.log.Timber
-import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Created by sunny on 31.05.2018.
@@ -12,17 +11,21 @@ import java.util.concurrent.atomic.AtomicReference
 
 open class BaseCommand<T>: BaseObservable() {
 
-    internal var value = AtomicReference<Wrapped<T>?>()
+    protected var event: Wrapped<T>? = null
 
     protected fun internalFire(event: T) {
-        value.set(Wrapped(event))
+        synchronized(this) {
+            this.event = Wrapped(event)
+        }
         notifyChange()
     }
 
-    protected fun internalHandle(handleAction: (T) -> Boolean) {
-        val event = value.getAndSet(null)
-        if (event != null) {
-            handleAction(event.value)
+    protected inline fun internalHandle(handleAction: (T) -> Boolean) {
+        synchronized(this) {
+            val event = this.event
+            if (event != null && handleAction(event.value)) {
+                this.event = null
+            }
         }
     }
 
