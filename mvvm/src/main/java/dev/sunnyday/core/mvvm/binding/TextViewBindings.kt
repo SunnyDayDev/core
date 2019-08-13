@@ -5,6 +5,7 @@ import android.text.method.MovementMethod
 import androidx.databinding.BindingAdapter
 import android.view.KeyEvent
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 
 /**
@@ -48,6 +49,60 @@ object TextViewBindings: Bindings() {
         } else {
             view.typeface = typeface
         }
+    }
+
+    @JvmStatic
+    @BindingAdapter("onEditorAction")
+    fun bindEditorActionListener(
+        view: TextView,
+        listener: OnEditorActionListener
+    ) {
+
+        view.setOnEditorActionListener { _, actionId, event ->
+
+            listener.onEditorAction(actionId, event)
+
+        }
+
+    }
+
+    @JvmStatic
+    @BindingAdapter("onEditorAction")
+    fun bindImeActionListener(
+        view: TextView,
+        listener: OnImeActionListener
+    ) {
+
+        view.setOnEditorActionListener { _, actionId, event ->
+
+            when {
+
+                event != null && !event.isShiftPressed -> {
+
+                    val imeActionId =
+                        if (actionId != 0) actionId
+                        else view.imeOptions and EditorInfo.IME_MASK_ACTION
+
+                    listener.onImeAction(imeActionId)
+
+                }
+
+                actionId != 0 -> listener.onImeAction(actionId)
+
+                else -> false
+
+            }
+
+        }
+
+    }
+
+    interface OnEditorActionListener {
+        fun onEditorAction(id: Int, event: KeyEvent?): Boolean
+    }
+
+    interface OnImeActionListener {
+        fun onImeAction(id: Int): Boolean
     }
 
     interface OnKeyListener {
