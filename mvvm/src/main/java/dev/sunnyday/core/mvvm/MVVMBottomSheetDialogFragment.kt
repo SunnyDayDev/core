@@ -8,15 +8,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import dev.sunnyday.core.mvvm.viewModel.MVVMViewModel
 
 /**
  * Created by sunny on 03.05.2018.
  * mail: mail@sunnyday.dev
  */
 
-abstract class MVVMBottomSheetDialogFragment<Binding: ViewDataBinding>: BottomSheetDialogFragment()  {
+abstract class MVVMBottomSheetDialogFragment<Binding: ViewDataBinding, VM: ViewModel>: BottomSheetDialogFragment()  {
 
     // region Abstract
 
@@ -28,11 +28,11 @@ abstract class MVVMBottomSheetDialogFragment<Binding: ViewDataBinding>: BottomSh
                                            container: ViewGroup?,
                                            savedInstanceState: Bundle?): Binding
 
-    protected abstract fun getViewModel(provider: ViewModelProvider): MVVMViewModel
+    protected abstract fun getViewModel(provider: ViewModelProvider): VM
 
     // endregion
 
-    protected lateinit var viewModel: MVVMViewModel
+    protected lateinit var viewModel: VM
         private set
 
     protected var binding: Binding? = null
@@ -63,7 +63,7 @@ abstract class MVVMBottomSheetDialogFragment<Binding: ViewDataBinding>: BottomSh
                     .also { binding = it }
                     .root
 
-    protected open fun onViewModelCreated(viewModel: MVVMViewModel) {
+    protected open fun onViewModelCreated(viewModel: VM) {
         // no-op
     }
 

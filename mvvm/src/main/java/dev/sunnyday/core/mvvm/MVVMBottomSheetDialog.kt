@@ -6,15 +6,15 @@ import androidx.databinding.ViewDataBinding
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import dev.sunnyday.core.mvvm.viewModel.MVVMViewModel
 
 /**
  * Created by sunny on 03.05.2018.
  * mail: mail@sunnyday.dev
  */
 
-abstract class MVVMBottomSheetDialog<Binding: ViewDataBinding>: BottomSheetDialog  {
+abstract class MVVMBottomSheetDialog<Binding: ViewDataBinding, VM: ViewModel>: BottomSheetDialog  {
 
     protected val activity: FragmentActivity
 
@@ -34,11 +34,11 @@ abstract class MVVMBottomSheetDialog<Binding: ViewDataBinding>: BottomSheetDialo
 
     protected abstract val binding: Binding
 
-    protected abstract fun getViewModel(provider: ViewModelProvider): MVVMViewModel
+    protected abstract fun getViewModel(provider: ViewModelProvider): VM
 
     // endregion
 
-    protected lateinit var viewModel: MVVMViewModel
+    protected lateinit var viewModel: VM
         private set
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,7 +69,7 @@ abstract class MVVMBottomSheetDialog<Binding: ViewDataBinding>: BottomSheetDialo
         return binding
     }
 
-    protected open fun onViewModelCreated(viewModel: MVVMViewModel) {
+    protected open fun onViewModelCreated(viewModel: VM) {
         // no-op
     }
 

@@ -7,14 +7,14 @@ import androidx.databinding.ViewDataBinding
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
-import dev.sunnyday.core.mvvm.viewModel.MVVMViewModel
+import androidx.lifecycle.ViewModel
 
 /**
  * Created by sunny on 03.05.2018.
  * mail: mail@sunnyday.dev
  */
 
-abstract class MVVMDialog<Binding: ViewDataBinding>: Dialog  {
+abstract class MVVMDialog<Binding: ViewDataBinding, VM: ViewModel>: Dialog  {
 
     protected val activity: FragmentActivity
 
@@ -34,11 +34,11 @@ abstract class MVVMDialog<Binding: ViewDataBinding>: Dialog  {
 
     protected abstract val binding: Binding
 
-    protected abstract fun getViewModel(provider: ViewModelProvider): MVVMViewModel
+    protected abstract fun getViewModel(provider: ViewModelProvider): VM
 
     // endregion
 
-    protected lateinit var viewModel: MVVMViewModel
+    protected lateinit var viewModel: VM
         private set
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,7 +64,7 @@ abstract class MVVMDialog<Binding: ViewDataBinding>: Dialog  {
         return binding
     }
 
-    protected open fun onViewModelCreated(viewModel: MVVMViewModel) {
+    protected open fun onViewModelCreated(viewModel: VM) {
         // no-op
     }
 

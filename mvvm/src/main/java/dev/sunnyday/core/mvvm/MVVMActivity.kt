@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.databinding.ViewDataBinding
 import android.os.Bundle
-import dev.sunnyday.core.mvvm.viewModel.MVVMViewModel
+import androidx.lifecycle.ViewModel
 import dev.sunnyday.core.ui.activity.CoreActivity
 import dev.sunnyday.core.ui.listener.OnBackPressedListener
 
@@ -14,7 +14,7 @@ import dev.sunnyday.core.ui.listener.OnBackPressedListener
  */
 
 
-abstract class MVVMActivity<Binding: ViewDataBinding>: CoreActivity() {
+abstract class MVVMActivity<Binding: ViewDataBinding, VM: ViewModel>: CoreActivity() {
 
     // region Abstract
 
@@ -24,11 +24,11 @@ abstract class MVVMActivity<Binding: ViewDataBinding>: CoreActivity() {
 
     protected abstract val binding: Binding
 
-    protected abstract fun getViewModel(provider: ViewModelProvider): MVVMViewModel
+    protected abstract fun getViewModel(provider: ViewModelProvider): VM
 
     // endregion
 
-    protected lateinit var viewModel: MVVMViewModel
+    protected lateinit var viewModel: VM
         private set
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,7 +55,7 @@ abstract class MVVMActivity<Binding: ViewDataBinding>: CoreActivity() {
 
     }
 
-    protected fun onViewModelCreated(viewModel: MVVMViewModel) {
+    protected fun onViewModelCreated(viewModel: VM) {
         // no-op
     }
 
