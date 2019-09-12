@@ -3,6 +3,15 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Libraries-SunnyDayDev-CoreKit.iml" filepath="$PROJECT_DIR$/Libraries-SunnyDayDev-CoreKit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SDD-CoreKit-SunnyDayDev-CoreKit.iml" filepath="$PROJECT_DIR$/SDD-CoreKit-SunnyDayDev-CoreKit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/SDD-CoreKit-app.iml" filepath="$PROJECT_DIR$/app/SDD-CoreKit-app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core/SDD-CoreKit-core.iml" filepath="$PROJECT_DIR$/core/SDD-CoreKit-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dagger-extra/SDD-CoreKit-dagger-extra.iml" filepath="$PROJECT_DIR$/dagger-extra/SDD-CoreKit-dagger-extra.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mvi-spotify/SDD-CoreKit-mvi-spotify.iml" filepath="$PROJECT_DIR$/mvi-spotify/SDD-CoreKit-mvi-spotify.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mvvm/SDD-CoreKit-mvvm.iml" filepath="$PROJECT_DIR$/mvvm/SDD-CoreKit-mvvm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rx/SDD-CoreKit-rx.iml" filepath="$PROJECT_DIR$/rx/SDD-CoreKit-rx.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rx-ui/SDD-CoreKit-rx-ui.iml" filepath="$PROJECT_DIR$/rx-ui/SDD-CoreKit-rx-ui.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ui/SDD-CoreKit-ui.iml" filepath="$PROJECT_DIR$/ui/SDD-CoreKit-ui.iml" />
       <module fileurl="file://$PROJECT_DIR$/SunnyDayDev-CoreKit.iml" filepath="$PROJECT_DIR$/SunnyDayDev-CoreKit.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/SunnyDayDev-CoreKit-app.iml" filepath="$PROJECT_DIR$/app/SunnyDayDev-CoreKit-app.iml" />
       <module fileurl="file://$PROJECT_DIR$/core/SunnyDayDev-CoreKit-core.iml" filepath="$PROJECT_DIR$/core/SunnyDayDev-CoreKit-core.iml" />
