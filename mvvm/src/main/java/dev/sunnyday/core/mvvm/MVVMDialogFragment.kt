@@ -8,7 +8,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import dev.sunnyday.core.mvvm.viewModel.MVVMViewModel
+import androidx.lifecycle.ViewModel
 import dev.sunnyday.core.ui.fragment.CoreFragment
 
 /**
@@ -16,7 +16,7 @@ import dev.sunnyday.core.ui.fragment.CoreFragment
  * mail: mail@sunnyday.dev
  */
 
-abstract class MVVMDialogFragment<Binding: ViewDataBinding>: CoreFragment() {
+abstract class MVVMDialogFragment<Binding: ViewDataBinding, VM: ViewModel>: CoreFragment() {
 
     // region Abstract
 
@@ -28,11 +28,11 @@ abstract class MVVMDialogFragment<Binding: ViewDataBinding>: CoreFragment() {
                                            container: ViewGroup?,
                                            savedInstanceState: Bundle?): Binding
 
-    protected abstract fun getViewModel(provider: ViewModelProvider): MVVMViewModel
+    protected abstract fun getViewModel(provider: ViewModelProvider): VM
 
     // endregion
 
-    protected lateinit var viewModel: MVVMViewModel
+    protected lateinit var viewModel: VM
         private set
 
     @Suppress("MemberVisibilityCanBePrivate")
@@ -74,7 +74,7 @@ abstract class MVVMDialogFragment<Binding: ViewDataBinding>: CoreFragment() {
 
     }
 
-    protected open fun onViewModelCreated(viewModel: MVVMViewModel) {
+    protected open fun onViewModelCreated(viewModel: VM) {
         // no-op
     }
 
