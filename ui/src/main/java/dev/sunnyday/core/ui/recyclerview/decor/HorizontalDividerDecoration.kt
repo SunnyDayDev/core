@@ -53,12 +53,12 @@ abstract class AbstractDrawableHorizontalDividerDecoration: AbstractHorizontalDi
     protected abstract val dividerDrawable: Drawable
 
     override fun calculateDividerRect(rect: Rect,
-                                      topView: View?,
-                                      bottomView: View?,
+                                      viewAbove: View?,
+                                      viewBelow: View?,
                                       parent: RecyclerView
     ) {
 
-        if (topView == null || bottomView == null) {
+        if (viewAbove == null || viewBelow == null) {
             rect.setEmpty()
         } else {
             rect.set(0, 0, parent.width, dividerDrawable.intrinsicHeight)
@@ -66,9 +66,12 @@ abstract class AbstractDrawableHorizontalDividerDecoration: AbstractHorizontalDi
 
     }
 
-    override fun drawDivider(left: Int, top: Int, right: Int, bottom: Int, canvas: Canvas) {
+    override fun drawDivider(rect: Rect,
+                             viewAbove: View?,
+                             viewBelow: View?,
+                             canvas: Canvas) {
 
-        dividerDrawable.setBounds(left, top, right, bottom)
+        dividerDrawable.setBounds(rect.left, rect.top, rect.right, rect.bottom)
         dividerDrawable.draw(canvas)
 
     }
@@ -79,13 +82,17 @@ abstract class AbstractHorizontalDividerDecoration: RecyclerView.ItemDecoration(
 
     private val viewsDividersRects = WeakHashMap<View, ViewDividerRects>()
 
-    abstract fun calculateDividerRect(rect: Rect,
-                                      topView: View?, // null when bottomView is first item in adapter
-                                      bottomView: View?, // null when topView is last item in adapter
-                                      parent: RecyclerView
-    )
+    private val drawDividerRect = Rect()
 
-    abstract fun drawDivider(left: Int, top: Int, right: Int, bottom: Int, canvas: Canvas)
+    abstract fun calculateDividerRect(rect: Rect,
+                                      viewAbove: View?, // null when viewBelow is first item in adapter
+                                      viewBelow: View?, // null when viewAbove is last item in adapter
+                                      parent: RecyclerView)
+
+    abstract fun drawDivider(rect: Rect,
+                             viewAbove: View?,
+                             viewBelow: View?,
+                             canvas: Canvas)
 
     override fun onDraw(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
 
@@ -100,11 +107,17 @@ abstract class AbstractHorizontalDividerDecoration: RecyclerView.ItemDecoration(
                 val viewTop = view.top +
                         (view.layoutParams as ViewGroup.MarginLayoutParams).topMargin
 
-                drawDivider(
+                drawDividerRect.set(
                     dividerRect.left,
                     viewTop - dividerRect.height(),
                     dividerRect.right,
-                    viewTop,
+                    viewTop
+                )
+
+                drawDivider(
+                    drawDividerRect,
+                    parent.previousChildView(view),
+                    view,
                     canvas
                 )
 
@@ -117,11 +130,18 @@ abstract class AbstractHorizontalDividerDecoration: RecyclerView.ItemDecoration(
                 val viewBottom = view.bottom +
                         (view.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin
 
-                drawDivider(
+                drawDividerRect.set(
                     dividerRect.left,
                     viewBottom,
                     dividerRect.right,
-                    viewBottom + dividerRect.height(),
+                    viewBottom + dividerRect.height()
+                )
+
+
+                drawDivider(
+                    drawDividerRect,
+                    view,
+                    parent.nextChildView(view),
                     canvas
                 )
 
@@ -169,10 +189,8 @@ abstract class AbstractHorizontalDividerDecoration: RecyclerView.ItemDecoration(
 
         if (!(isFirst && isLast)) {
 
-            val index = parent.indexOfChild(view)
 
-            val previousView = if (index != 0) parent[index - 1] else null
-            val nextView = if(index < parent.childCount - 1) parent[index + 1] else null
+            val previousView = parent.previousChildView(view)
 
             if (previousView != null) {
 
@@ -193,6 +211,8 @@ abstract class AbstractHorizontalDividerDecoration: RecyclerView.ItemDecoration(
                 dividerRects.topAnchorView.value = null
 
             }
+
+            val nextView = parent.nextChildView(view)
 
             if (nextView != null) {
 
@@ -224,6 +244,26 @@ abstract class AbstractHorizontalDividerDecoration: RecyclerView.ItemDecoration(
         viewsDividersRects[view] ?: ViewDividerRects().also {
             viewsDividersRects[view] = it
         }
+
+    protected fun RecyclerView.previousChildView(view: View): View? {
+
+
+        val index = indexOfChild(view)
+
+        return if (index != 0) this[index - 1] else null
+
+
+    }
+
+    protected fun RecyclerView.nextChildView(view: View): View? {
+
+
+        val index = indexOfChild(view)
+
+        return if(index < this.childCount - 1) this[index + 1] else null
+
+
+    }
 
     private data class ViewDividerRects(
         val top: Rect = Rect(),
