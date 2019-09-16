@@ -186,7 +186,7 @@ object RecyclerViewBindings: Bindings() {
 
         current?.also(view::removeOnScrollListener)
 
-        if (callback == null) return
+        if (callback == null && first == null && last == null) return
 
         val newListener = AdapterPositionListener(callback, first, last)
 
