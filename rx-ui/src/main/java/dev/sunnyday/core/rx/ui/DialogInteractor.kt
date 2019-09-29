@@ -121,9 +121,29 @@ interface DialogInteractor {
 
     }
 
+    interface AlertDialogBuilderFactory {
+
+        fun create(context: Context, theme: Int?): AlertDialog.Builder
+
+    }
+
+    interface ProgressDialogFactory {
+
+        fun create(context: Context, theme: Int?): ProgressDialog
+
+    }
+
+    interface DatePickerDialogFactory {
+
+        fun create(context: Context, theme: Int?, listener: DatePickerDialog.OnDateSetListener,
+                   y: Int, m: Int, d: Int): DatePickerDialog
+
+    }
+
     class Config private constructor(
-            internal val defaultDialogTheme: Int?,
-            internal val defaultProgressDialogTheme: Int?,
+            internal val alertDialogBuilderFactory: AlertDialogBuilderFactory?,
+            internal val progressDialogFactory: ProgressDialogFactory?,
+            internal val datePickerDialogFactory: DatePickerDialogFactory?,
             internal val defaultPositiveText: (Context) -> String,
             internal val defaultNeutralText: (Context) -> String,
             internal val defaultNegativeText: (Context) -> String,
@@ -132,8 +152,9 @@ interface DialogInteractor {
 
         class Builder() {
 
-            private var defaultDialogTheme: Int? = null
-            private var defaultProgressDialogTheme: Int? = null
+            private var alertDialogBuilderFactory: AlertDialogBuilderFactory? = null
+            private var progressDialogFactory: ProgressDialogFactory? = null
+            private var datePickerDialogFactory: DatePickerDialogFactory? = null
 
             private var defaultPositiveText: (Context) -> String =
                     { it.getString(android.R.string.ok) }
@@ -148,12 +169,16 @@ interface DialogInteractor {
             internal val inputViewProvidersMap =
                     mutableMapOf<KClass<out InputViewType>, InputViewFactory<*>>()
 
-            fun defaultDialogTheme(theme: Int) = apply {
-                defaultDialogTheme = theme
+            fun alertDialogBuilderFactory(factory: AlertDialogBuilderFactory) = apply {
+                alertDialogBuilderFactory = factory
             }
-            
-            fun defaultProgressDialogTheme(theme: Int) = apply {
-                defaultProgressDialogTheme = theme
+
+            fun progressDialogFactory(factory: ProgressDialogFactory) = apply {
+                progressDialogFactory = factory
+            }
+
+            fun datePickerDialogFactory(factory: DatePickerDialogFactory) = apply {
+                datePickerDialogFactory = factory
             }
             
             fun defaultPositiveText(textId: Int) = apply {
@@ -187,8 +212,9 @@ interface DialogInteractor {
             }
 
             fun build() = Config(
-                    defaultDialogTheme = defaultDialogTheme,
-                    defaultProgressDialogTheme = defaultProgressDialogTheme,
+                    alertDialogBuilderFactory = alertDialogBuilderFactory,
+                    progressDialogFactory = progressDialogFactory,
+                    datePickerDialogFactory = datePickerDialogFactory,
                     defaultPositiveText = defaultPositiveText,
                     defaultNeutralText = defaultNeutralText,
                     defaultNegativeText = defaultNegativeText,
@@ -254,10 +280,9 @@ open class DefaultDialogInteractor constructor(
 
         val subject = subject<T>()
 
-        val checkedTheme = theme ?: config.defaultDialogTheme
         val dialogBuilder =
-                if (checkedTheme != null) AlertDialog.Builder(activity, checkedTheme)
-                else AlertDialog.Builder(activity)
+                if (config.alertDialogBuilderFactory == null) AlertDialog.Builder(activity)
+                else config.alertDialogBuilderFactory.create(activity, theme)
 
         val dialog = dialogBuilder
                 .setTitle(title)
@@ -337,13 +362,11 @@ open class DefaultDialogInteractor constructor(
 
         val subject = subject<String>()
 
-        val checkedTheme = theme ?: config.defaultDialogTheme
+        val dialogBuilder =
+            if (config.alertDialogBuilderFactory == null) AlertDialog.Builder(activity)
+            else config.alertDialogBuilderFactory.create(activity, theme)
 
-        val builder =
-            if (checkedTheme != null) AlertDialog.Builder(activity, checkedTheme)
-            else AlertDialog.Builder(activity)
-
-        builder.setTitle(title)
+        dialogBuilder.setTitle(title)
             .setCancelable(cancellable)
             .setOnCancelListener {
                 subject.cancelled()
@@ -376,17 +399,17 @@ open class DefaultDialogInteractor constructor(
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
 
-        builder.setView(inputContainer)
+        dialogBuilder.setView(inputContainer)
 
-        builder.setNegativeButton(config.defaultNegativeText(activity)) { dialog, _ ->
+        dialogBuilder.setNegativeButton(config.defaultNegativeText(activity)) { dialog, _ ->
             dialog.cancel()
         }
 
-        builder.setPositiveButton(config.defaultPositiveText(activity), null)
+        dialogBuilder.setPositiveButton(config.defaultPositiveText(activity), null)
 
-        builder.setOnCancelListener { subject.cancelled() }
+        dialogBuilder.setOnCancelListener { subject.cancelled() }
 
-        val dialog = builder.create()
+        val dialog = dialogBuilder.create()
 
         dialog.setOnShowListener {
 
@@ -421,10 +444,9 @@ open class DefaultDialogInteractor constructor(
                               cancellable: Boolean,
                               theme: Int?) = completableDialog { activity ->
 
-        val checkedTheme = theme ?: config.defaultProgressDialogTheme
         val dialog =
-                if (checkedTheme != null) ProgressDialog(activity, checkedTheme)
-                else ProgressDialog(activity)
+                if (config.progressDialogFactory == null) ProgressDialog(activity)
+                else config.progressDialogFactory.create(activity, theme)
 
         dialog.apply {
             isIndeterminate = true
@@ -449,13 +471,11 @@ open class DefaultDialogInteractor constructor(
 
         val subject = subject<Date>()
 
-        val checkedTheme = theme ?: config.defaultDialogTheme
-
         val calendar = Calendar.getInstance().apply {
             time = initialDate
         }
 
-        val listener: (picker: DatePicker, year: Int, month: Int, day: Int) -> Unit = {_, y, m, d ->
+        val listener = DatePickerDialog.OnDateSetListener {_, y, m, d ->
 
             calendar.set(Calendar.DAY_OF_MONTH, d)
             calendar.set(Calendar.MONTH, m)
@@ -470,8 +490,10 @@ open class DefaultDialogInteractor constructor(
         val y = calendar.get(Calendar.YEAR)
 
         val dialog =
-                if (checkedTheme == null) DatePickerDialog(activity, listener, y, m, d)
-                else DatePickerDialog(activity, checkedTheme, listener, y, m, d)
+                if (config.datePickerDialogFactory == null)
+                    DatePickerDialog(activity, listener, y, m, d)
+                else
+                    config.datePickerDialogFactory.create(activity, theme, listener, y, m, d)
 
         dialog.apply {
             setCancelable(cancellable)
