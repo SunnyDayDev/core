@@ -44,11 +44,11 @@ object TextViewBindings: Bindings() {
     @JvmStatic
     @BindingAdapter(value = ["textStyle", "typeface"], requireAll = false)
     fun bindTextStyle(view: TextView, style: Int?, typeface: Typeface?) {
-        if (style != null) {
-            view.setTypeface(typeface, style)
-        } else {
-            view.typeface = typeface
-        }
+
+        view.setTypeface(
+            typeface ?: view.typeface,
+            style ?: view.typeface?.style ?: Typeface.NORMAL)
+
     }
 
     @JvmStatic
