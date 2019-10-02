@@ -6,6 +6,7 @@ import androidx.databinding.BindingAdapter
 import androidx.databinding.adapters.ListenerUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import com.github.nitrico.lastadapter.BaseType
 import com.github.nitrico.lastadapter.LastAdapter
 import com.github.nitrico.lastadapter.TypeHandler
@@ -150,17 +151,21 @@ object RecyclerViewBindings: Bindings() {
     // region ItemDecoration
 
     @JvmStatic
-    @BindingAdapter("itemDecoration")
-    fun bindItemDecoration(view: RecyclerView, decoration: RecyclerView.ItemDecoration) {
-        // TODO: remove previous
-        view.addItemDecoration(decoration)
-    }
+    @BindingAdapter("itemsDecoration")
+    fun bindItemDecoration(view: RecyclerView, decoration: ItemDecoration) =
+        bindItemDecorations(view, listOf(decoration))
 
     @JvmStatic
-    @BindingAdapter("itemDecorations")
-    fun bindItemDecorations(view: RecyclerView, decoration: List<RecyclerView.ItemDecoration>) {
-        // TODO: remove previous
+    @BindingAdapter("itemsDecoration")
+    fun bindItemDecorations(view: RecyclerView, decoration: List<ItemDecoration>) {
+
+        view.getListener<List<ItemDecoration>>(R.id.binding_recyclerview_items_decoration)
+            ?.forEach(view::removeItemDecoration)
+
         decoration.forEach(view::addItemDecoration)
+
+        view.setListener(R.id.binding_recyclerview_items_decoration, decoration)
+
     }
 
     // endregion

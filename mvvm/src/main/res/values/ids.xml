@@ -7,6 +7,7 @@
     <item name="binding_recyclerview_adapter_core" type="id"/>
     <item name="binding_recyclerview_touch_item_helper" type="id"/>
     <item name="binding_recyclerview_binding_visible_position" type="id"/>
+    <item name="binding_recyclerview_items_decoration" type="id"/>
 
     <item name="binding_layout_size_changed_listener" type="id"/>
 
