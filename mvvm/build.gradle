@@ -61,6 +61,6 @@ dependencies {
 
     implementation 'me.sunnydaydev:lastadapter:2.3.0.2'
 
-    implementation 'com.github.bumptech.glide:glide:4.9.0'
+    implementation 'com.github.bumptech.glide:glide:4.10.0'
 
 }
