@@ -11,7 +11,7 @@ import dev.sunnyday.core.mvvm.viewModel.get
 import dev.sunnyday.core.util.AppGlobals
 import dev.sunnyday.core_uisample.databinding.ActivityMvvmBinding
 
-class MVVMActivity : dev.sunnyday.core.mvvm.MVVMActivity<ActivityMvvmBinding>() {
+class MVVMActivity : dev.sunnyday.core.mvvm.MVVMActivity<ActivityMvvmBinding, MVVMViewModel>() {
 
     override val viewModelFactory: ViewModelProvider.Factory = ViewModelProvider.NewInstanceFactory()
     override val viewModelVariableId: Int = BR.vm
