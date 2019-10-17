@@ -35,6 +35,7 @@ dependencies {
     implementation project(':rx')
     implementation project(':rx-ui')
     implementation project(':mvi-spotify')
+    implementation project(':dagger-extra')
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
