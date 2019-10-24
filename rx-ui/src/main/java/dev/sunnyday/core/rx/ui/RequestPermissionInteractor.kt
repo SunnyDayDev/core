@@ -5,11 +5,14 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import dev.sunnyday.core.ui.listener.OnRequestPermissionResultListener
+import dev.sunnyday.core.util.Optional
 import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by Aleksandr Tcikin (SunnyDay.Dev) on 12.09.2018.
@@ -96,7 +99,9 @@ class DefaultRequestPermissionInteractor(
             checkPermission(request).flatMapCompletable { granted ->
                 if (granted) Completable.complete()
                 else activityTracker.lastResumedActivity
+                        .filter { (activity) -> activity != null }
                         .firstElement()
+                        .timeout(500, TimeUnit.SECONDS, Maybe.just(Optional()))
                         .flatMapCompletable { (activity) ->
 
                             activity ?: throw RequestPermissionInteractorError.ActivityNotStarted()
