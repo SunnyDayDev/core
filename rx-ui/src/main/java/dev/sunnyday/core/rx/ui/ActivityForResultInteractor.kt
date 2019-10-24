@@ -6,9 +6,13 @@ import android.content.Intent
 import dev.sunnyday.core.runtime.tryOptional
 import dev.sunnyday.core.rx.invoke
 import dev.sunnyday.core.ui.listener.OnActivityResultListener
+import dev.sunnyday.core.util.Optional
 import dev.sunnyday.core.util.equals
 import io.reactivex.Maybe
+import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.subjects.SingleSubject
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by Aleksandr Tcikin (SunnyDay.Dev) on 09.08.2018.
@@ -81,7 +85,9 @@ class DefaultActivityForResultInteractor constructor(
 
     override fun <T> request(request: ActivityResultRequest<T>): Maybe<T> =
             activityTracker.lastStartedActivity
+                    .filter { (activity) -> activity != null }
                     .firstOrError()
+                    .timeout(500, TimeUnit.SECONDS, Single.just(Optional()))
                     .flatMapMaybe { (activity) ->
 
                         activity ?: error("No any activity started.")

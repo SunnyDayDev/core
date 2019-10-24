@@ -276,7 +276,7 @@ open class DefaultDialogInteractor constructor(
             positiveAction: Action<T>?,
             cancellable: Boolean,
             theme: Int?
-    ) = maybeDialog{ activity ->
+    ) = maybeDialog { activity ->
 
         val subject = subject<T>()
 
