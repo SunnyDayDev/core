@@ -25,4 +25,6 @@
 
     <item name="binding_tabLayout_tabs_core" type="id"/>
 
+    <item name="binding__radio_group__core" type="id"/>
+
 </resources>

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Libraries-SunnyDayDev-CoreKit.iml" filepath="$PROJECT_DIR$/Libraries-SunnyDayDev-CoreKit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Libraries-SunnyDayDev-CoreKit.iml" filepath="$PROJECT_DIR$/Libraries-SunnyDayDev-CoreKit.iml" group="SunnyDayDev-CoreKit" />
       <module fileurl="file://$PROJECT_DIR$/SDD-CoreKit-SunnyDayDev-CoreKit.iml" filepath="$PROJECT_DIR$/SDD-CoreKit-SunnyDayDev-CoreKit.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/SDD-CoreKit-app.iml" filepath="$PROJECT_DIR$/app/SDD-CoreKit-app.iml" />
       <module fileurl="file://$PROJECT_DIR$/core/SDD-CoreKit-core.iml" filepath="$PROJECT_DIR$/core/SDD-CoreKit-core.iml" />
@@ -13,14 +13,14 @@
       <module fileurl="file://$PROJECT_DIR$/rx-ui/SDD-CoreKit-rx-ui.iml" filepath="$PROJECT_DIR$/rx-ui/SDD-CoreKit-rx-ui.iml" />
       <module fileurl="file://$PROJECT_DIR$/ui/SDD-CoreKit-ui.iml" filepath="$PROJECT_DIR$/ui/SDD-CoreKit-ui.iml" />
       <module fileurl="file://$PROJECT_DIR$/SunnyDayDev-CoreKit.iml" filepath="$PROJECT_DIR$/SunnyDayDev-CoreKit.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/SunnyDayDev-CoreKit-app.iml" filepath="$PROJECT_DIR$/app/SunnyDayDev-CoreKit-app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/core/SunnyDayDev-CoreKit-core.iml" filepath="$PROJECT_DIR$/core/SunnyDayDev-CoreKit-core.iml" />
-      <module fileurl="file://$PROJECT_DIR$/dagger-extra/SunnyDayDev-CoreKit-dagger-extra.iml" filepath="$PROJECT_DIR$/dagger-extra/SunnyDayDev-CoreKit-dagger-extra.iml" />
-      <module fileurl="file://$PROJECT_DIR$/mvi-spotify/SunnyDayDev-CoreKit-mvi-spotify.iml" filepath="$PROJECT_DIR$/mvi-spotify/SunnyDayDev-CoreKit-mvi-spotify.iml" />
-      <module fileurl="file://$PROJECT_DIR$/mvvm/SunnyDayDev-CoreKit-mvvm.iml" filepath="$PROJECT_DIR$/mvvm/SunnyDayDev-CoreKit-mvvm.iml" />
-      <module fileurl="file://$PROJECT_DIR$/rx/SunnyDayDev-CoreKit-rx.iml" filepath="$PROJECT_DIR$/rx/SunnyDayDev-CoreKit-rx.iml" />
-      <module fileurl="file://$PROJECT_DIR$/rx-ui/SunnyDayDev-CoreKit-rx-ui.iml" filepath="$PROJECT_DIR$/rx-ui/SunnyDayDev-CoreKit-rx-ui.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ui/SunnyDayDev-CoreKit-ui.iml" filepath="$PROJECT_DIR$/ui/SunnyDayDev-CoreKit-ui.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/SunnyDayDev-CoreKit-app.iml" filepath="$PROJECT_DIR$/app/SunnyDayDev-CoreKit-app.iml" group="SunnyDayDev-CoreKit/app" />
+      <module fileurl="file://$PROJECT_DIR$/core/SunnyDayDev-CoreKit-core.iml" filepath="$PROJECT_DIR$/core/SunnyDayDev-CoreKit-core.iml" group="SunnyDayDev-CoreKit/core" />
+      <module fileurl="file://$PROJECT_DIR$/dagger-extra/SunnyDayDev-CoreKit-dagger-extra.iml" filepath="$PROJECT_DIR$/dagger-extra/SunnyDayDev-CoreKit-dagger-extra.iml" group="SunnyDayDev-CoreKit/dagger-extra" />
+      <module fileurl="file://$PROJECT_DIR$/mvi-spotify/SunnyDayDev-CoreKit-mvi-spotify.iml" filepath="$PROJECT_DIR$/mvi-spotify/SunnyDayDev-CoreKit-mvi-spotify.iml" group="SunnyDayDev-CoreKit/mvi-spotify" />
+      <module fileurl="file://$PROJECT_DIR$/mvvm/SunnyDayDev-CoreKit-mvvm.iml" filepath="$PROJECT_DIR$/mvvm/SunnyDayDev-CoreKit-mvvm.iml" group="SunnyDayDev-CoreKit/mvvm" />
+      <module fileurl="file://$PROJECT_DIR$/rx/SunnyDayDev-CoreKit-rx.iml" filepath="$PROJECT_DIR$/rx/SunnyDayDev-CoreKit-rx.iml" group="SunnyDayDev-CoreKit/rx" />
+      <module fileurl="file://$PROJECT_DIR$/rx-ui/SunnyDayDev-CoreKit-rx-ui.iml" filepath="$PROJECT_DIR$/rx-ui/SunnyDayDev-CoreKit-rx-ui.iml" group="SunnyDayDev-CoreKit/rx-ui" />
+      <module fileurl="file://$PROJECT_DIR$/ui/SunnyDayDev-CoreKit-ui.iml" filepath="$PROJECT_DIR$/ui/SunnyDayDev-CoreKit-ui.iml" group="SunnyDayDev-CoreKit/ui" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" />
       <module fileurl="file://$PROJECT_DIR$/dagger-extra/dagger-extra.iml" filepath="$PROJECT_DIR$/dagger-extra/dagger-extra.iml" />
