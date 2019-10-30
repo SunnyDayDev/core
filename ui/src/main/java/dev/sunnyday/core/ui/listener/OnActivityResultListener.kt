@@ -18,7 +18,7 @@ interface OnActivityResultListener {
 
         interface Owner {
 
-            val onActivityResultRegistry: OnActivityResultListener.Registry
+            val onActivityResultRegistry: Registry
 
         }
 

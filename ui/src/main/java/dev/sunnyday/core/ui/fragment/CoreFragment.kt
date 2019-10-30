@@ -33,16 +33,15 @@ open class CoreFragment: Fragment(),
     override val onRequestPermissionResultRegistry: OnRequestPermissionResultListener.Registry =
         DefaultOnRequestPermissionResultRegistry()
 
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (!onActivityResultRegistry.onActivityResult(requestCode, resultCode, data)) {
-            checkedOnActivityResult(requestCode, resultCode, data)
+            onUnhandledActivityResult(requestCode, resultCode, data)
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (!onRequestPermissionResultRegistry.onRequestPermissionsResult(requestCode, permissions, grantResults)) {
-            checkedOnRequestPermissionsResult(requestCode, permissions, grantResults)
+            onUnhandledRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
 
@@ -64,17 +63,18 @@ open class CoreFragment: Fragment(),
 
     }
 
-    override fun onBackPressed(): Boolean = onBackPressedRegistry.onBackPressed() || checkedOnBackPressed()
+    override fun onBackPressed(): Boolean =
+        onBackPressedRegistry.onBackPressed() || onUnhandledBackPressed()
 
-    protected open fun checkedOnBackPressed(): Boolean = false
+    protected open fun onUnhandledBackPressed(): Boolean = false
 
-    protected open fun checkedOnRequestPermissionsResult(requestCode: Int,
-                                                         permissions: Array<out String>,
-                                                         grantResults: IntArray) {
+    protected open fun onUnhandledRequestPermissionsResult(requestCode: Int,
+                                                           permissions: Array<out String>,
+                                                           grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    protected open fun checkedOnActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    protected open fun onUnhandledActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
     }
 

@@ -17,7 +17,7 @@ interface OnRequestPermissionResultListener {
 
         interface Owner {
 
-            val onRequestPermissionResultRegistry: OnRequestPermissionResultListener.Registry
+            val onRequestPermissionResultRegistry: Registry
 
         }
 

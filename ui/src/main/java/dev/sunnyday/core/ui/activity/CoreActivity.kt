@@ -1,8 +1,6 @@
 package dev.sunnyday.core.ui.activity
 
 import android.content.Intent
-import android.os.Handler
-import android.os.Looper
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import dev.sunnyday.core.runtime.alsoDo
@@ -27,17 +25,17 @@ open class CoreActivity: AppCompatActivity(),
     override val onRequestPermissionResultRegistry: OnRequestPermissionResultListener.Registry =
         DefaultOnRequestPermissionResultRegistry()
 
-    protected var autoPruneRetainingStore = true
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
         if (!onActivityResultRegistry.onActivityResult(requestCode, resultCode, data)) {
-            checkedOnActivityResult(requestCode, resultCode, data)
+            onUnhandledActivityResult(requestCode, resultCode, data)
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (!onRequestPermissionResultRegistry.onRequestPermissionsResult(requestCode, permissions, grantResults)) {
-            checkedOnRequestPermissionsResult(requestCode, permissions, grantResults)
+            onUnhandledRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
 
@@ -48,29 +46,22 @@ open class CoreActivity: AppCompatActivity(),
 
     override fun onBackPressed() {
         if (!onBackPressedRegistry.onBackPressed()) {
-            checkedOnBackPressed()
+            onUnhandledBackPressed()
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (autoPruneRetainingStore && isRetainingStoreInitialized) {
-            Handler(Looper.getMainLooper()).post(retainingStore::clear)
-        }
-    }
-
-    protected open fun checkedOnBackPressed() {
+    protected open fun onUnhandledBackPressed() {
         super.onBackPressed()
     }
 
-    protected open fun checkedOnRequestPermissionsResult(requestCode: Int,
-                                                         permissions: Array<out String>,
-                                                         grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    protected open fun onUnhandledActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
-    protected open fun checkedOnActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+    protected open fun onUnhandledRequestPermissionsResult(requestCode: Int,
+                                                           permissions: Array<out String>,
+                                                           grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
 }
