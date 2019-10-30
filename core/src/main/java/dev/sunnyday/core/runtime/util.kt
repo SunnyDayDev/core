@@ -18,4 +18,5 @@ inline fun <T> T.applyIf(predicate: Boolean, action: T.() -> Unit): T = applyIf(
 
 inline fun <T> create(block: () -> T): T = block()
 
-fun noop() = Unit
+@Suppress("NOTHING_TO_INLINE")
+inline fun noop() = Unit

@@ -17,7 +17,7 @@ interface OnBackPressedListener {
 
         interface Owner {
 
-            val onBackPressedRegistry: OnBackPressedListener.Registry
+            val onBackPressedRegistry: Registry
 
         }
 
