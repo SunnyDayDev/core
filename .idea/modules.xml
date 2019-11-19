@@ -2,15 +2,15 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/SDDKit.iml" filepath="$PROJECT_DIR$/SDDKit.iml" group="SDDKit" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="SDDKit/app" />
-      <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" group="SDDKit/core" />
-      <module fileurl="file://$PROJECT_DIR$/dagger-extra/dagger-extra.iml" filepath="$PROJECT_DIR$/dagger-extra/dagger-extra.iml" group="SDDKit/dagger-extra" />
-      <module fileurl="file://$PROJECT_DIR$/mvi-spotify/mvi-spotify.iml" filepath="$PROJECT_DIR$/mvi-spotify/mvi-spotify.iml" group="SDDKit/mvi-spotify" />
-      <module fileurl="file://$PROJECT_DIR$/mvvm/mvvm.iml" filepath="$PROJECT_DIR$/mvvm/mvvm.iml" group="SDDKit/mvvm" />
-      <module fileurl="file://$PROJECT_DIR$/rx/rx.iml" filepath="$PROJECT_DIR$/rx/rx.iml" group="SDDKit/rx" />
-      <module fileurl="file://$PROJECT_DIR$/rx-ui/rx-ui.iml" filepath="$PROJECT_DIR$/rx-ui/rx-ui.iml" group="SDDKit/rx-ui" />
-      <module fileurl="file://$PROJECT_DIR$/ui/ui.iml" filepath="$PROJECT_DIR$/ui/ui.iml" group="SDDKit/ui" />
+      <module fileurl="file://$PROJECT_DIR$/SDD-CoreKit-SDDKit.iml" filepath="$PROJECT_DIR$/SDD-CoreKit-SDDKit.iml" group="SDDKit" />
+      <module fileurl="file://$PROJECT_DIR$/app/SDD-CoreKit-app.iml" filepath="$PROJECT_DIR$/app/SDD-CoreKit-app.iml" group="SDDKit/app" />
+      <module fileurl="file://$PROJECT_DIR$/core/SDD-CoreKit-core.iml" filepath="$PROJECT_DIR$/core/SDD-CoreKit-core.iml" group="SDDKit/core" />
+      <module fileurl="file://$PROJECT_DIR$/dagger-extra/SDD-CoreKit-dagger-extra.iml" filepath="$PROJECT_DIR$/dagger-extra/SDD-CoreKit-dagger-extra.iml" group="SDDKit/dagger-extra" />
+      <module fileurl="file://$PROJECT_DIR$/mvi-spotify/SDD-CoreKit-mvi-spotify.iml" filepath="$PROJECT_DIR$/mvi-spotify/SDD-CoreKit-mvi-spotify.iml" group="SDDKit/mvi-spotify" />
+      <module fileurl="file://$PROJECT_DIR$/mvvm/SDD-CoreKit-mvvm.iml" filepath="$PROJECT_DIR$/mvvm/SDD-CoreKit-mvvm.iml" group="SDDKit/mvvm" />
+      <module fileurl="file://$PROJECT_DIR$/rx/SDD-CoreKit-rx.iml" filepath="$PROJECT_DIR$/rx/SDD-CoreKit-rx.iml" group="SDDKit/rx" />
+      <module fileurl="file://$PROJECT_DIR$/rx-ui/SDD-CoreKit-rx-ui.iml" filepath="$PROJECT_DIR$/rx-ui/SDD-CoreKit-rx-ui.iml" group="SDDKit/rx-ui" />
+      <module fileurl="file://$PROJECT_DIR$/ui/SDD-CoreKit-ui.iml" filepath="$PROJECT_DIR$/ui/SDD-CoreKit-ui.iml" group="SDDKit/ui" />
     </modules>
   </component>
 </project>
