@@ -45,9 +45,10 @@ object TextViewBindings: Bindings() {
     @BindingAdapter(value = ["textStyle", "typeface"], requireAll = false)
     fun bindTextStyle(view: TextView, style: Int?, typeface: Typeface?) {
 
-        view.setTypeface(
-            typeface ?: view.typeface,
-            style ?: view.typeface?.style ?: Typeface.NORMAL)
+        val checkedStyle = style ?: view.typeface?.style ?: Typeface.NORMAL
+        val checkedTypeface = Typeface.create(typeface ?: view.typeface, checkedStyle)
+
+        view.setTypeface(checkedTypeface, checkedStyle)
 
     }
 
