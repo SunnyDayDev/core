@@ -17,6 +17,22 @@ import dev.sunnyday.core.pure.PureActivityLifecycleCallbacks
 object ApplicationCoreListenersUtil {
 
     fun autoAttachListeners(application: Application,
+                                       attachToNestedFragments: Boolean = true) {
+        autoAttachListeners(
+            application,
+            (application as? OnBackPressedListener.Registry.Owner)
+                ?.onBackPressedRegistry
+                ?: application as? OnBackPressedListener,
+            (application as? OnActivityResultListener.Registry.Owner)
+                ?.onActivityResultRegistry
+                ?: application as? OnActivityResultListener,
+            (application as? OnRequestPermissionResultListener.Registry.Owner)
+                ?.onRequestPermissionResultRegistry
+                ?: application as? OnRequestPermissionResultListener,
+            attachToNestedFragments)
+    }
+
+    fun autoAttachListeners(application: Application,
                             onBackPressedListener: OnBackPressedListener.Registry.Owner?,
                             onActivityResultListener: OnActivityResultListener.Registry.Owner?,
                             onRequestPermissionResultListener: OnRequestPermissionResultListener.Registry.Owner?,
@@ -27,8 +43,7 @@ object ApplicationCoreListenersUtil {
             onBackPressedListener?.onBackPressedRegistry,
             onActivityResultListener?.onActivityResultRegistry,
             onRequestPermissionResultListener?.onRequestPermissionResultRegistry,
-            attachToNestedFragments
-        )
+            attachToNestedFragments)
 
     }
 
@@ -42,14 +57,30 @@ object ApplicationCoreListenersUtil {
 
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
 
-                attachToTarget(onBackPressedListener, onActivityResultListener, onRequestPermissionResultListener, activity)
+                attachToTarget(
+                    onBackPressedListener,
+                    onActivityResultListener,
+                    onRequestPermissionResultListener,
+                    activity)
 
                 if (activity is FragmentActivity) {
 
                     activity.supportFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
 
                         override fun onFragmentAttached(fm: FragmentManager, f: Fragment, context: Context) {
-                            attachToTarget(onBackPressedListener, onActivityResultListener, onRequestPermissionResultListener, f)
+                            attachToTarget(
+                                onBackPressedListener,
+                                onActivityResultListener,
+                                onRequestPermissionResultListener,
+                                f)
+                        }
+
+                        override fun onFragmentDetached(fm: FragmentManager, f: Fragment) {
+                            detachFromTarget(
+                                onBackPressedListener,
+                                onActivityResultListener,
+                                onRequestPermissionResultListener,
+                                f)
                         }
 
                     }, attachToNestedFragments)
@@ -58,14 +89,22 @@ object ApplicationCoreListenersUtil {
 
             }
 
+            override fun onActivityDestroyed(activity: Activity) {
+                detachFromTarget(
+                    onBackPressedListener,
+                    onActivityResultListener,
+                    onRequestPermissionResultListener,
+                    activity)
+            }
+
         })
 
     }
-    
+
     private fun attachToTarget(onBackPressedListener: OnBackPressedListener?,
-                       onActivityResultListener: OnActivityResultListener?,
-                       onRequestPermissionResultListener: OnRequestPermissionResultListener?,
-                       target: Any) {
+                               onActivityResultListener: OnActivityResultListener?,
+                               onRequestPermissionResultListener: OnRequestPermissionResultListener?,
+                               target: Any) {
 
         if (onBackPressedListener != null && target is OnBackPressedListener.Registry.Owner) {
             target.onBackPressedRegistry.add(onBackPressedListener)
@@ -78,7 +117,26 @@ object ApplicationCoreListenersUtil {
         if (onRequestPermissionResultListener != null && target is OnRequestPermissionResultListener.Registry.Owner) {
             target.onRequestPermissionResultRegistry.add(onRequestPermissionResultListener)
         }
-        
+
+    }
+
+    private fun detachFromTarget(onBackPressedListener: OnBackPressedListener?,
+                               onActivityResultListener: OnActivityResultListener?,
+                               onRequestPermissionResultListener: OnRequestPermissionResultListener?,
+                               target: Any) {
+
+        if (onBackPressedListener != null && target is OnBackPressedListener.Registry.Owner) {
+            target.onBackPressedRegistry.remove(onBackPressedListener)
+        }
+
+        if (onActivityResultListener != null && target is OnActivityResultListener.Registry.Owner) {
+            target.onActivityResultRegistry.remove(onActivityResultListener)
+        }
+
+        if (onRequestPermissionResultListener != null && target is OnRequestPermissionResultListener.Registry.Owner) {
+            target.onRequestPermissionResultRegistry.remove(onRequestPermissionResultListener)
+        }
+
     }
     
 }
