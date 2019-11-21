@@ -1,5 +1,6 @@
 package dev.sunnyday.core.mvvm
 
+import android.app.Dialog
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import android.content.Context
@@ -9,14 +10,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModel
-import dev.sunnyday.core.ui.fragment.CoreFragment
+import dev.sunnyday.core.ui.fragment.CoreDialogFragment
 
 /**
  * Created by sunny on 03.05.2018.
  * mail: mail@sunnyday.dev
  */
 
-abstract class MVVMDialogFragment<Binding: ViewDataBinding, VM: ViewModel>: CoreFragment() {
+abstract class MVVMDialogFragment<Binding: ViewDataBinding, VM: ViewModel>: CoreDialogFragment() {
 
     // region Abstract
 
