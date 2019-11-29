@@ -9,19 +9,19 @@ import java.lang.ref.WeakReference
  * mail: mail@sunnyday.dev
  */
 
-class Weak<T>(value: T? = null): ReferenceWrapper<T>(value) {
+class Weak<T: Any>(value: T? = null): ReferenceWrapper<T>(value) {
 
     override fun wrap(value: T) = WeakReference(value)
 
 }
 
-class Soft<T>(value: T? = null): ReferenceWrapper<T>(value) {
+class Soft<T: Any>(value: T? = null): ReferenceWrapper<T>(value) {
 
     override fun wrap(value: T) = SoftReference(value)
 
 }
 
-abstract class ReferenceWrapper<T>(value: T? = null) {
+abstract class ReferenceWrapper<T: Any>(value: T? = null) {
 
     private var ref: Reference<T>? = null
 
@@ -43,7 +43,7 @@ abstract class ReferenceWrapper<T>(value: T? = null) {
 
     operator fun component1(): T? = value
 
-    inline fun getOrSet(provider: () -> T): T = synchronized(this) {
+    inline fun getOrSet(provider: () -> T?): T? = synchronized(this) {
         value ?: provider().also { value = it }
     }
 
