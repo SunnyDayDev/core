@@ -86,7 +86,7 @@ class EqualsKtTest {
 
     data class TestArrayData(val value: List<Int>) {
 
-        constructor(value: Int): this((0..5).map { value })
+        constructor(value: Int): this((0..5).map { value + it })
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
