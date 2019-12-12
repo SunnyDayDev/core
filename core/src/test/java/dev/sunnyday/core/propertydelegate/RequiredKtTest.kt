@@ -3,8 +3,7 @@ package dev.sunnyday.core.propertydelegate
 import org.junit.Test
 
 import org.junit.Assert.*
-import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.KProperty
+import kotlin.random.Random
 
 /**
  * Created by Aleksandr Tcikin (SunnyDay.Dev) on 2019-06-07.
@@ -13,23 +12,29 @@ import kotlin.reflect.KProperty
 
 class RequiredKtTest {
 
+    private val random = Random(System.currentTimeMillis())
+
     @Test
     fun testSetValue() {
 
+        val value = random.nextInt()
+
         val testCase = IntTestCase(null)
 
-        testCase.requiredValue = 7
+        testCase.requiredValue = value
 
-        assertEquals(7, testCase.value)
+        assertEquals(value, testCase.value)
 
     }
 
     @Test
     fun testGetNonNullValue() {
 
-        val testCase = IntTestCase(7)
+        val value = random.nextInt()
 
-        assertEquals(7, testCase.requiredValue)
+        val testCase = IntTestCase(value)
+
+        assertEquals(value, testCase.requiredValue)
 
     }
 
@@ -42,23 +47,9 @@ class RequiredKtTest {
 
     }
 
-    private class IntTestCase(initialValue: Int?) {
+    private class IntTestCase(var value: Int?) {
 
-        private val propertyDelegate = VarProperty<IntTestCase, Int>(initialValue)
-
-        var value by propertyDelegate
-
-        var requiredValue by required(propertyDelegate)
-
-    }
-
-    private class VarProperty<R, T>(var value: T?): ReadWriteProperty<R, T?> {
-
-        override fun getValue(thisRef: R, property: KProperty<*>): T? = value
-
-        override fun setValue(thisRef: R, property: KProperty<*>, value: T?) {
-            this.value = value
-        }
+        var requiredValue by required(delegateTo(this::value))
 
     }
 
