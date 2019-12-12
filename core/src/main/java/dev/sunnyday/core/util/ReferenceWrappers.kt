@@ -43,7 +43,7 @@ abstract class ReferenceWrapper<T: Any>(value: T? = null) {
 
     operator fun component1(): T? = value
 
-    inline fun getOrSet(provider: () -> T?): T? = synchronized(this) {
+    inline fun getOrSet(provider: () -> T): T = synchronized(this) {
         value ?: provider().also { value = it }
     }
 

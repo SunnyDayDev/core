@@ -1,5 +1,6 @@
 package dev.sunnyday.core.util
 
+import dev.sunnyday.core.testUtils.MemoryUtil
 import org.junit.Test
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
@@ -64,10 +65,7 @@ class ReferenceWrapperTest {
         @Suppress("UNUSED_VALUE")
         value = null
 
-        try {
-            (0..Int.MAX_VALUE).map { ByteArray(Int.MAX_VALUE - 2) }
-        }
-        catch (ignored: OutOfMemoryError) { }
+        MemoryUtil.eatAllMemory()
 
         assert(softRef.get() == null)
         assert(soft.value == null)
