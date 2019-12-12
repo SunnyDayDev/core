@@ -21,7 +21,7 @@ subprojects {
 
     buildscript {
 
-        ext.lib_version = '0.0.88'
+        ext.lib_version = '0.0.89'
 
         repositories {
             google()
