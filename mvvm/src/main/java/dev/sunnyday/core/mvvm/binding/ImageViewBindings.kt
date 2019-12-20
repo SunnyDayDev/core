@@ -13,6 +13,8 @@ import com.bumptech.glide.load.Transformation
 import com.bumptech.glide.request.RequestOptions
 import dev.sunnyday.core.mvvm.R
 import dev.sunnyday.core.runtime.alsoDo
+import dev.sunnyday.core.ui.source.Source
+import dev.sunnyday.core.ui.source.DrawableSource
 import timber.log.Timber
 import java.lang.IllegalArgumentException
 import java.net.URL
@@ -29,7 +31,7 @@ object ImageViewBindings: Bindings() {
 
     @JvmStatic
     @BindingAdapter("imageSource")
-    fun bindImageSource(view: ImageView, source: BindableSource<Drawable>?) =
+    fun bindImageSource(view: ImageView, source: Source<Drawable>?) =
         view.core.setSource(source)
 
     @JvmStatic
@@ -81,11 +83,12 @@ object ImageViewBindings: Bindings() {
 
     @JvmStatic
     @BindingConversion
-    fun convertUriToSource(uri: Uri?): BindableSource<Drawable>? = uri?.let(DrawableSource::Uri)
+    fun convertUriToSource(uri: Uri?): Source<Drawable>? = uri?.let(
+        DrawableSource::Uri)
 
     @JvmStatic
     @BindingConversion
-    fun convertURLToSource(url: URL?): BindableSource<Drawable>? {
+    fun convertURLToSource(url: URL?): Source<Drawable>? {
         url ?: return null
         val uri = Uri.parse(url.toString())
         return convertUriToSource(uri)
@@ -93,7 +96,7 @@ object ImageViewBindings: Bindings() {
 
     @JvmStatic
     @BindingConversion
-    fun convertStringToSource(string: String?): BindableSource<Drawable>? {
+    fun convertStringToSource(string: String?): Source<Drawable>? {
         string ?: return null
         val uri = Uri.parse(string)
         return convertUriToSource(uri)
@@ -101,15 +104,17 @@ object ImageViewBindings: Bindings() {
 
     @JvmStatic
     @BindingConversion
-    fun convertResIdToSource(@DrawableRes resId: Int?): BindableSource<Drawable>? = resId?.let(DrawableSource::Res)
+    fun convertResIdToSource(@DrawableRes resId: Int?): Source<Drawable>? = resId?.let(
+        DrawableSource::Res)
 
     @JvmStatic
     @BindingConversion
-    fun convertDrawableToSource(drawable: Drawable?): BindableSource<Drawable>? = drawable?.let(DrawableSource::Raw)
+    fun convertDrawableToSource(drawable: Drawable?): Source<Drawable>? = drawable?.let(
+        DrawableSource::Raw)
 
     @JvmStatic
     @BindingConversion
-    fun convertBitmapToSource(bitmap: Bitmap?): BindableSource<Drawable>? = bitmap?.let { DrawableSource.Bitmap(it) }
+    fun convertBitmapToSource(bitmap: Bitmap?): Source<Drawable>? = bitmap?.let { DrawableSource.Bitmap(it) }
 
     // endregion
 
@@ -123,12 +128,12 @@ object ImageViewBindings: Bindings() {
         private val uriConfig by lazy { UriConfig() alsoDo {
             uriConfigInitialized = true
         } }
-        private var source: BindableSource<Drawable>? = null
+        private var source: Source<Drawable>? = null
 
         private var isGlideUsed = false
         private var uriConfigInitialized = false
 
-        fun setSource(source: BindableSource<Drawable>?) {
+        fun setSource(source: Source<Drawable>?) {
             if (source == this.source) return
             this.source = source
             notifyChanges()
