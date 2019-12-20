@@ -10,6 +10,9 @@ import com.google.android.material.tabs.TabLayout
 import dev.sunnyday.core.mvvm.R
 import dev.sunnyday.core.runtime.Do
 import dev.sunnyday.core.runtime.noop
+import dev.sunnyday.core.ui.source.Source
+import dev.sunnyday.core.ui.source.DrawableSource
+import dev.sunnyday.core.ui.source.StringSource
 
 /**
  * Created by Aleksandr Tcikin (SunnyDay.Dev) on 2019-04-18.
@@ -17,15 +20,15 @@ import dev.sunnyday.core.runtime.noop
  */
 
 class Tab<T> constructor(
-    internal val text: BindableSource<String>,
-    internal val icon: BindableSource<Drawable>?,
+    internal val text: Source<String>,
+    internal val icon: Source<Drawable>?,
     val value: T
 ) {
 
     class Builder<T>(private val value: T) {
 
-        private var textSource: BindableSource<String> = StringSource.Raw("")
-        private var iconSource: BindableSource<Drawable>? = null
+        private var textSource: Source<String> = StringSource.Raw("")
+        private var iconSource: Source<Drawable>? = null
 
         fun text(@StringRes resId: Int) = apply {
             textSource = StringSource.Res(resId)
