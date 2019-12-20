@@ -12,7 +12,7 @@ import dev.sunnyday.core.runtime.Do
 import dev.sunnyday.core.runtime.noop
 import dev.sunnyday.core.ui.source.Source
 import dev.sunnyday.core.ui.source.DrawableSource
-import dev.sunnyday.core.ui.source.StringSource
+import dev.sunnyday.core.ui.source.TextSource
 
 /**
  * Created by Aleksandr Tcikin (SunnyDay.Dev) on 2019-04-18.
@@ -20,22 +20,22 @@ import dev.sunnyday.core.ui.source.StringSource
  */
 
 class Tab<T> constructor(
-    internal val text: Source<String>,
-    internal val icon: Source<Drawable>?,
+    internal val text: Source<out CharSequence>,
+    internal val icon: Source<out Drawable>?,
     val value: T
 ) {
 
     class Builder<T>(private val value: T) {
 
-        private var textSource: Source<String> = StringSource.Raw("")
-        private var iconSource: Source<Drawable>? = null
+        private var textSource: Source<out CharSequence> = TextSource.Raw("")
+        private var iconSource: Source<out Drawable>? = null
 
         fun text(@StringRes resId: Int) = apply {
-            textSource = StringSource.Res(resId)
+            textSource = TextSource.Res(resId)
         }
 
         fun text(text: String) = apply {
-            textSource = StringSource.Raw(text)
+            textSource = TextSource.Raw(text)
         }
 
         fun icon(@DrawableRes resId: Int) = apply {

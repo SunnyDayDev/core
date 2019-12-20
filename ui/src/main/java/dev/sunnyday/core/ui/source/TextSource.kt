@@ -3,15 +3,15 @@ package dev.sunnyday.core.ui.source
 import android.content.Context
 import androidx.annotation.StringRes
 
-sealed class StringSource: Source<String> {
+sealed class TextSource: Source<CharSequence> {
 
-    data class Res(@StringRes val resId: Int): StringSource() {
+    data class Res(@StringRes val resId: Int): TextSource() {
 
         override fun get(context: Context): String = context.getString(resId)
 
     }
 
-    data class ResWithFormat(@StringRes val resId: Int, val args: Array<out Any>): StringSource() {
+    data class ResWithFormat(@StringRes val resId: Int, val args: Array<out Any>): TextSource() {
 
         companion object {
 
@@ -42,9 +42,22 @@ sealed class StringSource: Source<String> {
 
     }
 
-    data class Raw(val value: String): StringSource() {
+    data class Raw(val value: String): TextSource() {
 
         override fun get(context: Context): String = value
+    }
+
+    companion object {
+
+        @Suppress("NOTHING_TO_INLINE")
+        inline operator fun invoke(raw: String): TextSource = Raw(raw)
+
+        @Suppress("NOTHING_TO_INLINE")
+        inline operator fun invoke(@StringRes res: Int): TextSource = Res(res)
+
+        @Suppress("NOTHING_TO_INLINE")
+        inline operator fun invoke(@StringRes res: Int, vararg args: Any): TextSource = ResWithFormat(res, args)
+
     }
 
 }
