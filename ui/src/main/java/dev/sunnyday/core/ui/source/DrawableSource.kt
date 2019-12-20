@@ -22,8 +22,7 @@ import java.net.URL
 
 sealed class DrawableSource: Source<Drawable> {
 
-    private val softValue =
-        Soft<Drawable>()
+    private val softValue = Soft<Drawable>()
 
     final override fun get(context: Context): Drawable {
         return softValue.value ?: getDrawable(context).also(softValue::value::set)
@@ -136,12 +135,9 @@ sealed class DrawableSource: Source<Drawable> {
     data class Bitmap(val value: android.graphics.Bitmap,
                       val config: ((BitmapDrawable) -> Unit)? = null): DrawableSource() {
 
-        override fun getDrawable(context: Context): Drawable = BitmapDrawable(
-            context.resources,
-            value
-        ).apply {
-            config?.invoke(this)
-        }
+        override fun getDrawable(context: Context): Drawable =
+            BitmapDrawable(context.resources, value)
+                .apply { config?.invoke(this) }
 
     }
 
@@ -164,7 +160,22 @@ sealed class DrawableSource: Source<Drawable> {
 
     }
 
-    private companion object {
+    companion object {
+
+        @Suppress("NOTHING_TO_INLINE")
+        inline operator fun invoke(drawable: Drawable) = Raw(drawable)
+
+        @Suppress("NOTHING_TO_INLINE")
+        inline operator fun invoke(
+            value: android.graphics.Bitmap,
+            noinline config: ((BitmapDrawable) -> Unit)? = null
+        ) = Bitmap(value, config)
+
+        @Suppress("NOTHING_TO_INLINE")
+        inline operator fun invoke(uri: android.net.Uri) = Uri(uri)
+
+        @Suppress("NOTHING_TO_INLINE")
+        inline operator fun invoke(@DrawableRes res: Int) = Res(res)
 
         fun getDrawableById(context: Context, @DrawableRes resId: Int): Drawable {
 

@@ -31,7 +31,7 @@ object ImageViewBindings: Bindings() {
 
     @JvmStatic
     @BindingAdapter("imageSource")
-    fun bindImageSource(view: ImageView, source: Source<Drawable>?) =
+    fun bindImageSource(view: ImageView, source: Source<out Drawable>?) =
         view.core.setSource(source)
 
     @JvmStatic
@@ -128,12 +128,12 @@ object ImageViewBindings: Bindings() {
         private val uriConfig by lazy { UriConfig() alsoDo {
             uriConfigInitialized = true
         } }
-        private var source: Source<Drawable>? = null
+        private var source: Source<out Drawable>? = null
 
         private var isGlideUsed = false
         private var uriConfigInitialized = false
 
-        fun setSource(source: Source<Drawable>?) {
+        fun setSource(source: Source<out Drawable>?) {
             if (source == this.source) return
             this.source = source
             notifyChanges()

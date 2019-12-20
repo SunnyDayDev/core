@@ -7,7 +7,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
-import dev.sunnyday.core.ui.source.StringSource
+import dev.sunnyday.core.ui.source.Source
 
 /**
  * Created by sunny on 04.05.2018.
@@ -18,7 +18,7 @@ object TextViewBindings: Bindings() {
 
     @JvmStatic
     @BindingAdapter("text")
-    fun bindStringSourceText(view: TextView, source: StringSource) {
+    fun bindStringSourceText(view: TextView, source: Source<out CharSequence>) {
         view.text = source.get(view.context)
     }
 

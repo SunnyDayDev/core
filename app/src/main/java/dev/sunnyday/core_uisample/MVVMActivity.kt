@@ -8,6 +8,7 @@ import dev.sunnyday.core.ui.source.DrawableSource
 import dev.sunnyday.core.mvvm.util.setContentBinding
 import dev.sunnyday.core.mvvm.viewModel.MVVMViewModel
 import dev.sunnyday.core.mvvm.viewModel.get
+import dev.sunnyday.core.ui.source.TextSource
 import dev.sunnyday.core.util.AppGlobals
 import dev.sunnyday.core_uisample.databinding.ActivityMvvmBinding
 
@@ -23,6 +24,8 @@ class MVVMActivity : dev.sunnyday.core.mvvm.MVVMActivity<ActivityMvvmBinding, MV
         val drawable: Source<Drawable> = DrawableSource.Uri(Uri.parse("android.resource://${AppGlobals.applicationContext.packageName}/drawable/ic_shape"))
         val drawable2: Source<Drawable> = DrawableSource.Uri(Uri.parse("android.resource://${AppGlobals.applicationContext.packageName}/${R.drawable.ic_shape}"))
         val drawable3: Source<Drawable> = DrawableSource.Uri(Uri.parse("https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png"))
+
+        val text: Source<CharSequence> = TextSource("Text source test")
 
     }
 
