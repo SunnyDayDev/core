@@ -2,7 +2,6 @@ package dev.sunnyday.core.propertydelegate
 
 import android.os.Bundle
 import android.os.Parcelable
-import org.parceler.Parcels
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -169,41 +168,6 @@ fun <T: Parcelable> bundleParcelable(
     override fun getValue(bundle: Bundle, name: String): T? = bundle.getParcelable(name)
 
     override fun setValue(bundle: Bundle, name: String, value: T) = bundle.putParcelable(name, value)
-
-}
-
-fun <T: Any, D: T> bundleParcels(
-    name: String? = null,
-    default: D
-) = object: BundleProperty<T>(name) {
-
-    override fun getValue(bundle: Bundle, name: String): T {
-        val parceled: Parcelable = bundle.getParcelable(name)!!
-        return Parcels.unwrap(parceled)
-    }
-
-    override fun setValue(bundle: Bundle, name: String, value: T) {
-        val parceled = Parcels.wrap(value)
-        bundle.putParcelable(name, parceled)
-    }
-
-    override fun getUnexistsValue(): T = default
-
-}
-
-fun <T: Any> bundleParcels(
-    name: String? = null
-) = object : OptionalBundleProperty<T>(name) {
-
-    override fun getValue(bundle: Bundle, name: String): T {
-        val parceled: Parcelable = bundle.getParcelable(name)!!
-        return Parcels.unwrap(parceled)
-    }
-
-    override fun setValue(bundle: Bundle, name: String, value: T) {
-        val parceled = Parcels.wrap(value)
-        bundle.putParcelable(name, parceled)
-    }
 
 }
 
