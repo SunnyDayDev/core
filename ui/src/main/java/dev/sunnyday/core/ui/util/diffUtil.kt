@@ -28,19 +28,19 @@ object ExDiffUtil {
         val callback = ListDiffUtilCallback(old, new, DiffUtilDiffer.byUniqueKey(key))
         return DiffUtil.calculateDiff(callback, detectMoves)
     }
-    
+
 }
 
 class ListDiffUtilCallback<T>(
     private val old: List<T>,
     private val new: List<T>,
     differ: DiffUtilDiffer<T> = DiffUtilDiffer.default()
-): DifferDiffUtilCallback<T>(differ) {
+) : DifferDiffUtilCallback<T>(differ) {
 
     companion object {
 
         fun <T> byUniqueKey(old: List<T>, new: List<T>, key: (T) -> Any): ListDiffUtilCallback<T> =
-                ListDiffUtilCallback(old, new, DiffUtilDiffer.byUniqueKey(key))
+            ListDiffUtilCallback(old, new, DiffUtilDiffer.byUniqueKey(key))
 
     }
 
@@ -54,7 +54,8 @@ class ListDiffUtilCallback<T>(
 
 }
 
-abstract class DifferDiffUtilCallback<T>(private val differ: DiffUtilDiffer<T>): DiffUtil.Callback() {
+abstract class DifferDiffUtilCallback<T>(private val differ: DiffUtilDiffer<T>) :
+    DiffUtil.Callback() {
 
     abstract fun getOldItem(position: Int): T
 
@@ -92,6 +93,22 @@ interface DiffUtilDiffer<T> {
 
         }
 
+        fun <T : Differable> differable(): DiffUtilDiffer<T> = object : DiffUtilDiffer<T> {
+
+            override fun areItemsTheSame(old: T, new: T) = old.isItemTheSame(new)
+
+            override fun areContentsTheSame(old: T, new: T) = old.isItemContentTheSame(new)
+
+        }
+
     }
+
+}
+
+interface Differable {
+
+    fun isItemTheSame(new: Any): Boolean
+
+    fun isItemContentTheSame(new: Any): Boolean
 
 }
