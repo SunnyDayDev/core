@@ -12,7 +12,6 @@ import timber.log.Timber
 object Bindables {
 
     private val reflectFields by lazy {
-
         val clazz = try {
             Class.forName("androidx.databinding.library.baseAdapters.BR")
         } catch (e: Throwable) {
@@ -21,7 +20,6 @@ object Bindables {
         } ?: return@lazy emptyMap<String, Int>()
 
         scanFieldsMap(clazz)
-
     }
 
     private var manualFields: Map<String, Int>? = null
@@ -33,6 +31,16 @@ object Bindables {
     private fun scanFieldsMap(clazz: Class<*>): Map<String, Int> = clazz.fields
             .filter { it.type == Int::class.javaObjectType || it.type == Int::class.javaPrimitiveType }
             .associate { it.name to it.get(null) as Int }
+
+    fun getBindablePropertyId(property: KProperty<*>): Int =
+        fieldsMap[property.name]
+            ?: fieldsMap[property.fallbackName]
+            ?: throw IllegalStateException("Unknown bindable property: $property")
+
+    private val KProperty<*>.fallbackName: String get() {
+        if (!name.startsWith("is")) return name
+        return name[2].toLowerCase() + name.substring(3)
+    }
 
 }
 
@@ -68,31 +76,9 @@ internal class BindableDelegate<in R: NotifiableObservable, T: Any?> (
 
     }
 
-    private fun getBindablePropertyId(property: KProperty<*>): Int {
-
-        val cached = cachedCheckedId
-
-        return if (cached != null) cached
-        else {
-
-            val fieldsMap = Bindables.fieldsMap
-
-            val checkedId = id
-                    ?: fieldsMap[property.name]
-                    ?: fieldsMap[property.fallbackName]
-                    ?: throw IllegalStateException("Unknown bindable property: $property")
-
-            checkedId.also { cachedCheckedId = it }
-
-        }
-
-    }
-
-    private val KProperty<*>.fallbackName: String get() {
-        if (!name.startsWith("is")) return name
-        return name[2].toLowerCase() + name.substring(3)
-    }
-
+    private fun getBindablePropertyId(property: KProperty<*>): Int =
+        id ?: cachedCheckedId ?: Bindables.getBindablePropertyId(property)
+            .also(this::cachedCheckedId::set)
 
 }
 
