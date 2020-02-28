@@ -1,7 +1,5 @@
 package dev.sunnyday.core.mvvm
 
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import android.content.Context
 import androidx.databinding.ViewDataBinding
 import android.os.Bundle
@@ -22,18 +20,17 @@ abstract class MVVMFragment<Binding: ViewDataBinding, VM: ViewModel>: CoreFragme
 
     protected abstract val viewModelVariableId: Int
 
-    protected abstract val viewModelFactory: ViewModelProvider.Factory
+    protected abstract val viewModel: VM
 
-    protected abstract fun onCreateBinding(inflater: LayoutInflater,
-                                           container: ViewGroup?,
-                                           savedInstanceState: Bundle?): Binding
-
-    protected abstract fun getViewModel(provider: ViewModelProvider): VM
+    protected abstract fun onCreateBinding(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): Binding
 
     // endregion
 
-    protected lateinit var viewModel: VM
-        private set
+    private var isNotInjected: Boolean = true
 
     @Suppress("MemberVisibilityCanBePrivate")
     protected var binding: Binding? = null
@@ -41,38 +38,38 @@ abstract class MVVMFragment<Binding: ViewDataBinding, VM: ViewModel>: CoreFragme
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        proceedInjection()
+
+        if (isNotInjected) {
+            isNotInjected = false
+            proceedInjection()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        viewModel = getViewModel(ViewModelProviders.of(this, viewModelFactory))
         onViewModelCreated(viewModel)
-
     }
 
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-
-        return onCreateBinding(inflater, container, savedInstanceState)
-                .apply {
-                    onBindViewModel()
-                    setVariable(viewModelVariableId, viewModel)
-                }
-                .also { binding = it }
-                .root
-
-    }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? =
+        onCreateBinding(inflater, container, savedInstanceState)
+            .apply {
+                onBindViewModel()
+                setVariable(viewModelVariableId, viewModel)
+            }
+            .also { binding = it }
+            .root
 
     override fun onDestroyView() {
         super.onDestroyView()
 
         binding?.unbind()
         binding = null
-        onUnbindViewModel()
 
+        onUnbindViewModel()
     }
 
     protected open fun onViewModelCreated(viewModel: VM) {
