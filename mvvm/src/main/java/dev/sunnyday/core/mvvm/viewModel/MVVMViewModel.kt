@@ -1,8 +1,10 @@
 package dev.sunnyday.core.mvvm.viewModel
 
 import androidx.annotation.CallSuper
+import androidx.databinding.Observable
+import androidx.databinding.PropertyChangeRegistry
+import androidx.databinding.library.baseAdapters.BR
 import androidx.lifecycle.ViewModel
-import dev.sunnyday.core.mvvm.observable.NotifiableBaseObservable
 import dev.sunnyday.core.mvvm.observable.NotifiableObservable
 
 /**
@@ -12,8 +14,21 @@ import dev.sunnyday.core.mvvm.observable.NotifiableObservable
 
 abstract class MVVMViewModel :
     ViewModel(),
-    NotifiableObservable by NotifiableBaseObservable(),
+    NotifiableObservable,
     Cleareable {
+
+    private val propertyChangeRegistry = PropertyChangeRegistry()
+
+    override fun removeOnPropertyChangedCallback(callback: Observable.OnPropertyChangedCallback?) =
+        propertyChangeRegistry.remove(callback)
+
+    override fun addOnPropertyChangedCallback(callback: Observable.OnPropertyChangedCallback?) =
+        propertyChangeRegistry.add(callback)
+
+    override fun notifyChange() = propertyChangeRegistry.notifyChange(this, BR._all)
+
+    override fun notifyPropertyChanged(propertyId: Int) =
+        propertyChangeRegistry.notifyChange(this, propertyId)
 
     @CallSuper
     override fun onCleared() {
