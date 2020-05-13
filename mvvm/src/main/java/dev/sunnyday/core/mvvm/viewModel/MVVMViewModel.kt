@@ -19,16 +19,21 @@ abstract class MVVMViewModel :
 
     private val propertyChangeRegistry = PropertyChangeRegistry()
 
-    override fun removeOnPropertyChangedCallback(callback: Observable.OnPropertyChangedCallback?) =
+    override fun removeOnPropertyChangedCallback(callback: Observable.OnPropertyChangedCallback?) {
         propertyChangeRegistry.remove(callback)
+    }
 
-    override fun addOnPropertyChangedCallback(callback: Observable.OnPropertyChangedCallback?) =
+    override fun addOnPropertyChangedCallback(callback: Observable.OnPropertyChangedCallback?) {
         propertyChangeRegistry.add(callback)
+    }
 
-    override fun notifyChange() = propertyChangeRegistry.notifyChange(this, BR._all)
+    override fun notifyChange() {
+        propertyChangeRegistry.notifyCallbacks(this, BR._all, null)
+    }
 
-    override fun notifyPropertyChanged(propertyId: Int) =
-        propertyChangeRegistry.notifyChange(this, propertyId)
+    override fun notifyPropertyChanged(propertyId: Int) {
+        propertyChangeRegistry.notifyCallbacks(this, propertyId, null)
+    }
 
     @CallSuper
     override fun onCleared() {
