@@ -1,7 +1,10 @@
 package dev.sunnyday.core.mvvm.viewModel
 
-import androidx.lifecycle.ViewModel
+import androidx.annotation.CallSuper
 import androidx.databinding.Observable
+import androidx.databinding.PropertyChangeRegistry
+import androidx.databinding.library.baseAdapters.BR
+import androidx.lifecycle.ViewModel
 import dev.sunnyday.core.mvvm.observable.NotifiableObservable
 
 /**
@@ -9,20 +12,30 @@ import dev.sunnyday.core.mvvm.observable.NotifiableObservable
  * mail: mail@sunnyday.dev
  */
 
-abstract class MVVMViewModel: ViewModel(), NotifiableObservable {
+abstract class MVVMViewModel :
+    ViewModel(),
+    NotifiableObservable,
+    Cleareable {
 
-    private val registry by lazy { NotifiableObservable.Registry(this) }
+    private val propertyChangeRegistry = PropertyChangeRegistry()
 
-    override fun addOnPropertyChangedCallback(callback: Observable.OnPropertyChangedCallback) =
-            registry.addOnPropertyChangedCallback(callback)
+    override fun removeOnPropertyChangedCallback(callback: Observable.OnPropertyChangedCallback?) =
+        propertyChangeRegistry.remove(callback)
 
-    override fun removeOnPropertyChangedCallback(callback: Observable.OnPropertyChangedCallback) =
-            registry.removeOnPropertyChangedCallback(callback)
+    override fun addOnPropertyChangedCallback(callback: Observable.OnPropertyChangedCallback?) =
+        propertyChangeRegistry.add(callback)
 
-    override fun notifyChange() = registry.notifyChange()
+    override fun notifyChange() = propertyChangeRegistry.notifyChange(this, BR._all)
 
-    override fun notifyPropertyChanged(fieldId: Int) = registry.notifyPropertyChanged(fieldId)
+    override fun notifyPropertyChanged(propertyId: Int) =
+        propertyChangeRegistry.notifyChange(this, propertyId)
 
-    fun <T: MVVMViewModel> T.clearViewModel() = this.onCleared()
+    @CallSuper
+    override fun onCleared() {
+        super.onCleared()
+        clear()
+    }
+
+    override fun clear() { }
 
 }
