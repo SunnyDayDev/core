@@ -1,9 +1,9 @@
 package dev.sunnyday.core.mvvm.observable
 
 import androidx.databinding.Bindable
-import dev.sunnyday.core.mvvm.util.addOnPropertyChangedCallback
+import dev.sunnyday.core.mvvm.BRTest
 import dev.sunnyday.core.mvvm.viewModel.MVVMViewModel
-import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
 
 /**
@@ -11,21 +11,18 @@ import org.junit.Test
  * mail: mail@sunnydaydev.me
  */
 
+
 class BindableDelegateKtTest {
 
     companion object {
 
-        private const val ID_VALUE = 1001
         private const val CUSTOM_ID_VALUE = -1001
 
-    }
-
-    @Before
-    fun prepare() {
-
-        Bindables.fieldsMap = mapOf(
-            "value" to ID_VALUE
-        )
+        @BeforeClass
+        @JvmStatic
+        fun setup() {
+            Bindables.bindingAdapterIdsClass = BRTest::class
+        }
 
     }
 
@@ -37,7 +34,7 @@ class BindableDelegateKtTest {
         var nofitied = false
         tester.addOnPropertyChangedCallback { _, id ->
             when(id) {
-                ID_VALUE -> nofitied = true
+                BRTest.value -> nofitied = true
             }
         }
 
@@ -55,7 +52,7 @@ class BindableDelegateKtTest {
         var nofitied = false
         tester.addOnPropertyChangedCallback { _, id ->
             when(id) {
-                ID_VALUE -> nofitied = true
+                BRTest.value -> nofitied = true
             }
         }
 
@@ -73,7 +70,7 @@ class BindableDelegateKtTest {
         var nofitied = false
         tester.addOnPropertyChangedCallback { _, id ->
             when(id) {
-                ID_VALUE -> nofitied = true
+                BRTest.value -> nofitied = true
             }
         }
 

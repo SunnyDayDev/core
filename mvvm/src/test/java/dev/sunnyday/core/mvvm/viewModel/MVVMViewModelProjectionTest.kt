@@ -2,12 +2,13 @@ package dev.sunnyday.core.mvvm.viewModel
 
 import androidx.databinding.Bindable
 import androidx.databinding.Observable
+import dev.sunnyday.core.mvvm.BRTest
 import dev.sunnyday.core.mvvm.observable.Bindables
 import dev.sunnyday.core.mvvm.observable.bindable
 import org.junit.Assert.*
 import org.junit.Before
-import org.junit.Test
 import org.junit.BeforeClass
+import org.junit.Test
 
 
 class MVVMViewModelProjectionTest {
@@ -17,12 +18,7 @@ class MVVMViewModelProjectionTest {
         @BeforeClass
         @JvmStatic
         fun setup() {
-            Bindables.fieldsMap = mapOf(
-                "value" to 1,
-                "variable" to 2,
-                "projectedVariable" to 3,
-                "projectedValue" to 4
-            )
+            Bindables.bindingAdapterIdsClass = BRTest::class
         }
 
     }
@@ -58,7 +54,7 @@ class MVVMViewModelProjectionTest {
 
         val callback = object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                if (propertyId == Bindables.fieldsMap["projectedVariable"]) {
+                if (propertyId == BRTest.projectedVariable) {
                     notified = true
                 }
             }
@@ -77,7 +73,7 @@ class MVVMViewModelProjectionTest {
 
         val callback = object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                if (propertyId == Bindables.fieldsMap["variable"]) {
+                if (propertyId == BRTest.variable) {
                     notified = true
                 }
             }
