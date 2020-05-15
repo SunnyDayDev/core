@@ -1,8 +1,10 @@
 package dev.sunnyday.core.mvvm.observable
 
+import androidx.databinding.library.baseAdapters.BR
+import java.lang.reflect.Modifier
 import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
-import timber.log.Timber
 
 /**
  * Created by sunny on 28.04.2018.
@@ -11,36 +13,23 @@ import timber.log.Timber
 
 object Bindables {
 
-    private val reflectFields by lazy {
-        val clazz = try {
-            Class.forName("androidx.databinding.library.baseAdapters.BR")
-        } catch (e: Throwable) {
-            Timber.e(e)
-            null
-        } ?: return@lazy emptyMap<String, Int>()
+    internal var bindingAdapterIdsClass: KClass<*>? = null
 
-        scanFieldsMap(clazz)
+    private val nameToIdMap by lazy {
+        scanFieldsMap(bindingAdapterIdsClass?.java ?: BR::class.java)
     }
 
-    private var manualFields: Map<String, Int>? = null
-
-    var fieldsMap: Map<String, Int>
-        get() = manualFields ?: reflectFields
-        set(value) {
-            manualFields = value
-        }
-
-    private fun scanFieldsMap(clazz: Class<*>): Map<String, Int> = clazz.fields
-        .filter { it.type == Int::class.javaObjectType || it.type == Int::class.javaPrimitiveType }
-        .associate { it.name to it.get(null) as Int }
-
     fun getBindablePropertyId(property: KProperty<*>): Int {
-        val fieldsMap = this.fieldsMap
+        val fieldsMap = nameToIdMap
 
         return fieldsMap[property.name]
             ?: fieldsMap[property.fallbackName]
-            ?: throw IllegalStateException("Unknown bindable property: $property")
+            ?: throw IllegalStateException("Unknown bindable property: ${property.name}")
     }
+
+    private fun scanFieldsMap(clazz: Class<*>): Map<String, Int> = clazz.fields
+        .filter { Modifier.isStatic(it.modifiers) && it.type == Int::class.javaPrimitiveType }
+        .associate { it.name to it.get(null) as Int }
 
     private val KProperty<*>.fallbackName: String
         get() {
@@ -49,6 +38,8 @@ object Bindables {
         }
 
 }
+
+fun KProperty<*>.getBindablePropertyId(): Int = Bindables.getBindablePropertyId(this)
 
 internal class BindableDelegate<in R : Notifiable, T : Any?>(
     private var value: T,
@@ -81,7 +72,7 @@ internal class BindableDelegate<in R : Notifiable, T : Any?>(
         id ?: cachedCheckedId ?: resolveBindablePropertyId(property)
 
     private fun resolveBindablePropertyId(property: KProperty<*>): Int =
-        Bindables.getBindablePropertyId(property)
+        property.getBindablePropertyId()
             .also(this::cachedCheckedId::set)
 
 }
