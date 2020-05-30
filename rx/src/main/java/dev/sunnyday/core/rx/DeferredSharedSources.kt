@@ -85,7 +85,10 @@ class DeferredSharedSources {
                     singles.remove(key)
                 }
             }
-            .cache()
+            .toObservable()
+            .replay(1)
+            .refCount()
+            .firstOrError()
 
         singles[key] = late.value
 
@@ -109,7 +112,10 @@ class DeferredSharedSources {
                     maybes.remove(key)
                 }
             }
-            .cache()
+            .toObservable()
+            .replay(1)
+            .refCount()
+            .firstElement()
 
         maybes[key] = late.value
 
@@ -134,7 +140,10 @@ class DeferredSharedSources {
                     completables.remove(key)
                 }
             }
-            .cache()
+            .toObservable<Unit>()
+            .replay(1)
+            .refCount()
+            .ignoreElements()
 
         completables[key] = late.value
 
