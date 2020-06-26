@@ -69,6 +69,8 @@ interface RequestPermissionInteractor {
 
     fun waitPermissionCheck(request: PermissionRequest): Single<Boolean>
 
+    fun checkShouldShowRationale(request: PermissionRequest): Single<Boolean>
+
 }
 
 
@@ -94,6 +96,18 @@ class DefaultRequestPermissionInteractor(
     private val permissionCheckEvent: Subject<PermissionResultEvent> = PublishSubject.create()
 
     private val activeRequestPermissions = mutableListOf<Int>()
+
+
+    override fun checkShouldShowRationale(request: PermissionRequest): Single<Boolean> =
+        activityTracker.lastResumedActivity
+            .firstOrError()
+            .map { (activity) ->
+                activity ?: throw RequestPermissionInteractorError.ActivityNotStarted()
+
+                request.permissions.any { permission ->
+                    ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)
+                }
+            }
 
     override fun requestPermissionIfNot(request: PermissionRequest): Completable =
             checkPermission(request).flatMapCompletable { granted ->
