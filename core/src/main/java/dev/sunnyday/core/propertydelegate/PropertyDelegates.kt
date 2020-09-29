@@ -3,7 +3,6 @@ package dev.sunnyday.core.propertydelegate
 import dev.sunnyday.core.util.ReferenceWrapper
 import dev.sunnyday.core.util.Soft
 import dev.sunnyday.core.util.Weak
-import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 

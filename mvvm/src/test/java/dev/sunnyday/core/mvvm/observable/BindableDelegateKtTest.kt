@@ -5,6 +5,7 @@ import dev.sunnyday.core.mvvm.BRTest
 import dev.sunnyday.core.mvvm.viewModel.MVVMViewModel
 import org.junit.BeforeClass
 import org.junit.Test
+import org.junit.Assert.*
 
 /**
  * Created by Aleksandr Tcikin (SunnyDay.Dev) on 2019-05-19.
@@ -16,8 +17,6 @@ class BindableDelegateKtTest {
 
     companion object {
 
-        private const val CUSTOM_ID_VALUE = -1001
-
         @BeforeClass
         @JvmStatic
         fun setup() {
@@ -27,92 +26,80 @@ class BindableDelegateKtTest {
     }
 
     @Test
-    fun testBindableNotifyChanges() {
+    fun `update of origin properly handled in the delegated field and notified`() {
+        val originViewModel = OriginalViewModel()
+        val delegatedViewModel = ReadOnlyDelegatedViewModel(originViewModel)
 
-        val tester = InitialFalse()
+        assertEquals(0, delegatedViewModel.delegated)
+        assertEquals(0, originViewModel.original)
 
-        var nofitied = false
-        tester.addOnPropertyChangedCallback { _, id ->
-            when(id) {
-                BRTest.value -> nofitied = true
-            }
+        var isOriginNotified = false
+        var isDelegatedNotified = false
+
+        originViewModel.addOnPropertyChangedCallback(originViewModel::original) {
+            isOriginNotified = true
         }
 
-        tester.value = true
+        delegatedViewModel.addOnPropertyChangedCallback(listOf(delegatedViewModel::delegated)) {
+            isDelegatedNotified = true
+        }
 
-        assert(nofitied)
+        originViewModel.original = 3
 
+
+        assertEquals(3, delegatedViewModel.delegated)
+        assertEquals(3, originViewModel.original)
+
+        assertTrue(isOriginNotified)
+        assertTrue(isDelegatedNotified)
     }
 
     @Test
-    fun testBindableByDefaultNotifyOnlyIfChanged() {
+    fun `set to the delegated properly update the origin and notify delegated and origin`() {
+        val originViewModel = OriginalViewModel()
+        val delegatedViewModel = ReadWriteDelegatedViewModel(originViewModel)
 
-        val tester = InitialFalse()
+        assertEquals(0, delegatedViewModel.delegated)
+        assertEquals(0, originViewModel.original)
 
-        var nofitied = false
-        tester.addOnPropertyChangedCallback { _, id ->
-            when(id) {
-                BRTest.value -> nofitied = true
-            }
+        var isOriginNotified = false
+        var isDelegatedNotified = false
+
+        originViewModel.addOnPropertyChangedCallback(originViewModel::original) {
+            isOriginNotified = true
         }
 
-        tester.value = false
-
-        assert(!nofitied)
-
-    }
-
-    @Test
-    fun testBindableNotifyChangesAlwaysIfSet() {
-
-        val tester = InitialFalseNotifyAlways()
-
-        var nofitied = false
-        tester.addOnPropertyChangedCallback { _, id ->
-            when(id) {
-                BRTest.value -> nofitied = true
-            }
+        delegatedViewModel.addOnPropertyChangedCallback(delegatedViewModel::delegated) {
+            isDelegatedNotified = true
         }
 
-        tester.value = false
+        delegatedViewModel.delegated = 3
 
-        assert(nofitied)
+        assertEquals(3, originViewModel.original)
+        assertEquals(3, delegatedViewModel.delegated)
+
+        assertTrue(isOriginNotified)
+        assertTrue(isDelegatedNotified)
+    }
+
+    private class OriginalViewModel: MVVMViewModel() {
+
+        @get:Bindable
+        var original by bindable(0)
 
     }
 
-    @Test
-    fun testBindableNotifyCustomIdIfSet() {
+    private class ReadWriteDelegatedViewModel(originalViewModel: OriginalViewModel): MVVMViewModel() {
 
-        val tester = CustomId()
-
-        var nofitied = false
-        tester.addOnPropertyChangedCallback { _, id ->
-            when(id) {
-                CUSTOM_ID_VALUE -> nofitied = true
-            }
-        }
-
-        tester.value = false
-
-        assert(nofitied)
+        @get:Bindable
+        var delegated by originalViewModel.bindableDelegate { it::original }
 
     }
 
-    class InitialFalse: MVVMViewModel() {
+    private class ReadOnlyDelegatedViewModel(originalViewModel: OriginalViewModel): MVVMViewModel() {
 
-        @get:Bindable var value by bindable(false)
-
-    }
-
-    class InitialFalseNotifyAlways: MVVMViewModel() {
-
-        @get:Bindable var value by bindable(false, notifyOnlyIfChanged = false)
-
-    }
-
-    class CustomId: MVVMViewModel() {
-
-        @get:Bindable var value by bindable(false, id = CUSTOM_ID_VALUE, notifyOnlyIfChanged = false)
+        @get:Bindable
+        val delegated by originalViewModel.bindableGetDelegate { it::original }
 
     }
 

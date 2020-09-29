@@ -3,12 +3,12 @@ package dev.sunnyday.core_uisample
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.util.Log
 import androidx.databinding.Bindable
 import androidx.lifecycle.ViewModelProvider
 import dev.sunnyday.core.mvvm.observable.addOnPropertyChangedCallback
 import dev.sunnyday.core.mvvm.observable.bindable
 import dev.sunnyday.core.mvvm.observable.getBindablePropertyId
+import dev.sunnyday.core.mvvm.observable.bindableDelegate
 import dev.sunnyday.core.ui.source.Source
 import dev.sunnyday.core.ui.source.DrawableSource
 import dev.sunnyday.core.mvvm.util.setContentBinding
@@ -33,12 +33,15 @@ class MVVMActivity : dev.sunnyday.core.mvvm.MVVMActivity<ActivityMvvmBinding, MV
 
     class ViewModel: MVVMViewModel() {
 
+        private val subViewModel = SubViewModel()
+
         val drawable: Source<Drawable> = DrawableSource.Uri(Uri.parse("android.resource://${AppGlobals.applicationContext.packageName}/drawable/ic_shape"))
         val drawable2: Source<Drawable> = DrawableSource.Uri(Uri.parse("android.resource://${AppGlobals.applicationContext.packageName}/${R.drawable.ic_shape}"))
         val drawable3: Source<Drawable> = DrawableSource.Uri(Uri.parse("https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png"))
 
         @get:Bindable
-        var text: Source<CharSequence> by bindable(TextSource("Text source test"))
+        var text: Source<CharSequence>
+            by subViewModel.bindableDelegate { it::delegatedText }
             private set
 
         @get:Bindable
@@ -72,6 +75,13 @@ class MVVMActivity : dev.sunnyday.core.mvvm.MVVMActivity<ActivityMvvmBinding, MV
         override fun clear() {
             super.clear()
             dispose.clear()
+        }
+
+        private class SubViewModel: MVVMViewModel() {
+
+            @get:Bindable
+            var delegatedText: Source<CharSequence> by bindable(TextSource("Text source test"))
+
         }
 
     }
