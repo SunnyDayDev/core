@@ -2,7 +2,6 @@ package dev.sunnyday.core.mvvm
 
 import android.content.Context
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.databinding.ViewDataBinding
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -49,7 +48,7 @@ abstract class MVVMBottomSheetDialogFragment<Binding: ViewDataBinding, VM: ViewM
     }
 
     protected open fun onViewModelCreate(savedInstanceState: Bundle?) {
-        viewModel = getViewModel(ViewModelProviders.of(this, viewModelFactory))
+        viewModel = getViewModel(ViewModelProvider(this, viewModelFactory))
         onViewModelCreated(viewModel)
     }
 

@@ -1,12 +1,10 @@
 package dev.sunnyday.core.mvvm.observable
 
 import androidx.databinding.Observable
-import androidx.databinding.library.baseAdapters.BR
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import dev.sunnyday.core.propertydelegate.weak
 import dev.sunnyday.core.ui.lifecycle.addScopeObserver
-import dev.sunnyday.core.util.Weak
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 
@@ -32,7 +30,7 @@ inline fun <reified T: Observable> T.addOnPropertyChangedCallback(
         .toIntArray()
 
     return addOnPropertyChangedCallback(
-        propertiesIds = *ids
+        propertiesIds = ids
     ) { sender, _ ->
         callback(sender)
     }
@@ -45,7 +43,7 @@ inline fun <reified T: Observable> T.addOnPropertyChangedCallback(
     val observableCallback =
         LambdaOnPropertyChangedCallback(this) { sender, propertyId ->
             if (
-                propertyId == BR._all ||
+                propertyId == 0 || // 0 is BR._all
                 propertiesIds.isEmpty() ||
                 propertiesIds.contains(propertyId)
             ) {

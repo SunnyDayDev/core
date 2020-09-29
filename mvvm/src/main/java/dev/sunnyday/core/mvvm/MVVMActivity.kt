@@ -1,7 +1,6 @@
 package dev.sunnyday.core.mvvm
 
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.databinding.ViewDataBinding
 import android.os.Bundle
 import androidx.lifecycle.ViewModel
@@ -39,20 +38,16 @@ abstract class MVVMActivity<Binding: ViewDataBinding, VM: ViewModel>: CoreActivi
     }
 
     protected open fun onViewModelCreate(savedInstanceState: Bundle?) {
-
-        viewModel = getViewModel(ViewModelProviders.of(this, viewModelFactory))
+        viewModel = getViewModel(ViewModelProvider(this, viewModelFactory))
 
         with(viewModel) {
-
             binding.setVariable(viewModelVariableId, this)
             if (this is OnBackPressedListener) {
                 onBackPressedRegistry.add(this)
             }
 
             onViewModelCreated(this)
-
         }
-
     }
 
     protected fun onViewModelCreated(viewModel: VM) {
