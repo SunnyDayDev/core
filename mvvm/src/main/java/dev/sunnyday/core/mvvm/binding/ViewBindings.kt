@@ -1,5 +1,6 @@
 package dev.sunnyday.core.mvvm.binding
 
+import android.annotation.SuppressLint
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.TransitionDrawable
 import android.os.Build
@@ -37,10 +38,7 @@ object ViewBindings: Bindings() {
     @JvmStatic
     @BindingAdapter(value = ["focused", "focusedAttrChanged"], requireAll = false)
     fun bindFocused(view: View, focused: Boolean, inverse: InverseBindingListener?) {
-
-        // TODO: ListenerUtil.setListenerAndGetPrevious(...)
-
-        view.onFocusChangeListener = null
+        view.focusBinding.focusInverseBindingListener = null
 
         if (focused != view.isFocused) {
             if (focused) {
@@ -51,9 +49,8 @@ object ViewBindings: Bindings() {
         }
 
         if (inverse != null) {
-            view.setOnFocusChangeListener { _, _ -> inverse.onChange() }
+            view.focusBinding.focusInverseBindingListener = inverse
         }
-
     }
 
     @JvmStatic
@@ -65,7 +62,6 @@ object ViewBindings: Bindings() {
         focus.handle(target) {
             view.requestFocus()
         }
-
     }
 
     @JvmStatic
@@ -73,6 +69,36 @@ object ViewBindings: Bindings() {
     fun bindFocusPureCommand(view: View, focus: Command<Unit>?) {
         focus ?: return
         focus.handle { view.requestFocus() }
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["onFocusChange"])
+    fun bindOnFocus(view: View, onFocusChange: OnFocusChangeListener?) {
+        view.focusBinding.onFocusChangeListener = onFocusChange
+    }
+
+    private val View.focusBinding: FocusBinding
+        get() = getOrSetListener(R.id.binding_view_focus) {
+            FocusBinding()
+                .also(this::setOnFocusChangeListener)
+        }
+
+    class FocusBinding: View.OnFocusChangeListener {
+
+        internal var onFocusChangeListener: OnFocusChangeListener? = null
+        internal var focusInverseBindingListener: InverseBindingListener? = null
+
+        override fun onFocusChange(v: View, hasFocus: Boolean) {
+            focusInverseBindingListener?.onChange()
+            onFocusChangeListener?.onFocusChange(hasFocus)
+        }
+
+    }
+
+    interface OnFocusChangeListener {
+
+        fun onFocusChange(hasFocus: Boolean)
+
     }
 
     // endregion
@@ -89,6 +115,7 @@ object ViewBindings: Bindings() {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @JvmStatic
     @BindingAdapter(value = ["onTouch", "touchActionsFilter"], requireAll = false)
     fun onTouch(view: View, onTouchListener: OnTouchListener?, filter: List<Int>?) = when {
