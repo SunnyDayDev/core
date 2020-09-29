@@ -1,5 +1,6 @@
 package dev.sunnyday.core_uisample
 
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.Log
@@ -27,7 +28,7 @@ class MVVMActivity : dev.sunnyday.core.mvvm.MVVMActivity<ActivityMvvmBinding, MV
 
     override val viewModelFactory: ViewModelProvider.Factory = ViewModelProvider.NewInstanceFactory()
     override val viewModelVariableId: Int = BR.vm
-    override val binding: ActivityMvvmBinding by lazy { setContentBinding<ActivityMvvmBinding>(R.layout.activity_mvvm) }
+    override val binding: ActivityMvvmBinding by lazy { setContentBinding(R.layout.activity_mvvm) }
     override fun getViewModel(provider: ViewModelProvider): MVVMViewModel = provider[ViewModel::class]
 
     class ViewModel: MVVMViewModel() {
@@ -43,6 +44,15 @@ class MVVMActivity : dev.sunnyday.core.mvvm.MVVMActivity<ActivityMvvmBinding, MV
         @get:Bindable
         var tick: String by bindable("0")
             private set
+
+        @get:Bindable
+        var tickColor: Int by bindable(Color.BLACK)
+
+        fun onFocusChange(hasFocus: Boolean) {
+            tickColor =
+                if (hasFocus) Color.RED
+                else Color.BLACK
+        }
 
         private val dispose = CompositeDisposable()
 

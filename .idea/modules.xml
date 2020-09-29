@@ -2,15 +2,15 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/SDD-CoreKit-SDDKit.iml" filepath="$PROJECT_DIR$/SDD-CoreKit-SDDKit.iml" group="SDDKit" />
-      <module fileurl="file://$PROJECT_DIR$/app/SDD-CoreKit-app.iml" filepath="$PROJECT_DIR$/app/SDD-CoreKit-app.iml" group="SDDKit/app" />
-      <module fileurl="file://$PROJECT_DIR$/core/SDD-CoreKit-core.iml" filepath="$PROJECT_DIR$/core/SDD-CoreKit-core.iml" group="SDDKit/core" />
-      <module fileurl="file://$PROJECT_DIR$/dagger-extra/SDD-CoreKit-dagger-extra.iml" filepath="$PROJECT_DIR$/dagger-extra/SDD-CoreKit-dagger-extra.iml" group="SDDKit/dagger-extra" />
-      <module fileurl="file://$PROJECT_DIR$/mvi-spotify/SDD-CoreKit-mvi-spotify.iml" filepath="$PROJECT_DIR$/mvi-spotify/SDD-CoreKit-mvi-spotify.iml" group="SDDKit/mvi-spotify" />
-      <module fileurl="file://$PROJECT_DIR$/mvvm/SDD-CoreKit-mvvm.iml" filepath="$PROJECT_DIR$/mvvm/SDD-CoreKit-mvvm.iml" group="SDDKit/mvvm" />
-      <module fileurl="file://$PROJECT_DIR$/rx/SDD-CoreKit-rx.iml" filepath="$PROJECT_DIR$/rx/SDD-CoreKit-rx.iml" group="SDDKit/rx" />
-      <module fileurl="file://$PROJECT_DIR$/rx-ui/SDD-CoreKit-rx-ui.iml" filepath="$PROJECT_DIR$/rx-ui/SDD-CoreKit-rx-ui.iml" group="SDDKit/rx-ui" />
-      <module fileurl="file://$PROJECT_DIR$/ui/SDD-CoreKit-ui.iml" filepath="$PROJECT_DIR$/ui/SDD-CoreKit-ui.iml" group="SDDKit/ui" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SDDKit.iml" filepath="$PROJECT_DIR$/.idea/modules/SDDKit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/SDDKit.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/SDDKit.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/SDDKit.core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/SDDKit.core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dagger-extra/SDDKit.dagger-extra.iml" filepath="$PROJECT_DIR$/.idea/modules/dagger-extra/SDDKit.dagger-extra.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mvi-spotify/SDDKit.mvi-spotify.iml" filepath="$PROJECT_DIR$/.idea/modules/mvi-spotify/SDDKit.mvi-spotify.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mvvm/SDDKit.mvvm.iml" filepath="$PROJECT_DIR$/.idea/modules/mvvm/SDDKit.mvvm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rx/SDDKit.rx.iml" filepath="$PROJECT_DIR$/.idea/modules/rx/SDDKit.rx.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rx-ui/SDDKit.rx-ui.iml" filepath="$PROJECT_DIR$/.idea/modules/rx-ui/SDDKit.rx-ui.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ui/SDDKit.ui.iml" filepath="$PROJECT_DIR$/.idea/modules/ui/SDDKit.ui.iml" />
     </modules>
   </component>
 </project>

@@ -77,15 +77,34 @@
             app:layout_constraintTop_toBottomOf="@id/imageView4"/>
 
         <TextView
+            android:id="@+id/tick"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:text="@{vm.tick}"
+            app:textColor="@{vm.tickColor}"
             android:layout_marginTop="16dp"
             app:layout_constrainedWidth="true"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/text"/>
 
+        <EditText
+            android:id="@+id/focusTest"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:onFocusChange="@{vm::onFocusChange}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tick"/>
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/focusTest"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
