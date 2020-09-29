@@ -15,9 +15,5 @@ fun <O, T> propertyOf(owner: O, prop: ReadWriteProperty<O, T>) = object :
 
 }
 
-fun <O, T> propertyOf(owner: O, prop: ReadOnlyProperty<O, T>) = object :
-    ReadOnlyProperty<Any, T> {
-
-    override fun getValue(thisRef: Any, property: KProperty<*>): T = prop.getValue(owner, property)
-
-}
+fun <O, T> propertyOf(owner: O, prop: ReadOnlyProperty<O, T>) =
+    ReadOnlyProperty<Any, T> { _, property -> prop.getValue(owner, property) }

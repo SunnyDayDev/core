@@ -16,7 +16,10 @@ class BRTest {
         val projectedVariable = 3
 
         @JvmField
-        val projectedValue = 3
+        val original = 4
+
+        @JvmField
+        val delegated = 5
 
     }
 

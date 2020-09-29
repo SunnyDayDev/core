@@ -1,7 +1,6 @@
 package dev.sunnyday.core.mvvm
 
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.databinding.ViewDataBinding
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
@@ -49,17 +48,13 @@ abstract class MVVMBottomSheetDialog<Binding: ViewDataBinding, VM: ViewModel>: B
     }
 
     protected open fun onViewModelCreate(savedInstanceState: Bundle?) {
-
-        viewModel = getViewModel(ViewModelProviders.of(activity, viewModelFactory))
+        viewModel = getViewModel(ViewModelProvider(activity, viewModelFactory))
 
         with(viewModel) {
-
             binding.setVariable(viewModelVariableId, this)
 
             onViewModelCreated(this)
-
         }
-
     }
 
     protected inline fun <reified T: ViewDataBinding>setContentBinding(layoutId: Int): T {

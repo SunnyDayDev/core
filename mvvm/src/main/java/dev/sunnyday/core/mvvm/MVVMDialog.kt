@@ -2,7 +2,6 @@ package dev.sunnyday.core.mvvm
 
 import android.app.Dialog
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.databinding.ViewDataBinding
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
@@ -50,7 +49,7 @@ abstract class MVVMDialog<Binding: ViewDataBinding, VM: ViewModel>: Dialog  {
 
     protected open fun onViewModelCreate(savedInstanceState: Bundle?) {
 
-        viewModel = getViewModel(ViewModelProviders.of(activity, viewModelFactory))
+        viewModel = getViewModel(ViewModelProvider(activity, viewModelFactory))
 
         binding.setVariable(viewModelVariableId, viewModel)
         onViewModelCreated(viewModel)

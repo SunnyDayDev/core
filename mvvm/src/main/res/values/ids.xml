@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <item name="binding_view_focused" type="id"/>
+    <item name="binding_view_focus" type="id"/>
     <item name="binding_view_on_bind" type="id"/>
 
     <item name="binding_recyclerview_adapter_core" type="id"/>

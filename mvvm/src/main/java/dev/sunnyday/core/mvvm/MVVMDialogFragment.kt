@@ -1,8 +1,6 @@
 package dev.sunnyday.core.mvvm
 
-import android.app.Dialog
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import android.content.Context
 import androidx.databinding.ViewDataBinding
 import android.os.Bundle
@@ -47,7 +45,7 @@ abstract class MVVMDialogFragment<Binding: ViewDataBinding, VM: ViewModel>: Core
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel = getViewModel(ViewModelProviders.of(this, viewModelFactory))
+        viewModel = getViewModel(ViewModelProvider(this, viewModelFactory))
         onViewModelCreated(viewModel)
 
     }

@@ -50,13 +50,13 @@ object WebViewBindings: Bindings() {
 
     @JvmStatic
     @BindingAdapter("webViewClient")
-    fun bindWebViewClient(view: WebView, client: WebViewClient?) {
+    fun bindWebViewClient(view: WebView, client: WebViewClient) {
         view.webViewClient = client
     }
 
     @JvmStatic
     @BindingAdapter("webChromeClient")
-    fun bindWebChromeClient(view: WebView, client: WebChromeClient?) {
+    fun bindWebChromeClient(view: WebView, client: WebChromeClient) {
         view.webChromeClient = client
     }
 
@@ -112,7 +112,7 @@ object WebViewBindings: Bindings() {
                 }
 
                 withClearingCheck {
-                    view.loadUrl(url.url, url.headers)
+                    view.loadUrl(url.url, url.headers ?: emptyMap())
                 }
 
                 ListenerUtil.trackListener(view, url, R.id.binding_webview_url)
