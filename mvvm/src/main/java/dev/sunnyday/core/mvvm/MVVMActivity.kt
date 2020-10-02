@@ -38,16 +38,15 @@ abstract class MVVMActivity<Binding: ViewDataBinding, VM: ViewModel>: CoreActivi
     }
 
     protected open fun onViewModelCreate(savedInstanceState: Bundle?) {
-        viewModel = getViewModel(ViewModelProvider(this, viewModelFactory))
+        val viewModel = getViewModel(ViewModelProvider(this, viewModelFactory))
+            .also { this.viewModel = it }
 
-        with(viewModel) {
-            binding.setVariable(viewModelVariableId, this)
-            if (this is OnBackPressedListener) {
-                onBackPressedRegistry.add(this)
-            }
-
-            onViewModelCreated(this)
+        binding.setVariable(viewModelVariableId, viewModel)
+        if (viewModel is OnBackPressedListener) {
+            onBackPressedRegistry.add(viewModel)
         }
+
+        onViewModelCreated(viewModel)
     }
 
     protected fun onViewModelCreated(viewModel: VM) {
@@ -64,12 +63,12 @@ abstract class MVVMActivity<Binding: ViewDataBinding, VM: ViewModel>: CoreActivi
         super.onDestroy()
         binding.unbind()
 
-        with(viewModel) {
-            if (this is OnBackPressedListener) {
-                onBackPressedRegistry.remove(this)
+        if (::viewModel.isInitialized) {
+            val viewModel = this.viewModel
+            if (viewModel is OnBackPressedListener) {
+                onBackPressedRegistry.remove(viewModel)
             }
         }
-
     }
 
 }

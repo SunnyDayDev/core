@@ -72,8 +72,8 @@ class MVVMActivity : dev.sunnyday.core.mvvm.MVVMActivity<ActivityMvvmBinding, MV
             }
         }
 
-        override fun clear() {
-            super.clear()
+        override fun clean() {
+            super.clean()
             dispose.clear()
         }
 

@@ -1,7 +1,7 @@
 package dev.sunnyday.core.mvvm.viewModel
 
-interface Cleareable {
+interface Cleanable {
 
-    fun clear()
+    fun clean()
 
 }

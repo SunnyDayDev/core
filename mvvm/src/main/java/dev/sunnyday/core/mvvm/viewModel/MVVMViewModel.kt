@@ -15,7 +15,7 @@ import dev.sunnyday.core.mvvm.observable.NotifiableObservable
 abstract class MVVMViewModel :
     ViewModel(),
     NotifiableObservable,
-    Cleareable {
+    Cleanable {
 
     private val propertyChangeRegistry = PropertyChangeRegistry()
 
@@ -38,9 +38,9 @@ abstract class MVVMViewModel :
     @CallSuper
     override fun onCleared() {
         super.onCleared()
-        clear()
+        clean()
     }
 
-    override fun clear() { }
+    override fun clean() { }
 
 }
